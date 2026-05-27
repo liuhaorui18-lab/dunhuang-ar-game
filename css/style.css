@@ -138,6 +138,7 @@ html, body {
 .scan-frame {
   position: fixed; inset: 0; z-index: 30;
   display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
 }
 .scan-corners {
   width: 70vw; height: 40vh;
@@ -176,6 +177,7 @@ html, body {
   position: fixed; bottom: 12%; left: 50%; transform: translateX(-50%);
   opacity: 0; pointer-events: none;
   transition: opacity 0.5s;
+  z-index: 50;
 }
 .scan-tap-btn.visible { opacity: 1; pointer-events: all; }
 
@@ -576,6 +578,7 @@ html, body {
   position: fixed; inset: 0; z-index: 30;
   pointer-events: none;
 }
+
 .scanline {
   position: absolute; left: 0; right: 0; height: 3px;
   background: linear-gradient(90deg, transparent, var(--prog-primary), transparent);
