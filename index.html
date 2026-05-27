@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>敦煌 · 数字困境</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { overflow: hidden; background: #000; }
+    .index-bg {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at 30% 70%, #1f0d00 0%, #0a0510 50%, #000 100%);
+    }
+    canvas#particles { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+    .index-content {
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh; padding: 60px 24px 40px;
+    }
+    .top-deco { font-size: 11px; letter-spacing: 0.2em; opacity: 0.35; margin-bottom: 32px; }
+    .game-title { font-size: 32px; font-weight: 700; letter-spacing: 0.08em; text-align: center; margin-bottom: 4px; }
+    .title-zh { color: #fff; }
+    .title-sub { font-size: 13px; letter-spacing: 0.18em; opacity: 0.4; text-align: center; margin-bottom: 12px; }
+    .slogan { font-size: 13px; opacity: 0.55; font-style: italic; text-align: center; line-height: 1.7; margin-bottom: 44px; padding: 0 16px; }
+    .char-cards { display: flex; gap: 14px; width: 100%; max-width: 440px; margin-bottom: 40px; }
+    .char-card {
+      flex: 1; border-radius: 14px; padding: 22px 14px 18px;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid; position: relative; overflow: hidden;
+    }
+    .char-card::before {
+      content: ''; position: absolute; inset: 0;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .arch-card { background: rgba(200,134,10,0.06); border-color: rgba(200,134,10,0.3); }
+    .arch-card::before { background: radial-gradient(ellipse at 50% 0%, rgba(200,134,10,0.2), transparent 70%); }
+    .arch-card.selected, .arch-card:active { box-shadow: 0 0 32px rgba(200,134,10,0.5); border-color: #C8860A; }
+    .arch-card.selected::before { opacity: 1; }
+    .prog-card { background: rgba(0,212,255,0.04); border-color: rgba(0,212,255,0.25); }
+    .prog-card::before { background: radial-gradient(ellipse at 50% 0%, rgba(0,212,255,0.15), transparent 70%); }
+    .prog-card.selected, .prog-card:active { box-shadow: 0 0 32px rgba(0,212,255,0.4); border-color: #00D4FF; }
+    .prog-card.selected::before { opacity: 1; }
+    .char-icon { font-size: 44px; filter: drop-shadow(0 0 8px currentColor); }
+    .arch-icon-wrap { color: #C8860A; }
+    .prog-icon-wrap { color: #00D4FF; }
+    .char-name { font-size: 15px; font-weight: 700; }
+    .char-name.arch { color: #D4A853; }
+    .char-name.prog { color: #00D4FF; }
+    .char-traits { font-size: 11px; opacity: 0.5; text-align: center; line-height: 1.65; }
+    .char-tag {
+      font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; letter-spacing: 0.05em;
+    }
+    .arch-tag { background: rgba(200,134,10,0.15); color: #D4A853; border: 1px solid rgba(200,134,10,0.3); }
+    .prog-tag { background: rgba(0,212,255,0.1); color: #00D4FF; border: 1px solid rgba(0,212,255,0.25); }
+    .start-area { width: 100%; max-width: 280px; }
+    .start-btn {
+      width: 100%; padding: 16px; font-size: 17px; font-weight: 700;
+      border-radius: 8px; border: none; cursor: pointer;
+      letter-spacing: 0.1em; transition: all 0.25s;
+    }
+    .start-btn:disabled { opacity: 0.25; pointer-events: none; }
+    .start-btn.arch { background: linear-gradient(135deg, #C8860A, #D4A853); color: #1a0a00; box-shadow: 0 4px 20px rgba(200,134,10,0.4); }
+    .start-btn.prog { background: linear-gradient(135deg, #00A8CC, #00D4FF); color: #001a24; box-shadow: 0 4px 20px rgba(0,212,255,0.4); }
+    .bottom-note { margin-top: 20px; font-size: 11px; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="index-bg"></div>
+  <canvas id="particles"></canvas>
+
+  <div class="index-content">
+    <div class="top-deco">DIGITAL DUNHUANG PROJECT · 2024</div>
+    <div class="game-title title-zh">敦煌 · 数字困境</div>
+    <div class="title-sub">DUNHUANG · DIGITAL DILEMMA</div>
+    <div class="slogan">"在失忆的时代，选择记住什么，是一种反抗。"</div>
+
+    <div class="char-cards">
+      <!-- Archaeologist -->
+      <div class="char-card arch-card" id="card-arch" onclick="selectChar('arch')">
+        <div class="arch-icon-wrap">
+          <div class="char-icon">🔨</div>
+        </div>
+        <div class="char-name arch">考古学家</div>
+        <div class="char-tag arch-tag">现场探索</div>
+        <div class="char-traits">稳重踏实<br>亲历洞窟<br>文物还原度↑</div>
+      </div>
+      <!-- Programmer -->
+      <div class="char-card prog-card" id="card-prog" onclick="selectChar('prog')">
+        <div class="prog-icon-wrap">
+          <div class="char-icon">💻</div>
+        </div>
+        <div class="char-name prog">程序员</div>
+        <div class="char-tag prog-tag">远程协作</div>
+        <div class="char-traits">聪明急躁<br>数据支援<br>数字修复↑</div>
+      </div>
+    </div>
+
+    <div class="start-area">
+      <button class="start-btn" id="start-btn" disabled onclick="startGame()">选择角色开始</button>
+    </div>
+    <div class="bottom-note">需要摄像头与运动传感器权限 · 建议佩戴耳机</div>
+  </div>
+
+  <script>
+    let selected = null;
+
+    function selectChar(c) {
+      selected = c;
+      document.getElementById('card-arch').classList.toggle('selected', c === 'arch');
+      document.getElementById('card-prog').classList.toggle('selected', c === 'prog');
+      const btn = document.getElementById('start-btn');
+      btn.disabled = false;
+      btn.className = `start-btn ${c}`;
+      btn.textContent = c === 'arch' ? '以考古学家身份开始' : '以程序员身份开始';
+    }
+
+    function startGame() {
+      if (!selected) return;
+      window.location.href = selected === 'arch' ? 'archaeologist.html' : 'programmer.html';
+    }
+
+    // ─── Particle animation ───
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: Math.random() * 1.8 + 0.3,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: -Math.random() * 0.5 - 0.1,
+        op: Math.random() * 0.5 + 0.1,
+        col: Math.random() > 0.6 ? '#C8860A' : '#3a2a60'
+      });
+    }
+
+    function drawParticles() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.col;
+        ctx.globalAlpha = p.op;
+        ctx.fill();
+        p.x += p.vx; p.y += p.vy;
+        if (p.y < -5) { p.y = H + 5; p.x = Math.random() * W; }
+        if (p.x < -5) p.x = W + 5;
+        if (p.x > W + 5) p.x = -5;
+      });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+  </script>
+</body>
+</html>
