@@ -116,18 +116,17 @@ function showRotateHint() {
     '<div style="font-size:13px;font-weight:700;color:var(--gold-light)">转动手机切换文物</div>' +
     '<div style="font-size:10px;opacity:.5">左右旋转选择不同的解密关卡</div>' +
     '</div>';
-  hint.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);pointer-events:none;animation:fadeHint 3.5s ease forwards';
+  hint.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);pointer-events:none;';
   document.body.appendChild(hint);
 
   var sty = document.createElement('style');
-  sty.textContent = '@keyframes rotatePhone{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}@keyframes fadeHint{0%,70%{opacity:1}100%{opacity:0}}';
+  sty.textContent = '@keyframes rotatePhone{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}';
   document.head.appendChild(sty);
 
-  setTimeout(function() { hint.remove(); sty.remove(); }, 4000);
-  // 用户交互时提前消失
-  var removeEarly = function() { if (hint.parentNode) { hint.remove(); sty.remove(); } };
-  document.addEventListener('touchstart', removeEarly, {once:true});
-  document.addEventListener('click', removeEarly, {once:true});
+  // 用户触摸后消失
+  var removeHint = function() { if (hint.parentNode) { hint.remove(); sty.remove(); } };
+  document.addEventListener('touchstart', removeHint, {once:true});
+  document.addEventListener('click', removeHint, {once:true});
 }
 
 function finCave() {
