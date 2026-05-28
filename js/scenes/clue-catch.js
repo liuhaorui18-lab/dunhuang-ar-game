@@ -1,208 +1,60 @@
-/* ═══════════════════════════════════════════════════════
-   敦煌复苏计划 — clue-catch.js
-   考古学家：线索捕捉小游戏
-   ═══════════════════════════════════════════════════════ */
-
-const CC = {
-  clues: [],            // flying clue elements
-  caught: 0,           // caught useful clues
-  target: 2,           // need 2 useful clues
-  timer: null,
-  remaining: 18,
-  spawnTimer: null,
-  done: false,
-  bounds: { w: 0, h: 0 },
-};
+/* 敦煌复苏计划 — clue-catch.js · 0条线索也自动继续 */
+const CC = { els: [], got: 0, need: 2, rem: 20, st: null, tm: null, done: false };
 
 function initClueCatch() {
-  const cfg = GameConfig.clueCatch;
-  CC.done = false;
-  CC.caught = 0;
-  CC.target = cfg.targetClues;
-  CC.remaining = cfg.duration;
-  CC.clues = [];
-  CC.bounds.w = window.innerWidth;
-  CC.bounds.h = window.innerHeight;
+  CC.done = false; CC.got = 0; CC.rem = Config.cc.dur; CC.els = [];
+  document.getElementById('cc-score').textContent = `线索 ${CC.got}/${CC.need}`;
+  document.getElementById('cc-timer').textContent = CC.rem + 's';
+  document.getElementById('cc-guide').style.display = '';
 
-  document.getElementById('cc-score').textContent = `线索 ${CC.caught}/${CC.target}`;
-  document.getElementById('cc-timer').textContent = `${CC.remaining}s`;
+  CC.st = setInterval(() => { if (!CC.done) spClue(); }, Config.cc.spawnMs);
+  for (let i = 0; i < 5; i++) setTimeout(() => spClue(), i * 250);
 
-  // Spawn clues periodically
-  CC.spawnTimer = setInterval(() => {
-    if (CC.done) return;
-    spawnClue();
-  }, cfg.spawnInterval);
+  CC.tm = setInterval(() => { CC.rem--; document.getElementById('cc-timer').textContent = CC.rem + 's'; if (CC.rem <= 0) finCC(); }, 1000);
 
-  // Initial batch
-  for (let i = 0; i < 4; i++) {
-    setTimeout(() => spawnClue(), i * 300);
-  }
-
-  // Register cleanup
-  onSceneCleanup(() => {
-    CC.done = true;
-    clearInterval(CC.spawnTimer);
-    clearInterval(CC.timer);
-    CC.clues.forEach(el => el.remove());
-    CC.clues = [];
-    document.querySelectorAll('.clue-flyer').forEach(el => el.remove());
-  });
-
-  // Countdown
-  CC.timer = setInterval(() => {
-    CC.remaining--;
-    document.getElementById('cc-timer').textContent = `${CC.remaining}s`;
-    if (CC.remaining <= 0) {
-      finishClueCatch();
-    }
-  }, 1000);
+  onSceneCleanup(() => { CC.done = true; clearInterval(CC.st); clearInterval(CC.tm); CC.els.forEach(e => e.remove()); CC.els = []; });
 }
 
-function spawnClue() {
+function spClue() {
   if (CC.done) return;
+  const good = Math.random() > .4;
+  const types = good ? ['mural','scripture','buddha','statue'] : ['junk1','junk2','junk3','junk4'];
+  const t = types[randInt(0, types.length - 1)];
+  const bgMap = { mural: 'var(--img-clue-mural)', scripture: 'var(--img-clue-script)', buddha: 'var(--img-clue-buddha)', statue: 'var(--img-clue-statue)', junk1: 'var(--img-clue-junk1)', junk2: 'var(--img-clue-junk2)', junk3: 'var(--img-clue-junk3)', junk4: 'var(--img-clue-junk4)' };
 
-  const isUseful = Math.random() > 0.45; // 55% chance useful (not junk)
-  const types = isUseful ? GameConfig.clueCatch.clueTypes : GameConfig.clueCatch.junkTypes;
-  const type = types[randInt(0, types.length - 1)];
-
-  const el = document.createElement('div');
-  el.className = 'clue-flyer';
-  el.dataset.type = type;
-  el.dataset.useful = isUseful ? '1' : '0';
-
-  // Random start position (any edge)
-  const w = CC.bounds.w, h = CC.bounds.h;
-  const edge = randInt(0, 3);
-  let startX, startY, endX, endY;
-  if (edge === 0) { startX = -80; startY = randInt(0, h); endX = w + 80; endY = randInt(0, h); }
-  else if (edge === 1) { startX = w + 80; startY = randInt(0, h); endX = -80; endY = randInt(0, h); }
-  else if (edge === 2) { startX = randInt(0, w); startY = -80; endX = randInt(0, w); endY = h + 80; }
-  else { startX = randInt(0, w); startY = h + 80; endX = randInt(0, w); endY = -80; }
-
-  el.style.cssText = `
-    position:fixed; z-index:20;
-    left:${startX}px; top:${startY}px;
-    width:70px; height:70px;
-    background:center/contain no-repeat;
-    cursor:pointer;
-    animation:clue-fly ${randFloat(3, 6)}s linear forwards;
-  `;
-
-  // Set background based on type
-  const bgMap = {
-    mural: 'var(--clue-mural)', scripture: 'var(--clue-script)',
-    buddha: 'var(--clue-buddha)', statue: 'var(--clue-statue)',
-    junk1: 'var(--clue-junk1)', junk2: 'var(--clue-junk2)',
-    junk3: 'var(--clue-junk3)', junk4: 'var(--clue-junk4)',
-  };
-
-  if (bgMap[type]) {
-    el.style.backgroundImage = bgMap[type];
-  } else {
-    // Fallback colored dots
-    el.style.borderRadius = '50%';
-    el.style.background = isUseful ? 'rgba(0,180,240,.8)' : 'rgba(255,60,50,.8)';
-  }
-
-  // Fly animation
-  const flyStyle = document.createElement('style');
-  flyStyle.textContent = `
-    @keyframes clue-fly {
-      to { left:${endX}px; top:${endY}px; opacity:0.2; }
-    }
-  `;
-  document.head.appendChild(flyStyle);
-
-  // Click handler
-  el.addEventListener('click', e => {
-    e.stopPropagation();
-    if (CC.done) return;
-    if (isUseful) {
-      CC.caught++;
-      document.getElementById('cc-score').textContent = `线索 ${CC.caught}/${CC.target}`;
-      spawnSparks(e.clientX, e.clientY, 12, '#4FC3F7');
-      el.remove();
-
-      if (CC.caught >= CC.target) {
-        finishClueCatch();
-      }
-    } else {
-      // Junk - negative feedback
-      el.style.filter = 'brightness(2)';
-      setTimeout(() => el.remove(), 200);
-      spawnSparks(e.clientX, e.clientY, 4, '#FF3B30');
-      toast('这是乱码数据！', 'arch', 1000);
-    }
-  });
-
+  const el = document.createElement('div'); el.className = 'clue-card';
+  const startY = randInt(30, innerHeight - 100);
+  el.style.cssText = `position:fixed;z-index:25;left:-90px;top:${startY}px;width:75px;height:75px;background:${bgMap[t] || (good ? '#4FC3F7' : '#FF3B30')} center/contain no-repeat;cursor:pointer;transition:left 4.5s linear;`;
   document.getElementById('scene-clue-catch').appendChild(el);
-  CC.clues.push(el);
+  CC.els.push(el);
 
-  // Auto-remove after animation
-  setTimeout(() => {
-    el.remove();
-    // Remove from array
-    const idx = CC.clues.indexOf(el);
-    if (idx >= 0) CC.clues.splice(idx, 1);
-    // Clean up style
-    flyStyle.remove();
-  }, 6500);
+  requestAnimationFrame(() => { el.style.left = (innerWidth + 20) + 'px'; });
+
+  el.addEventListener('click', e => { e.stopPropagation(); if (CC.done) return;
+    if (good) { CC.got++; document.getElementById('cc-score').textContent = `线索 ${CC.got}/${CC.need}`; sparks(e.clientX, e.clientY, 10, '#4FC3F7'); el.remove(); if (CC.got >= CC.need) finCC(); }
+    else { el.style.filter = 'brightness(2.5)'; setTimeout(() => el.remove(), 200); sparks(e.clientX, e.clientY, 4, '#FF3B30'); toast('这是乱码！', 'arch', 1000); }
+  });
+
+  setTimeout(() => { el.remove(); const i = CC.els.indexOf(el); if (i >= 0) CC.els.splice(i, 1); }, 5000);
 }
 
-function finishClueCatch() {
-  if (CC.done) return;
-  CC.done = true;
-  clearInterval(CC.spawnTimer);
-  clearInterval(CC.timer);
-
-  // Store collected clues
-  if (CC.caught > 0) {
-    // Assign random clue types based on what was caught
-    const types = shuffle(GameConfig.clueCatch.clueTypes);
-    for (let i = 0; i < CC.caught; i++) {
-      GameState.cluesCollected.push(types[i]);
-    }
-  }
-
-  // Clean up remaining clue elements
-  CC.clues.forEach(el => el.remove());
-  CC.clues = [];
-
-  // Calculate countdown
+function finCC() {
+  if (CC.done) return; CC.done = true;
+  clearInterval(CC.st); clearInterval(CC.tm);
+  CC.els.forEach(e => e.remove()); CC.els = [];
+  document.getElementById('cc-guide').style.display = 'none';
+  // Always give at least the clues they caught
+  if (CC.got > 0) { const all = shuffle(['mural','scripture','buddha','statue']); for (let i = 0; i < CC.got; i++) GameState.cluesCollected.push(all[i]); }
   GameState.calcCountdown();
-
-  // Dialogue → Countdown reveal
-  Dialogue.play(Dialogues.arch_clue_done).then(() => {
-    SM.go('scene-countdown-reveal').then(() => {
-      showCountdownThenExplore();
-    });
+  Dialogue.play(Dialogues.arch_clue_ok).then(() => {
+    const d = GameState.countdownMinutes + ':' + String(GameState.countdownSeconds).padStart(2, '0');
+    const m = showModal({ theme: 'arch', title: '⚠ 洞窟坍塌倒计时', text: `洞窟将在 <b style="color:var(--gold-light);font-size:22px">${d}</b> 后坍塌<br><span style="font-size:10px;opacity:.4">必须在倒计时结束前找到文物并离开</span>`, btn: '走入洞窟', onConfirm() { goExplore(); } });
+    setTimeout(() => { if (m.ov.parentNode) { m.close(); goExplore(); } }, 6000);
   });
 }
 
-// ─── Countdown Reveal ──────────────────────────────────
-function showCountdownThenExplore() {
-  const totalSec = GameState.totalSeconds;
-  const display = `${GameState.countdownMinutes}:${GameState.countdownSeconds.toString().padStart(2, '0')}`;
-
-  const modal = Modal.create({
-    theme: 'arch',
-    title: '⚠ 洞窟坍塌倒计时',
-    content: `<p>洞窟将在 <span style="font-size:20px;color:var(--gold-light)">${display}</span> 后坍塌</p><p style="font-size:11px;opacity:.5;margin-top:8px">必须在倒计时结束前离开洞窟</p>`,
-    btnText: '走入洞窟',
-    onConfirm: () => {
-      Dialogue.play(Dialogues.arch_countdown).then(() => {
-        SM.go('scene-cave-explore').then(() => {
-          initCaveExplore(totalSec);
-        });
-      });
-    }
+function goExplore() {
+  Dialogue.play(Dialogues.arch_timer).then(() => {
+    SM.go('scene-cave-explore').then(() => initCaveExplore(GameState.totalSec));
   });
-
-  // Auto-close if no interaction after 5s
-  setTimeout(() => {
-    if (modal.overlay.parentNode) {
-      modal.close();
-      SM.go('scene-cave-explore').then(() => initCaveExplore(totalSec));
-    }
-  }, 5000);
 }

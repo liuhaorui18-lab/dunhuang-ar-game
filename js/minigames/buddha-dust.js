@@ -1,130 +1,53 @@
-/* ═══════════════════════════════════════════════════════
-   敦煌复苏计划 — buddha-dust.js
-   大佛像清扫灰尘：滑动擦除灰尘，显露出佛像
-   ═══════════════════════════════════════════════════════ */
-
-function initBuddhaDust(wrap, callback) {
+/* 敦煌复苏计划 — buddha-dust.js · 大佛像清扫灰尘 */
+function initBuddha(ov, cb) {
   const hasClue = GameState.hasClue('buddha');
-  const totalPatches = GameConfig.buddha.dustPatches; // 5 patches
-  let clearedPatches = 0;
-  let completed = false;
+  ov.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px;width:100%">
+    <div style="font-size:15px;font-weight:700;color:var(--gold-light)">清扫碎石表面</div>
+    <div id="b-wrap" style="position:relative;width:280px;height:280px;touch-action:none;border-radius:8px;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:var(--img-statue-dust) center/cover no-repeat;z-index:1"></div>
+      <canvas id="b-canvas" style="position:absolute;inset:0;z-index:2;width:280px;height:280px"></canvas></div>
+    <div style="font-size:10px;opacity:.5;text-align:center" id="b-hint">用手指擦去灰尘</div>
+    <div style="font-size:13px;color:var(--gold-light)" id="b-prog">已清理 0/${Config.buddha.patches}</div>
+    <button class="btn btn-arch" id="b-retry" style="display:none">重新清扫</button>
+    <button class="btn btn-skip" id="b-skip">跳过此文物</button></div>`;
 
-  wrap.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;width:100%;">
-      <div style="font-size:14px;font-weight:700;color:var(--gold-light)">清扫碎石表面</div>
-      <div id="dust-canvas-wrap" style="position:relative;width:300px;height:300px;touch-action:none;border-radius:8px;overflow:hidden;">
-        <div id="dust-reveal-img" style="
-          position:absolute;inset:0;
-          background:var(--statue-dust) center/cover no-repeat;
-          z-index:1;
-        "></div>
-        <canvas id="dust-canvas" style="
-          position:absolute;inset:0;z-index:2;
-          width:300px;height:300px;
-        "></canvas>
-      </div>
-      <div style="font-size:11px;opacity:.5;text-align:center">用手指擦去灰尘 · 清理 ${totalPatches} 处灰层</div>
-      <div id="dust-progress" style="font-size:13px;color:var(--gold-light)">已清理 0/${totalPatches}</div>
-      <button class="btn btn-skip" id="dust-skip">跳过</button>
-    </div>
-  `;
+  if (!hasClue) { Dialogue.play(Dialogues.buddha_no).then(() => cb(false)); return; }
+  Dialogue.play(Dialogues.buddha_ok).then(() => startB());
 
-  if (!hasClue) {
-    Dialogue.play(Dialogues.buddha_no_clue).then(() => callback(false));
-    return;
+  let cleared = 0, patches = [], done = false, drawing = false;
+
+  function startB() {
+    cleared = 0; done = false; drawing = false;
+    const P = Config.buddha.patches;
+    patches = Array.from({ length: P }, () => ({ x: randInt(50, 230), y: randInt(50, 230), r: randInt(28, 45), ok: false }));
+    const c = document.getElementById('b-canvas'), ctx = c.getContext('2d');
+    c.width = 280; c.height = 280;
+    ctx.fillStyle = 'rgba(55,35,18,.88)'; ctx.fillRect(0, 0, 280, 280);
+    for (let i = 0; i < 1500; i++) ctx.fillStyle = `rgba(${70+Math.random()*40},${40+Math.random()*30},${15+Math.random()*25},${.08+Math.random()*.25})`, ctx.fillRect(Math.random()*280, Math.random()*280, randInt(2, 5), randInt(2, 5));
+    document.getElementById('b-prog').textContent = `已清理 0/${P}`;
+    document.getElementById('b-hint').textContent = '用手指擦去灰尘';
+    document.getElementById('b-retry').style.display = 'none';
+    document.getElementById('b-skip').style.display = '';
   }
 
-  Dialogue.play(Dialogues.buddha_has_clue).then(() => {
-    setupDustCanvas();
-  });
-
-  function setupDustCanvas() {
-    const canvas = document.getElementById('dust-canvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = 300;
-    canvas.height = 300;
-
-    // Fill with "dust" color
-    ctx.fillStyle = 'rgba(60,40,20,0.9)';
-    ctx.fillRect(0, 0, 300, 300);
-
-    // Add texture (noise)
-    for (let i = 0; i < 2000; i++) {
-      const x = Math.random() * 300;
-      const y = Math.random() * 300;
-      ctx.fillStyle = `rgba(${80+Math.random()*40},${50+Math.random()*30},${20+Math.random()*30},${0.1+Math.random()*0.3})`;
-      ctx.fillRect(x, y, randInt(2, 6), randInt(2, 6));
-    }
-
-    // Define dust patch areas (hidden circles)
-    const patchCenters = [];
-    for (let i = 0; i < totalPatches; i++) {
-      patchCenters.push({
-        x: randInt(60, 240),
-        y: randInt(60, 240),
-        r: randInt(30, 50),
-        cleared: false
-      });
-    }
-
-    let isDrawing = false;
-
-    function eraseAt(clientX, clientY) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      const x = (clientX - rect.left) * scaleX;
-      const y = (clientY - rect.top) * scaleY;
-
-      // Erase dust in a circle
-      ctx.save();
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.beginPath();
-      ctx.arc(x, y, 25, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      // Check if any patch center is cleared
-      patchCenters.forEach(p => {
-        if (p.cleared) return;
-        const dist = Math.hypot(x - p.x, y - p.y);
-        if (dist < p.r) {
-          p.cleared = true;
-          clearedPatches++;
-          document.getElementById('dust-progress').textContent = `已清理 ${clearedPatches}/${totalPatches}`;
-          spawnSparks(rect.left + p.x / scaleX, rect.top + p.y / scaleY, 8);
-          checkAllCleared();
-        }
-      });
-    }
-
-    canvas.addEventListener('mousedown', e => { isDrawing = true; eraseAt(e.clientX, e.clientY); });
-    canvas.addEventListener('mousemove', e => { if (isDrawing) eraseAt(e.clientX, e.clientY); });
-    canvas.addEventListener('mouseup', () => { isDrawing = false; });
-    canvas.addEventListener('mouseleave', () => { isDrawing = false; });
-
-    canvas.addEventListener('touchstart', e => { e.preventDefault(); isDrawing = true; eraseAt(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
-    canvas.addEventListener('touchmove', e => { e.preventDefault(); if (isDrawing) eraseAt(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
-    canvas.addEventListener('touchend', () => { isDrawing = false; });
+  function eraseAt(cx, cy) {
+    const c = document.getElementById('b-canvas'), ctx = c.getContext('2d');
+    const r = c.getBoundingClientRect(), sx = 280 / r.width, sy = 280 / r.height;
+    const x = (cx - r.left) * sx, y = (cy - r.top) * sy;
+    ctx.save(); ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.arc(x, y, 22, 0, Math.PI*2); ctx.fill(); ctx.restore();
+    patches.forEach(p => { if (!p.ok && Math.hypot(x - p.x, y - p.y) < p.r) { p.ok = true; cleared++; document.getElementById('b-prog').textContent = `已清理 ${cleared}/${Config.buddha.patches}`; sparks(r.left + p.x/sx, r.top + p.y/sy, 6); if (cleared >= Config.buddha.patches) winB(); } });
   }
 
-  function checkAllCleared() {
-    if (clearedPatches >= totalPatches) {
-      completed = true;
-      document.getElementById('dust-skip').style.display = 'none';
-      // Reveal completed image
-      const reveal = document.getElementById('dust-reveal-img');
-      const canvas = document.getElementById('dust-canvas');
-      if (canvas) canvas.style.opacity = '0.3';
+  const cEl = document.getElementById('b-canvas');
+  cEl.addEventListener('mousedown', e => { drawing = true; eraseAt(e.clientX, e.clientY); });
+  cEl.addEventListener('mousemove', e => { if (drawing) eraseAt(e.clientX, e.clientY); });
+  document.addEventListener('mouseup', () => { drawing = false; });
+  cEl.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; eraseAt(e.touches[0].clientX, e.touches[0].clientY); });
+  cEl.addEventListener('touchmove', e => { e.preventDefault(); if (drawing) eraseAt(e.touches[0].clientX, e.touches[0].clientY); });
+  document.addEventListener('touchend', () => { drawing = false; });
 
-      setTimeout(() => {
-        Dialogue.play(Dialogues.buddha_success).then(() => callback(true));
-      }, 600);
-    }
-  }
+  function winB() { done = true; document.getElementById('b-hint').textContent = '佛眼显现！'; document.getElementById('b-skip').style.display = 'none'; document.getElementById('b-canvas').style.opacity = '.25'; setTimeout(() => Dialogue.play(Dialogues.buddha_win).then(() => cb(true)), 500); }
 
-  wrap.querySelector('#dust-skip').addEventListener('click', () => {
-    Dialogue.play(Dialogues.buddha_fail).then(() => callback(false));
-  });
+  document.getElementById('b-retry').addEventListener('click', () => startB());
+  document.getElementById('b-skip').addEventListener('click', () => { Dialogue.play(Dialogues.buddha_lose).then(() => cb(false)); });
 }

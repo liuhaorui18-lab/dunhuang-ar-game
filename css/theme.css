@@ -1,212 +1,154 @@
 /* ═══════════════════════════════════════════════════════
-   敦煌复苏计划 — Theme & Design Tokens
-   所有设计素材通过CSS变量引用，直接用于样式
+   敦煌复苏计划 — theme.css
+   所有设计素材通过CSS变量引用
    ═══════════════════════════════════════════════════════ */
-
 :root {
-  /* ── Color Palette ── */
-  --cave-deep:    #0a0502;
-  --cave-bg:      #130c05;
-  --cave-mid:     #1f1307;
-  --cave-light:   #2d1c0a;
-  --gold:         #C8963C;
-  --gold-light:   #D4A853;
-  --gold-dark:    #8B6914;
-  --gold-glow:    rgba(200,150,60,0.5);
-  --gold-pale:    rgba(200,150,60,0.12);
-  --vermilion:    #B8452E;
-  --parchment:    #F0E4C8;
-  --parchment-dim:rgba(240,228,200,0.55);
+  --gold: #C8963C; --gold-light: #D4A853; --gold-dark: #8B6914;
+  --gold-glow: rgba(200,150,60,0.5); --gold-pale: rgba(200,150,60,0.12);
+  --parchment: #F0E4C8; --parchment-dim: rgba(240,228,200,0.55);
+  --cave-bg: #130c05; --cave-mid: #1f1307; --cave-deep: #0a0502;
+  --prog-bg: #050a10; --prog-cyan: #00D4FF;
+  --prog-cyan-dim: rgba(0,212,255,0.35);
+  --danger-red: #E04030;
+  --safe-b: env(safe-area-inset-bottom,4px);
+  --safe-t: env(safe-area-inset-top,4px);
 
-  --prog-bg:      #050a10;
-  --prog-cyan:    #00D4FF;
-  --prog-cyan-dim:rgba(0,212,255,0.35);
-  --prog-red:     #FF3B30;
-  --danger-red:   #E04030;
+  /* ═══ 游戏开始页面 ═══ */
+  --img-title-text: url('../assets/游戏开始页面/敦煌复苏计划（标题字）.png');
+  --img-title-bg: url('../assets/游戏开始页面/背景图.png');
+  --img-walker1: url('../assets/游戏开始页面/进度条加载小人图（重复动画）/1.png');
+  --img-walker2: url('../assets/游戏开始页面/进度条加载小人图（重复动画）/2.png');
+  --img-walker3: url('../assets/游戏开始页面/进度条加载小人图（重复动画）/3.png');
 
-  /* ── Safe Areas ── */
-  --safe-b: env(safe-area-inset-bottom, 4px);
-  --safe-t: env(safe-area-inset-top, 4px);
+  /* ═══ 背景组件 ═══ */
+  --img-bg-main: url('../assets/背景组件/背景.png');
+  --img-cave-deco: url('../assets/背景组件/洞口界面的装饰性ui.png');
+  --img-frame2: url('../assets/背景组件/Frame 2.png');
+  --img-frame3: url('../assets/背景组件/Frame 3.png');
+  --img-frame4: url('../assets/背景组件/Frame 4.png');
+  --img-frame5: url('../assets/背景组件/Frame 5.png');
+  --img-frame6: url('../assets/背景组件/Frame 6.png');
+  --img-frame7: url('../assets/背景组件/Frame 7.png');
+  --img-group32: url('../assets/背景组件/Group 32.png');
 
-  /* ══════ DESIGN ASSET PATHS ══════ */
-  /* Background */
-  --bg-main:       url('../assets/背景组件/背景.png');
-  --bg-frame2:     url('../assets/背景组件/Frame 2.png');
-  --bg-frame3:     url('../assets/背景组件/Frame 3.png');
-  --bg-frame4:     url('../assets/背景组件/Frame 4.png');
-  --bg-frame5:     url('../assets/背景组件/Frame 5.png');
-  --bg-frame6:     url('../assets/背景组件/Frame 6.png');
-  --bg-frame7:     url('../assets/背景组件/Frame 7.png');
-  --bg-group32:    url('../assets/背景组件/Group 32.png');
-  --bg-cave-deco:  url('../assets/背景组件/洞口界面的装饰性ui.png');
+  /* ═══ 对话框 ═══ */
+  --img-dlg-body: url('../assets/对话框/对话框本体.png');
+  --img-dlg-bg: url('../assets/对话框/对话框背景.png');
+  --img-dlg-deco: url('../assets/对话框/对话框装饰.png');
+  --img-dlg-close: url('../assets/对话框/关闭对话框.png');
+  --img-dlg-frame: url('../assets/对话框/各种需要用到框框的ui（比如小弹窗）.png');
 
-  /* Start Page */
-  --start-title:   url('../assets/游戏开始页面/敦煌复苏计划（标题字）.png');
-  --start-bg:      url('../assets/游戏开始页面/背景图.png');
-  --walker1:       url('../assets/游戏开始页面/进度条加载小人图（重复动画）/1.png');
-  --walker2:       url('../assets/游戏开始页面/进度条加载小人图（重复动画）/2.png');
-  --walker3:       url('../assets/游戏开始页面/进度条加载小人图（重复动画）/3.png');
+  /* ═══ 常用UI ═══ */
+  --img-subtitle: url('../assets/常用ui/顶部字幕弹窗.png');
+  --img-subtitle-btn: url('../assets/常用ui/顶部字幕继续按钮.png');
+  --img-viewfinder: url('../assets/常用ui/瞄准框.png');
+  --img-hint-box: url('../assets/常用ui/操作提示框.png');
 
-  /* Dialog */
-  --dlg-body:      url('../assets/对话框/对话框本体.png');
-  --dlg-bg:        url('../assets/对话框/对话框背景.png');
-  --dlg-deco:      url('../assets/对话框/对话框装饰.png');
-  --dlg-close:     url('../assets/对话框/关闭对话框.png');
-  --dlg-frame:     url('../assets/对话框/各种需要用到框框的ui（比如小弹窗）.png');
+  /* ═══ 开凿音游 ═══ */
+  --img-rhythm-btn: url('../assets/开凿过程（音游）/音游按钮.png');
 
-  /* Common UI */
-  --ui-viewfinder: url('../assets/常用ui/瞄准框.png');
-  --ui-hint:       url('../assets/常用ui/操作提示框.png');
-  --ui-subtitle:   url('../assets/常用ui/顶部字幕弹窗.png');
-  --ui-subtitle-btn:url('../assets/常用ui/顶部字幕继续按钮.png');
+  /* ═══ 找线索 ═══ */
+  --img-clue-mural: url('../assets/找线索/壁画线索/文字框.png');
+  --img-clue-script: url('../assets/找线索/经书线索/文字框.png');
+  --img-clue-buddha: url('../assets/找线索/大佛像线索/文字框.png');
+  --img-clue-statue: url('../assets/找线索/小佛像线索/文字框.png');
+  --img-clue-junk1: url('../assets/找线索/干扰线索/干扰线索1/文字框.png');
+  --img-clue-junk2: url('../assets/找线索/干扰线索/干扰线索2/文字框.png');
+  --img-clue-junk3: url('../assets/找线索/干扰线索/干扰线索3/文字框.png');
+  --img-clue-junk4: url('../assets/找线索/干扰线索/干扰线索4/文字框.png');
 
-  /* Excavation */
-  --rhythm-btn:    url('../assets/开凿过程（音游）/音游按钮.png');
-  --rhythm-ref:    url('../assets/开凿过程（音游）/音游界面参考.png');
+  /* ═══ 壁画碎片 ═══ */
+  --img-mural-n1: url('../assets/壁画碎片/壁画碎片页面/普通状态碎片.png');
+  --img-mural-n2: url('../assets/壁画碎片/壁画碎片页面/普通状态碎片2.png');
+  --img-mural-n3: url('../assets/壁画碎片/壁画碎片页面/普通状态碎片3.png');
+  --img-mural-hint: url('../assets/壁画碎片/壁画碎片页面/提示状态碎片.png');
+  --img-mural-gesture: url('../assets/壁画碎片/壁画碎片页面/手势UI.png');
+  --img-mural-move-n1: url('../assets/壁画碎片/壁画移动页面/普通状态碎片.png');
+  --img-mural-move-n2: url('../assets/壁画碎片/壁画移动页面/普通状态碎片2.png');
+  --img-mural-move-n3: url('../assets/壁画碎片/壁画移动页面/普通状态碎片3.png');
+  --img-mural-move-n4: url('../assets/壁画碎片/壁画移动页面/普通状态碎片 4.png');
+  --img-mural-rotate: url('../assets/壁画碎片/壁画转动页面/旋转提示ui.png');
+  --img-mural-done: url('../assets/壁画碎片/拼合成功页面/完整壁画.png');
 
-  /* Clue Cards */
-  --clue-mural:    url('../assets/找线索/壁画线索/文字框.png');
-  --clue-script:   url('../assets/找线索/经书线索/文字框.png');
-  --clue-buddha:   url('../assets/找线索/大佛像线索/文字框.png');
-  --clue-statue:   url('../assets/找线索/小佛像线索/文字框.png');
-  --clue-junk1:    url('../assets/找线索/干扰线索/干扰线索1/文字框.png');
-  --clue-junk2:    url('../assets/找线索/干扰线索/干扰线索2/文字框.png');
-  --clue-junk3:    url('../assets/找线索/干扰线索/干扰线索3/文字框.png');
-  --clue-junk4:    url('../assets/找线索/干扰线索/干扰线索4/文字框.png');
-  --clue-select:   url('../assets/找线索/画面中间选择ui.png');
-  --clue-ref:      url('../assets/找线索/找线索ui参考.png');
+  /* ═══ 神像碎片 ═══ */
+  --img-statue-l: url('../assets/神像碎片/界面1/左边神像.png');
+  --img-statue-m: url('../assets/神像碎片/界面1/中间神像.png');
+  --img-statue-r: url('../assets/神像碎片/界面1/右边神像.png');
+  --img-statue-drag-l: url('../assets/神像碎片/拖动提示界面2/左边提示神像.png');
+  --img-statue-drag-m: url('../assets/神像碎片/拖动提示界面2/中间神像.png');
+  --img-statue-drag-r: url('../assets/神像碎片/拖动提示界面2/右边神像.png');
+  --img-statue-drag-ui: url('../assets/神像碎片/拖动提示界面2/ui提示.png');
+  --img-statue-shake: url('../assets/神像碎片/摇晃界面4/ui.png');
+  --img-statue-done: url('../assets/神像碎片/拼合好界面3/拼合好神像.png');
+  --img-statue-dust: url('../assets/神像碎片/神像5/清灰后.png');
 
-  /* Mural Puzzle */
-  --mural-normal1:  url('../assets/壁画碎片/壁画碎片页面/普通状态碎片.png');
-  --mural-normal2:  url('../assets/壁画碎片/壁画碎片页面/普通状态碎片2.png');
-  --mural-normal3:  url('../assets/壁画碎片/壁画碎片页面/普通状态碎片3.png');
-  --mural-hint:     url('../assets/壁画碎片/壁画碎片页面/提示状态碎片.png');
-  --mural-gesture:  url('../assets/壁画碎片/壁画碎片页面/手势UI.png');
-  --mural-ref:      url('../assets/壁画碎片/壁画碎片页面/壁画碎片参考页.png');
-  --mural-move1:    url('../assets/壁画碎片/壁画移动页面/普通状态碎片.png');
-  --mural-move2:    url('../assets/壁画碎片/壁画移动页面/普通状态碎片2.png');
-  --mural-move3:    url('../assets/壁画碎片/壁画移动页面/普通状态碎片3.png');
-  --mural-move4:    url('../assets/壁画碎片/壁画移动页面/普通状态碎片 4.png');
-  --mural-move-ref: url('../assets/壁画碎片/壁画移动页面/壁画碎片界面参考.png');
-  --mural-rotate-ui:url('../assets/壁画碎片/壁画转动页面/旋转提示ui.png');
-  --mural-rotate-ref:url('../assets/壁画碎片/壁画转动页面/旋转合成参考.png');
-  --mural-complete: url('../assets/壁画碎片/拼合成功页面/完整壁画.png');
-  --mural-complete-ref: url('../assets/壁画碎片/拼合成功页面/页面参考.png');
+  /* ═══ 程序碎块 ═══ */
+  --img-data-red1: url('../assets/程序碎块/红色1.png');
+  --img-data-red2: url('../assets/程序碎块/红色2.png');
+  --img-data-red3: url('../assets/程序碎块/红色 3.png');
+  --img-data-blue1: url('../assets/程序碎块/蓝色1.png');
+  --img-data-blue2: url('../assets/程序碎块/蓝色2.png');
+  --img-data-blue3: url('../assets/程序碎块/蓝色3.png');
 
-  /* Buddha Statue (大佛像) */
-  --statue-left:    url('../assets/神像碎片/界面1/左边神像.png');
-  --statue-mid:     url('../assets/神像碎片/界面1/中间神像.png');
-  --statue-right:   url('../assets/神像碎片/界面1/右边神像.png');
-  --statue-ui-ref:  url('../assets/神像碎片/界面1/界面参考.png');
-  --statue-drag-left:  url('../assets/神像碎片/拖动提示界面2/左边提示神像.png');
-  --statue-drag-mid:   url('../assets/神像碎片/拖动提示界面2/中间神像.png');
-  --statue-drag-right: url('../assets/神像碎片/拖动提示界面2/右边神像.png');
-  --statue-drag-ui:    url('../assets/神像碎片/拖动提示界面2/ui提示.png');
-  --statue-drag-ref:   url('../assets/神像碎片/拖动提示界面2/页面参考.png');
-  --statue-complete:   url('../assets/神像碎片/拼合好界面3/拼合好神像.png');
-  --statue-shake-ui:   url('../assets/神像碎片/摇晃界面4/ui.png');
-  --statue-shake-ref:  url('../assets/神像碎片/摇晃界面4/界面参考.png');
-  --statue-dust:       url('../assets/神像碎片/神像5/清灰后.png');
-  --statue-dust-ref:   url('../assets/神像碎片/神像5/界面参考.png');
+  /* ═══ 经书 ═══ */
+  --img-scrip-l1-f: url('../assets/经书/左1固定.png');
+  --img-scrip-l1-off: url('../assets/经书/左1未选中.png');
+  --img-scrip-l1-on: url('../assets/经书/左1选中.png');
+  --img-scrip-l2-f: url('../assets/经书/左2固定.png');
+  --img-scrip-l2-off: url('../assets/经书/左2未选中.PNG');
+  --img-scrip-l2-on: url('../assets/经书/左2选中.png');
+  --img-scrip-l3-f: url('../assets/经书/左3固定.png');
+  --img-scrip-l3-off: url('../assets/经书/左3未选中.png');
+  --img-scrip-l3-on: url('../assets/经书/左3选中.png');
+  --img-scrip-l4-f: url('../assets/经书/左4固定.png');
+  --img-scrip-l4-off: url('../assets/经书/左4未选中.png');
+  --img-scrip-l4-on: url('../assets/经书/左4选中.png');
+  --img-scrip-l5-f: url('../assets/经书/左5固定.png');
+  --img-scrip-l5-off: url('../assets/经书/左5未选中.png');
+  --img-scrip-l5-on: url('../assets/经书/左5选中.png');
+  --img-scrip-l6-off: url('../assets/经书/左6未选中.png');
+  --img-scrip-l6-on: url('../assets/经书/左6选中.png');
 
-  /* Programmer Data */
-  --data-red1:     url('../assets/程序碎块/红色1.png');
-  --data-red2:     url('../assets/程序碎块/红色2.png');
-  --data-red3:     url('../assets/程序碎块/红色 3.png');
-  --data-blue1:    url('../assets/程序碎块/蓝色1.png');
-  --data-blue2:    url('../assets/程序碎块/蓝色2.png');
-  --data-blue3:    url('../assets/程序碎块/蓝色3.png');
-  --data-ref:      url('../assets/程序碎块/程序员数据碎片参考图.png');
-
-  /* Scripture (经书) */
-  --scrip-l1-fixed:   url('../assets/经书/左1固定.png');
-  --scrip-l1-off:     url('../assets/经书/左1未选中.png');
-  --scrip-l1-on:      url('../assets/经书/左1选中.png');
-  --scrip-l2-fixed:   url('../assets/经书/左2固定.png');
-  --scrip-l2-off:     url('../assets/经书/左2未选中.PNG');
-  --scrip-l2-on:      url('../assets/经书/左2选中.png');
-  --scrip-l3-fixed:   url('../assets/经书/左3固定.png');
-  --scrip-l3-off:     url('../assets/经书/左3未选中.png');
-  --scrip-l3-on:      url('../assets/经书/左3选中.png');
-  --scrip-l4-fixed:   url('../assets/经书/左4固定.png');
-  --scrip-l4-off:     url('../assets/经书/左4未选中.png');
-  --scrip-l4-on:      url('../assets/经书/左4选中.png');
-  --scrip-l5-fixed:   url('../assets/经书/左5固定.png');
-  --scrip-l5-off:     url('../assets/经书/左5未选中.png');
-  --scrip-l5-on:      url('../assets/经书/左5选中.png');
-  --scrip-l6-off:     url('../assets/经书/左6未选中.png');
-  --scrip-l6-on:      url('../assets/经书/左6选中.png');
-
-  /* Small Statue (小佛像) */
-  --small-statue:     url('../assets/小佛像/小佛像.png');
-  --small-candle:     url('../assets/小佛像/蜡烛.png');
-  --small-cursor:     url('../assets/小佛像/光标.png');
-  --small-rock1:      url('../assets/小佛像/石块1.png');
-  --small-rock2:      url('../assets/小佛像/石块2.png');
-  --small-rock3:      url('../assets/小佛像/石块3.png');
+  /* ═══ 小佛像 ═══ */
+  --img-sm-statue: url('../assets/小佛像/小佛像.png');
+  --img-sm-candle: url('../assets/小佛像/蜡烛.png');
+  --img-sm-cursor: url('../assets/小佛像/光标.png');
+  --img-sm-rock1: url('../assets/小佛像/石块1.png');
+  --img-sm-rock2: url('../assets/小佛像/石块2.png');
+  --img-sm-rock3: url('../assets/小佛像/石块3.png');
 }
 
-/* ── Global Reset & Base ── */
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
 html, body {
-  width:100%; height:100%;
-  overflow:hidden;
-  font-family: "PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-  font-size:14px; color:var(--parchment);
-  background:#000;
+  width:100%; height:100%; overflow:hidden;
+  font-family:"PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:14px; color:var(--parchment); background:#000;
   -webkit-tap-highlight-color:transparent;
   -webkit-user-select:none; user-select:none;
-  -webkit-touch-callout:none;
   touch-action:manipulation;
 }
 
-/* ── Camera Layer ── */
 #camera-video {
   position:fixed; inset:0; z-index:0;
-  width:100%; height:100%;
-  object-fit:cover;
+  width:100%; height:100%; object-fit:cover;
 }
 .cam-darken {
   position:fixed; inset:0; z-index:1;
-  background:rgba(0,0,0,0.45);
+  background:rgba(0,0,0,0.4);
   pointer-events:none;
 }
-
-/* ── Scene Container ── */
-.scene {
-  position:fixed; inset:0; z-index:10;
-  display:none;
-  flex-direction:column; align-items:center; justify-content:center;
-  overflow:hidden;
-}
-.scene.active { display:flex; }
-
-/* ── Fade Transition ── */
 #fade-overlay {
-  position:fixed; inset:0; z-index:500;
-  background:#000; opacity:0;
-  pointer-events:none;
-  transition:opacity 0.5s ease;
+  position:fixed; inset:0; z-index:500; background:#000;
+  opacity:0; pointer-events:none; transition:opacity .5s;
 }
 #fade-overlay.active { opacity:1; }
 
-/* ── Theme Modifiers ── */
-[data-theme="arch"] {
-  --accent: var(--gold);
-  --accent-light: var(--gold-light);
-  --accent-glow: var(--gold-glow);
-  --bg-main-scene: var(--cave-bg);
+.scene {
+  position:fixed; inset:0; z-index:10;
+  display:none; flex-direction:column; align-items:center;
+  justify-content:center; overflow:hidden;
 }
-[data-theme="prog"] {
-  --accent: var(--prog-cyan);
-  --accent-light: #66E0FF;
-  --accent-glow: rgba(0,212,255,0.4);
-  --bg-main-scene: var(--prog-bg);
-}
+.scene.active { display:flex; }
 
-/* ── Utility Classes ── */
-.hidden { display:none !important; }
-.flex-center { display:flex; align-items:center; justify-content:center; }
-.text-gold { color:var(--gold); }
-.text-cyan { color:var(--prog-cyan); }
+[data-theme="arch"] { --accent:var(--gold); --accent-light:var(--gold-light); }
+[data-theme="prog"] { --accent:var(--prog-cyan); --accent-light:#66E0FF; }

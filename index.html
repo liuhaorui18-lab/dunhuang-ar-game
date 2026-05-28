@@ -12,14 +12,12 @@
 </head>
 <body>
 
-<!-- Camera Layer (pointer-events:none on overlay) -->
+<!-- Camera -->
 <video id="camera-video" autoplay playsinline muted></video>
 <div class="cam-darken"></div>
-
-<!-- Fade Transition -->
 <div id="fade-overlay"></div>
 
-<!-- ═══════════════ SCENE: LOADING ═══════════════ -->
+<!-- ═══ LOADING ═══ -->
 <div id="scene-loading" class="scene active">
   <div class="loading-title"></div>
   <div class="loading-subtitle">DUNHUANG DIGITAL REVIVAL PROJECT</div>
@@ -30,138 +28,153 @@
   <div class="loading-tip" id="loading-tip">正在启动数字敦煌系统……</div>
 </div>
 
-<!-- ═══════════════ SCENE: TITLE ═══════════════ -->
+<!-- ═══ TITLE ═══ -->
 <div id="scene-title" class="scene">
   <div class="title-bg"></div>
   <div class="title-content">
     <div class="game-title-img"></div>
     <div class="game-subtitle">DUNHUANG DIGITAL REVIVAL PROJECT</div>
     <div class="game-quote">"在失忆的时代，选择记住什么，是一种反抗。"</div>
-    <div class="start-btn-wrap">
-      <button class="btn btn-arch" id="start-btn">进入洞窟</button>
-    </div>
+    <button class="btn btn-arch start-main-btn">进入洞窟</button>
   </div>
 </div>
 
-<!-- ═══════════════ SCENE: PERMISSIONS ═══════════════ -->
+<!-- ═══ PERM ═══ -->
 <div id="scene-perm" class="scene">
   <div class="perm-screen">
     <div class="perm-icon">🔦</div>
     <div class="perm-title">敦煌复苏计划</div>
-    <div class="perm-desc">
-      游戏需要使用<strong>摄像头</strong>和<strong>运动传感器</strong>。<br>请在弹出的权限请求中点击"允许"。
-    </div>
-    <div class="perm-desc perm-role-text">身份：考古学家</div>
+    <div class="perm-desc">游戏需要使用<strong>摄像头</strong>和<strong>运动传感器</strong>。<br>请在弹出的权限请求中点击"允许"。</div>
     <button class="btn btn-arch" id="perm-btn">授权并开始</button>
-    <div class="perm-privacy">摄像头画面仅在设备本地使用，不会上传</div>
+    <div class="perm-privacy">摄像头画面仅在设备本地使用</div>
   </div>
 </div>
 
-<!-- ═══════════════ SCENE: WALL SCAN ═══════════════ -->
+<!-- ═══ WALL SCAN ═══ -->
 <div id="scene-wall-scan" class="scene">
   <div class="scan-frame"></div>
-  <div class="scan-label arch" id="scan-label">将摄像头对准附近的岩壁……</div>
-  <button class="btn btn-arch scan-tap-btn" id="scan-tap-btn">锚定此处，开始开凿</button>
+  <div class="scan-label" id="scan-label">将摄像头对准附近的岩壁……</div>
+  <div class="guide-bar" id="scan-guide">
+    <div class="guide-icon" style="background:var(--ui-hint) center/contain no-repeat"></div>
+    <span>将手机摄像头对准一面墙壁</span>
+  </div>
+  <button class="btn btn-arch scan-btn" id="scan-tap-btn">锚定此处，开始开凿</button>
 </div>
 
-<!-- ═══════════════ SCENE: EXCAVATION ═══════════════ -->
+<!-- ═══ EXCAVATION ═══ -->
 <div id="scene-excavation" class="scene">
   <canvas id="excavation-canvas"></canvas>
-  <div class="hud-score" id="ex-score">0 / 12</div>
-  <div class="force-meter" id="force-meter">
-    <div class="force-fill" id="force-fill"></div>
-    <div class="force-ideal"></div>
+  <div class="ex-hud-score" id="ex-score">0 / 12</div>
+  <div class="ex-force-meter" id="force-meter">
+    <div class="ex-force-fill" id="force-fill"></div>
+    <div class="ex-force-ideal"></div>
   </div>
   <div class="ex-feedback" id="ex-feedback"></div>
-  <div class="scene-hint-bottom">点击对应区域开凿 · 注意时机与力度</div>
-</div>
-
-<!-- ═══════════════ SCENE: CLUE CATCH ═══════════════ -->
-<div id="scene-clue-catch" class="scene">
-  <div class="cc-hud">
-    <span class="cc-score" id="cc-score">线索 0/2</span>
-    <span class="cc-timer" id="cc-timer">18s</span>
+  <div class="ex-guide-bar" id="ex-guide">
+    <div class="guide-icon" style="background:var(--rhythm-btn) center/contain no-repeat"></div>
+    <span>跟随节奏点击落下的光圈</span>
   </div>
-  <div class="scene-hint-top">点击金色线索 · 忽略红色乱码</div>
 </div>
 
-<!-- ═══════════════ SCENE: COUNTDOWN REVEAL ═══════════════ -->
+<!-- ═══ CLUE CATCH ═══ -->
+<div id="scene-clue-catch" class="scene">
+  <div class="cc-hud-bar">
+    <span class="cc-hud-score" id="cc-score">线索 0/2</span>
+    <span class="cc-hud-timer" id="cc-timer">20s</span>
+  </div>
+  <div class="cc-guide-bar" id="cc-guide">
+    <span>点击飞过的<em style="color:var(--gold-light)">金色线索卡</em> · 避开<em style="color:var(--danger-red)">红色干扰卡</em></span>
+  </div>
+</div>
+
+<!-- ═══ COUNTDOWN ═══ -->
 <div id="scene-countdown-reveal" class="scene"></div>
 
-<!-- ═══════════════ SCENE: CAVE EXPLORE ═══════════════ -->
+<!-- ═══ CAVE EXPLORE ═══ -->
 <div id="scene-cave-explore" class="scene">
   <div class="cave-darkness"></div>
   <div class="torch-glow" id="torch-glow"></div>
-  <div class="hud-timer arch" id="cave-timer">0:00</div>
-  <div class="artifact-hint" id="artifact-hint"></div>
-  <div class="compass-bar" id="compass-bar">
-    <div class="compass-markers" id="compass-markers">
-      <span class="compass-marker" data-artifact="mural">壁画</span>
-      <span class="compass-marker" data-artifact="scripture">经书</span>
-      <span class="compass-marker" data-artifact="buddha">大佛像</span>
-      <span class="compass-marker" data-artifact="statue">小佛像</span>
+  <div class="cave-hud-timer" id="cave-timer">0:00</div>
+  <div class="cave-artifact-hint" id="artifact-hint"></div>
+  <div class="cave-compass" id="compass-bar">
+    <div class="compass-inner">
+      <span class="compass-marker" data-art="mural">壁画</span>
+      <span class="compass-marker" data-art="scripture">经书</span>
+      <span class="compass-marker" data-art="buddha">大佛像</span>
+      <span class="compass-marker" data-art="statue">小佛像</span>
     </div>
     <div class="compass-dot" id="compass-dot"></div>
   </div>
-  <div class="scene-hint-bottom">转动手机或滑动屏幕 · 寻找文物</div>
-  <div class="minigame-wrap" id="minigame-wrap"></div>
+  <div class="cave-guide-bar">
+    <span>左右转动手机或滑动屏幕寻找文物 · 对准后点击</span>
+  </div>
+  <div class="minigame-overlay" id="minigame-overlay"></div>
 </div>
 
-<!-- ═══════════════ SCENE: TRANSITION (ARCH → PROG) ═══════════════ -->
+<!-- ═══ ARCH TRANSITION ═══ -->
 <div id="scene-arch-transition" class="scene">
-  <div class="transition-bg"></div>
-  <div class="transition-content">
-    <div class="transition-icon">💻</div>
-    <div class="transition-text">正在切换至现代视界……</div>
-    <div class="transition-sub">程序员远程接入中</div>
+  <div class="trans-bg"></div>
+  <div class="trans-content">
+    <div class="trans-icon">💻</div>
+    <div class="trans-title">正在切换至现代视界……</div>
+    <div class="trans-sub">程序员远程接入中</div>
   </div>
 </div>
 
-<!-- ═══════════════ SCENE: DATA SHOOT (PROG) ═══════════════ -->
+<!-- ═══ PROG PERM ═══ -->
+<div id="scene-prog-perm" class="scene">
+  <div class="perm-screen">
+    <div class="perm-icon">💻</div>
+    <div class="perm-title" style="color:var(--prog-cyan)">数据修复模式</div>
+    <div class="perm-desc">洞窟已坍塌，现在你将作为程序员<br>远程协助考古学家完成<strong>数字修复</strong>。</div>
+    <button class="btn btn-prog" id="prog-perm-btn">进入系统</button>
+  </div>
+</div>
+
+<!-- ═══ DATA SHOOT ═══ -->
 <div id="scene-data-shoot" class="scene">
-  <div class="ds-hud-top">
-    <div class="ds-health-bar" id="ds-health"></div>
-    <div class="ds-rounds-label" id="ds-rounds">数据包 0/3</div>
+  <div class="ds-hud">
+    <div class="ds-health" id="ds-health"></div>
+    <div class="ds-rounds" id="ds-rounds">数据包 0/3</div>
   </div>
   <div class="ds-progress-area">
     <div class="ds-progress-label">数据发送进度</div>
-    <div class="ds-progress-bar-outer">
-      <div class="ds-progress-inner" id="ds-progress-bar"></div>
-    </div>
+    <div class="ds-progress-outer"><div class="ds-progress-inner" id="ds-progress-bar"></div></div>
   </div>
-  <div class="scene-hint-bottom">点击摧毁红色数据团 · 避开蓝色数据</div>
+  <div class="ds-guide-bar">
+    <span>点击摧毁<em style="color:var(--danger-red)">红色数据块</em> · 保护<em style="color:var(--prog-cyan)">蓝色数据</em></span>
+  </div>
 </div>
 
-<!-- ═══════════════ SCENE: MAZE (PROG) ═══════════════ -->
+<!-- ═══ MAZE ═══ -->
 <div id="scene-maze" class="scene">
   <div class="maze-bg"></div>
-  <div class="maze-container">
+  <div class="maze-wrap">
     <div class="maze-title">数据迷宫</div>
-    <div class="maze-hint">倾斜手机控制小球，到达出口</div>
+    <div class="maze-desc">倾斜手机控制小球寻找出口</div>
     <canvas id="maze-canvas" class="maze-canvas"></canvas>
-    <div class="maze-hint">在复杂的数据流中寻找正确的线索路径</div>
-    <button class="btn btn-skip" id="maze-skip-btn">跳过迷宫</button>
+    <div class="maze-desc">找到出口以获取洞窟结构图</div>
+    <button class="btn btn-prog btn-skip" id="maze-skip-btn">跳过迷宫</button>
   </div>
 </div>
 
-<!-- ═══════════════ SCENE: PHOTO PUZZLE (PROG) ═══════════════ -->
+<!-- ═══ PHOTO PUZZLE ═══ -->
 <div id="scene-photo-puzzle" class="scene">
   <div class="pp-bg"></div>
-  <div class="hud-timer prog" id="prog-timer">0:00</div>
-  <div class="pp-container" id="pp-container"></div>
+  <div class="pp-hud-timer" id="prog-timer">0:00</div>
+  <div class="pp-wrap" id="pp-container"></div>
 </div>
 
-<!-- ═══════════════ SCENE: ENDING ═══════════════ -->
+<!-- ═══ ENDING ═══ -->
 <div id="scene-ending" class="scene">
-  <div class="ending-content" id="ending-content"></div>
+  <div class="ending-wrap" id="ending-content"></div>
 </div>
 
-<!-- ═══════════════ SCENE: RESULTS ═══════════════ -->
+<!-- ═══ RESULTS ═══ -->
 <div id="scene-results" class="scene">
-  <div class="ending-content" id="results-content"></div>
+  <div class="ending-wrap" id="results-content"></div>
 </div>
 
-<!-- ═══════════════ SCRIPTS ═══════════════ -->
 <script src="js/engine.js"></script>
 <script src="js/config.js"></script>
 <script src="js/ui.js"></script>

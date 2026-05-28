@@ -1,229 +1,94 @@
 /* ═══════════════════════════════════════════════════════
    敦煌复苏计划 — ui.js
-   字幕对话系统 + 弹窗 + Toast
-   严格使用设计素材 PNG，不自行捏造视觉样式
+   对话 · 弹窗 · Toast · 粒子  严格使用设计素材
    ═══════════════════════════════════════════════════════ */
 
-// ─── Dialogue System ───────────────────────────────────
 class DialogueSystem {
-  constructor() {
-    this._lines = [];
-    this._idx = 0;
-    this._typing = false;
-    this._skipFlag = false;
-    this._onComplete = null;
-    this._lastTap = 0;
-    this._resolved = false;
-    this._createBar();
-  }
+  constructor() { this._ls = []; this._i = 0; this._typing = false; this._skip = false; this._cb = null; this._last = 0; this._done = false; this._make(); }
 
-  _createBar() {
-    const old = document.getElementById('dialogue-bar');
-    if (old) old.remove();
-
-    this.el = document.createElement('div');
-    this.el.id = 'dialogue-bar';
-    // Use subtitle PNG as the dialogue container background
-    this.el.style.cssText = `
-      position:fixed; bottom:0; left:0; right:0; z-index:100;
-      padding:18px 16px calc(18px + env(safe-area-inset-bottom,4px));
-      cursor:pointer;
-      background:var(--ui-subtitle) center/100% 100% no-repeat;
-      display:none;
-    `;
-
-    // Speaker label
-    this._speakerEl = document.createElement('span');
-    this._speakerEl.style.cssText = `
-      display:inline-block; font-size:10px; font-weight:700;
-      letter-spacing:.06em; margin-bottom:6px; padding:1px 6px;
-      border-radius:2px;
-    `;
-    this.el.appendChild(this._speakerEl);
-
-    // Text container
-    this._textEl = document.createElement('div');
-    this._textEl.style.cssText = `
-      font-size:14px; line-height:1.65; color:var(--parchment);
-      min-height:22px;
-    `;
-    this.el.appendChild(this._textEl);
-
-    // Continue hint — uses the provided continue button PNG
-    this._hintEl = document.createElement('div');
-    this._hintEl.style.cssText = `
-      display:none; position:absolute; right:12px; bottom:8px;
-      width:24px; height:24px;
-      background:var(--ui-subtitle-btn) center/contain no-repeat;
-      animation: hint-bounce .8s ease infinite;
-    `;
-    this.el.appendChild(this._hintEl);
-
+  _make() {
+    const o = document.getElementById('dialogue-bar'); if (o) o.remove();
+    this.el = document.createElement('div'); this.el.id = 'dialogue-bar'; this.el.className = 'dialogue-bar';
+    this._sp = document.createElement('div'); this._sp.className = 'dialogue-speaker'; this.el.appendChild(this._sp);
+    this._tx = document.createElement('div'); this._tx.className = 'dialogue-text'; this.el.appendChild(this._tx);
+    this._hint = document.createElement('div'); this._hint.className = 'dialogue-next'; this._hint.style.display = 'none'; this.el.appendChild(this._hint);
     document.body.appendChild(this.el);
-
-    this._clickFn = (e) => { e.preventDefault(); this._advance(); };
-    this.el.addEventListener('click', this._clickFn);
+    this._fn = e => { e.preventDefault(); this._next(); };
+    this.el.addEventListener('click', this._fn);
   }
 
   play(lines) {
     return new Promise(resolve => {
-      clearDynamicUI();
-      this._lines = lines;
-      this._idx = 0;
-      this._onComplete = resolve;
-      this._resolved = false;
-      this.el.style.display = '';
-      this._show();
+      this._ls = lines; this._i = 0; this._cb = resolve; this._done = false;
+      this.el.style.display = ''; this._show();
     });
   }
 
   _show() {
-    if (this._idx >= this._lines.length) { this._done(); return; }
-    const line = this._lines[this._idx];
-
-    // Speaker
-    const isProg = line.speaker === '*';
-    this._speakerEl.textContent = isProg ? '程序员' : '考古学家';
-    this._speakerEl.style.color = isProg ? 'var(--prog-cyan)' : 'var(--gold-light)';
-    this._speakerEl.style.background = isProg ? 'rgba(0,212,255,.1)' : 'rgba(200,150,60,.1)';
-
-    // Text typing
-    this._textEl.textContent = '';
-    this._hintEl.style.display = 'none';
-    this._typing = true;
-    this._skipFlag = false;
-
-    const text = line.text;
-    let i = 0;
-    this._typeTimer = setInterval(() => {
-      if (this._skipFlag) {
-        clearInterval(this._typeTimer);
-        this._textEl.textContent = text;
-        this._finishTyping();
-        return;
-      }
-      if (i < text.length) {
-        this._textEl.textContent += text[i++];
-      } else {
-        clearInterval(this._typeTimer);
-        this._finishTyping();
-      }
-    }, 25);
+    if (this._i >= this._ls.length) { this._finish(); return; }
+    const L = this._ls[this._i];
+    const isP = L.speaker === '*';
+    this._sp.textContent = isP ? '程序员' : '考古学家';
+    this._sp.className = 'dialogue-speaker ' + (isP ? 'prog' : 'arch');
+    this._tx.textContent = ''; this._hint.style.display = 'none';
+    this._typing = true; this._skip = false;
+    let j = 0; const txt = L.text;
+    this._timer = setInterval(() => {
+      if (this._skip) { clearInterval(this._timer); this._tx.textContent = txt; this._endType(); return; }
+      if (j < txt.length) { this._tx.textContent += txt[j++]; }
+      else { clearInterval(this._timer); this._endType(); }
+    }, 22);
   }
 
-  _finishTyping() {
-    this._typing = false;
-    this._skipFlag = false;
-    this._hintEl.style.display = '';
+  _endType() { this._typing = false; this._skip = false; this._hint.style.display = ''; }
+
+  _next() {
+    if (Date.now() - this._last < 150) return; this._last = Date.now();
+    if (this._typing) { this._skip = true; } else { this._i++; this._show(); }
   }
 
-  _advance() {
-    const now = Date.now();
-    if (now - this._lastTap < 150) return;
-    this._lastTap = now;
-    if (this._typing) { this._skipFlag = true; }
-    else { this._idx++; this._show(); }
-  }
+  _finish() { this.el.style.display = 'none'; if (!this._done) { this._done = true; if (this._cb) this._cb(); } }
 
-  _done() {
-    this.el.style.display = 'none';
-    if (!this._resolved) { this._resolved = true; if (this._onComplete) this._onComplete(); }
-  }
-
-  destroy() {
-    if (this._typeTimer) clearInterval(this._typeTimer);
-    if (this.el) { this.el.removeEventListener('click', this._clickFn); this.el.remove(); }
-  }
+  destroy() { if (this._timer) clearInterval(this._timer); if (this.el) { this.el.removeEventListener('click', this._fn); this.el.remove(); } }
 }
 
-// ─── Modal System ──────────────────────────────────────
-class ModalSystem {
-  create(opts) {
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-
-    const box = document.createElement('div');
-    box.className = `modal-box ${opts.theme || 'arch'}`;
-
-    if (opts.title) {
-      const t = document.createElement('div');
-      t.className = 'modal-title';
-      t.textContent = opts.title;
-      box.appendChild(t);
-    }
-    if (opts.content) {
-      const c = document.createElement('div');
-      c.className = 'modal-content';
-      if (typeof opts.content === 'string') c.innerHTML = opts.content;
-      else c.appendChild(opts.content);
-      box.appendChild(c);
-    }
-    if (opts.timer) {
-      const d = document.createElement('div');
-      d.className = `modal-timer ${opts.theme || 'arch'}`;
-      d.textContent = opts.timer;
-      box.appendChild(d);
-      opts._timerEl = d;
-    }
-    if (opts.btnText) {
-      const btn = document.createElement('button');
-      btn.className = `btn btn-${opts.theme || 'arch'}`;
-      btn.textContent = opts.btnText;
-      btn.addEventListener('click', () => { overlay.remove(); if (opts.onConfirm) opts.onConfirm(); });
-      box.appendChild(btn);
-    }
-
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-
-    return {
-      overlay,
-      timerEl: opts._timerEl || null,
-      close() { overlay.remove(); },
-      updateTimer(text) { if (opts._timerEl) opts._timerEl.textContent = text; }
-    };
+// ─── Modal ─────────────────────────────────────────────
+function showModal(opts) {
+  const ov = document.createElement('div'); ov.className = 'modal-overlay';
+  const box = document.createElement('div'); box.className = 'modal-box ' + (opts.theme || 'arch');
+  if (opts.title) { const t = document.createElement('div'); t.className = 'modal-title'; t.textContent = opts.title; box.appendChild(t); }
+  if (opts.text) { const c = document.createElement('div'); c.className = 'modal-text'; c.innerHTML = opts.text; box.appendChild(c); }
+  if (opts.timer) { const d = document.createElement('div'); d.className = 'modal-timer ' + (opts.theme || 'arch'); d.textContent = opts.timer; box.appendChild(d); opts._tEl = d; }
+  if (opts.btn) {
+    const b = document.createElement('button'); b.className = 'btn btn-' + (opts.theme || 'arch');
+    b.textContent = opts.btn; b.addEventListener('click', () => { ov.remove(); if (opts.onConfirm) opts.onConfirm(); });
+    box.appendChild(b);
   }
+  ov.appendChild(box); document.body.appendChild(ov);
+  return { ov, tEl: opts._tEl, close() { ov.remove(); }, upd(t) { if (opts._tEl) opts._tEl.textContent = t; } };
 }
 
 // ─── Toast ─────────────────────────────────────────────
-function toast(msg, theme, duration) {
-  theme = theme || 'arch';
-  duration = duration || 2000;
-  const el = document.createElement('div');
-  el.className = `toast toast-${theme}`;
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => { el.classList.add('toast-out'); setTimeout(() => el.remove(), 400); }, duration);
+function toast(msg, theme, dur) {
+  theme = theme || 'arch'; dur = dur || 2000;
+  const e = document.createElement('div'); e.className = 'toast toast-' + theme; e.textContent = msg;
+  document.body.appendChild(e);
+  setTimeout(() => { e.classList.add('toast-out'); setTimeout(() => e.remove(), 400); }, dur);
 }
 
-// ─── Spark Particles ──────────────────────────────────
-function spawnSparks(x, y, count, color) {
-  count = count || 8;
-  color = color || 'var(--gold)';
-  for (let i = 0; i < count; i++) {
-    const s = document.createElement('div');
-    s.className = 'spark';
-    s.style.left = x + 'px';
-    s.style.top = y + 'px';
-    s.style.backgroundColor = color;
-    const angle = (Math.PI * 2 / count) * i + Math.random() * 0.5;
-    const dist = randInt(20, 50);
-    s.style.setProperty('--sx', Math.cos(angle) * dist + 'px');
-    s.style.setProperty('--sy', Math.sin(angle) * dist + 'px');
-    s.style.width = s.style.height = randInt(3, 6) + 'px';
-    document.body.appendChild(s);
-    setTimeout(() => s.remove(), 550);
+// ─── Sparks ───────────────────────────────────────────
+function sparks(x, y, n, c) {
+  n = n || 8; c = c || 'var(--gold)';
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('div'); s.className = 'spark';
+    s.style.left = x + 'px'; s.style.top = y + 'px'; s.style.backgroundColor = c;
+    const a = (Math.PI * 2 / n) * i + Math.random() * .5;
+    const d = randInt(18, 44);
+    s.style.setProperty('--sx', Math.cos(a) * d + 'px');
+    s.style.setProperty('--sy', Math.sin(a) * d + 'px');
+    s.style.width = s.style.height = randInt(3, 5) + 'px';
+    document.body.appendChild(s); setTimeout(() => s.remove(), 550);
   }
 }
 
-// ─── Singleton ──────────────────────────────────────────
 const Dialogue = new DialogueSystem();
-const Modal = new ModalSystem();
-
-function showFullscreenHint() {
-  const el = document.createElement('div');
-  el.className = 'fullscreen-hint';
-  el.innerHTML = '<span>上滑隐藏浏览器工具栏可获得更好体验</span>';
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 4000);
-}
