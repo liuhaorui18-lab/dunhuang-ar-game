@@ -33,7 +33,7 @@ function chkNear() {
   const targets = { mural: 0, scripture: 90, buddha: 180, statue: 270 };
   let nearest = null, nearDist = 999;
   for (const [n, deg] of Object.entries(targets)) {
-    if (GameState.artifactsCompleted.includes(n)) continue;
+    if (GameState.artifactsCompleted.includes(n) || GameState.failedArtifacts.includes(n)) continue;
     let d = Math.abs(Cave.ang - deg); if (d > 180) d = 360 - d;
     if (d < 35 && d < nearDist) { nearDist = d; nearest = n; }
   }
