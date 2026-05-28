@@ -26,7 +26,7 @@ function roundPP() {
   html += '</div>';
   html += '<div id="pp-pieces" class="pp-pieces" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:4px">';
   order.forEach(function(id) {
-    html += '<div class="pp-piece" data-id="' + id + '" style="width:80px;height:80px;background-image:url("' + imgs[id % 4] + '");background-size:cover;background-position:center;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .2s"></div>';
+    html += '<div class="pp-piece" data-id="' + id + '" style="width:80px;height:80px;background-image:url(' + encodeURI(imgs[id % 4]) + ');background-size:cover;background-position:center;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .2s"></div>';
   });
   html += '</div>';
   html += '<button class="btn btn-skip" id="pp-skip" style="margin-top:6px">跳过此拼图</button>';
@@ -59,8 +59,8 @@ function roundPP() {
       if (id !== sid) { toast('不是这里！再试一次', 'prog', 1000); return; }
 
       // Correct! Move piece into slot
-      PP.sel.style.cssText = 'width:80px;height:80px;background-size:cover;background-position:center;border-radius:6px;border:2px solid var(--prog-cyan);';
-      // Copy background
+      var bgImg = PP.sel.style.backgroundImage;
+      PP.sel.style.cssText = 'width:80px;height:80px;background-image:' + bgImg + ';background-size:cover;background-position:center;border-radius:6px;border:2px solid var(--prog-cyan);';
       slot.innerHTML = '';
       slot.appendChild(PP.sel);
       slot.style.border = 'none';
