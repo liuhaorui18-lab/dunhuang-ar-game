@@ -95,10 +95,11 @@ function goExplore() {
   // 洞口像素图——直接挂body做全屏遮罩确保显示
   var overlay = document.createElement('div');
   overlay.id = 'cave-entrance-overlay';
-  overlay.innerHTML = '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000">' +
-    '<img src="assets/洞口像素图.png" style="width:90%;max-height:65%;object-fit:contain;animation:caveIn 1.2s ease forwards;opacity:0" id="caveEntranceImg">' +
-    '<div style="margin-top:16px;font-size:16px;font-weight:700;color:var(--gold-light);animation:caveInTxt 1s .4s ease forwards;opacity:0">走入洞窟……</div>' +
-    '<div style="margin-top:4px;font-size:10px;opacity:.25">洞窟深处隐藏着千年的秘密</div>' +
+  overlay.innerHTML = '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 50%, rgba(20,10,0,.3) 0%, rgba(0,0,0,.85) 80%, #000 100%)">' +
+    '<img src="assets/洞口像素图.png" style="width:90%;max-height:65%;object-fit:contain;animation:caveIn 1.2s ease forwards;opacity:0;position:relative;z-index:1" id="caveEntranceImg">' +
+    '<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,.6) 75%, #000 100%);pointer-events:none;z-index:2"></div>' +
+    '<div style="margin-top:16px;font-size:16px;font-weight:700;color:var(--gold-light);animation:caveInTxt 1s .4s ease forwards;opacity:0;position:relative;z-index:3">走入洞窟……</div>' +
+    '<div style="margin-top:4px;font-size:10px;opacity:.25;position:relative;z-index:3">洞窟深处隐藏着千年的秘密</div>' +
     '</div>';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:500;';
   document.body.appendChild(overlay);
