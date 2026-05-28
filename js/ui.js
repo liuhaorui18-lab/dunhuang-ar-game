@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════════════
    敦煌复苏计划 — ui.js
-   字幕对话系统 + 弹窗 + HUD + Toast
+   字幕对话系统 + 弹窗 + Toast
+   严格使用设计素材 PNG，不自行捏造视觉样式
    ═══════════════════════════════════════════════════════ */
 
 // ─── Dialogue System ───────────────────────────────────
@@ -17,42 +18,56 @@ class DialogueSystem {
   }
 
   _createBar() {
-    // Remove existing if any
     const old = document.getElementById('dialogue-bar');
     if (old) old.remove();
 
     this.el = document.createElement('div');
     this.el.id = 'dialogue-bar';
-    this.el.className = 'dialogue-bar';
-    this.el.innerHTML = `
-      <div class="dialogue-bg"></div>
-      <div class="dialogue-content">
-        <span class="dialogue-speaker"></span>
-        <span class="dialogue-text"></span>
-        <span class="dialogue-hint"></span>
-      </div>
+    // Use subtitle PNG as the dialogue container background
+    this.el.style.cssText = `
+      position:fixed; bottom:0; left:0; right:0; z-index:100;
+      padding:18px 16px calc(18px + env(safe-area-inset-bottom,4px));
+      cursor:pointer;
+      background:var(--ui-subtitle) center/100% 100% no-repeat;
+      display:none;
     `;
+
+    // Speaker label
+    this._speakerEl = document.createElement('span');
+    this._speakerEl.style.cssText = `
+      display:inline-block; font-size:10px; font-weight:700;
+      letter-spacing:.06em; margin-bottom:6px; padding:1px 6px;
+      border-radius:2px;
+    `;
+    this.el.appendChild(this._speakerEl);
+
+    // Text container
+    this._textEl = document.createElement('div');
+    this._textEl.style.cssText = `
+      font-size:14px; line-height:1.65; color:var(--parchment);
+      min-height:22px;
+    `;
+    this.el.appendChild(this._textEl);
+
+    // Continue hint — uses the provided continue button PNG
+    this._hintEl = document.createElement('div');
+    this._hintEl.style.cssText = `
+      display:none; position:absolute; right:12px; bottom:8px;
+      width:24px; height:24px;
+      background:var(--ui-subtitle-btn) center/contain no-repeat;
+      animation: hint-bounce .8s ease infinite;
+    `;
+    this.el.appendChild(this._hintEl);
+
     document.body.appendChild(this.el);
 
-    this._speakerEl = this.el.querySelector('.dialogue-speaker');
-    this._textEl = this.el.querySelector('.dialogue-text');
-    this._hintEl = this.el.querySelector('.dialogue-hint');
-
-    // Click handler
-    this._clickFn = (e) => {
-      e.preventDefault();
-      this._advance();
-    };
+    this._clickFn = (e) => { e.preventDefault(); this._advance(); };
     this.el.addEventListener('click', this._clickFn);
-    this.el.addEventListener('touchend', e => {
-      e.preventDefault();
-      this._advance();
-    });
   }
 
-  // Play dialogue and return Promise
   play(lines) {
     return new Promise(resolve => {
+      clearDynamicUI();
       this._lines = lines;
       this._idx = 0;
       this._onComplete = resolve;
@@ -63,15 +78,14 @@ class DialogueSystem {
   }
 
   _show() {
-    if (this._idx >= this._lines.length) {
-      this._done();
-      return;
-    }
+    if (this._idx >= this._lines.length) { this._done(); return; }
     const line = this._lines[this._idx];
 
     // Speaker
-    this._speakerEl.textContent = line.speaker === '*' ? '程序员' : '考古学家';
-    this._speakerEl.className = 'dialogue-speaker ' + (line.speaker === '*' ? 'sp-prog' : 'sp-arch');
+    const isProg = line.speaker === '*';
+    this._speakerEl.textContent = isProg ? '程序员' : '考古学家';
+    this._speakerEl.style.color = isProg ? 'var(--prog-cyan)' : 'var(--gold-light)';
+    this._speakerEl.style.background = isProg ? 'rgba(0,212,255,.1)' : 'rgba(200,150,60,.1)';
 
     // Text typing
     this._textEl.textContent = '';
@@ -100,36 +114,25 @@ class DialogueSystem {
   _finishTyping() {
     this._typing = false;
     this._skipFlag = false;
-    this._hintEl.style.display = 'inline-block';
+    this._hintEl.style.display = '';
   }
 
   _advance() {
     const now = Date.now();
     if (now - this._lastTap < 150) return;
     this._lastTap = now;
-
-    if (this._typing) {
-      this._skipFlag = true;
-    } else {
-      this._idx++;
-      this._show();
-    }
+    if (this._typing) { this._skipFlag = true; }
+    else { this._idx++; this._show(); }
   }
 
   _done() {
     this.el.style.display = 'none';
-    if (!this._resolved) {
-      this._resolved = true;
-      if (this._onComplete) this._onComplete();
-    }
+    if (!this._resolved) { this._resolved = true; if (this._onComplete) this._onComplete(); }
   }
 
   destroy() {
     if (this._typeTimer) clearInterval(this._typeTimer);
-    if (this.el) {
-      this.el.removeEventListener('click', this._clickFn);
-      this.el.remove();
-    }
+    if (this.el) { this.el.removeEventListener('click', this._clickFn); this.el.remove(); }
   }
 }
 
@@ -142,29 +145,19 @@ class ModalSystem {
     const box = document.createElement('div');
     box.className = `modal-box ${opts.theme || 'arch'}`;
 
-    // Decorative frame
-    const frame = document.createElement('div');
-    frame.className = 'modal-frame';
-    box.appendChild(frame);
-
     if (opts.title) {
       const t = document.createElement('div');
       t.className = 'modal-title';
       t.textContent = opts.title;
       box.appendChild(t);
     }
-
     if (opts.content) {
       const c = document.createElement('div');
       c.className = 'modal-content';
-      if (typeof opts.content === 'string') {
-        c.innerHTML = opts.content;
-      } else {
-        c.appendChild(opts.content);
-      }
+      if (typeof opts.content === 'string') c.innerHTML = opts.content;
+      else c.appendChild(opts.content);
       box.appendChild(c);
     }
-
     if (opts.timer) {
       const d = document.createElement('div');
       d.className = `modal-timer ${opts.theme || 'arch'}`;
@@ -172,24 +165,11 @@ class ModalSystem {
       box.appendChild(d);
       opts._timerEl = d;
     }
-
-    // Close button with design PNG
-    const closeBtn = document.createElement('div');
-    closeBtn.className = 'modal-close-btn';
-    closeBtn.addEventListener('click', () => {
-      overlay.remove();
-      if (opts.onClose) opts.onClose();
-    });
-    box.appendChild(closeBtn);
-
     if (opts.btnText) {
       const btn = document.createElement('button');
       btn.className = `btn btn-${opts.theme || 'arch'}`;
       btn.textContent = opts.btnText;
-      btn.addEventListener('click', () => {
-        overlay.remove();
-        if (opts.onConfirm) opts.onConfirm();
-      });
+      btn.addEventListener('click', () => { overlay.remove(); if (opts.onConfirm) opts.onConfirm(); });
       box.appendChild(btn);
     }
 
@@ -206,38 +186,20 @@ class ModalSystem {
 }
 
 // ─── Toast ─────────────────────────────────────────────
-function toast(msg, theme = 'arch', duration = 2000) {
+function toast(msg, theme, duration) {
+  theme = theme || 'arch';
+  duration = duration || 2000;
   const el = document.createElement('div');
   el.className = `toast toast-${theme}`;
   el.textContent = msg;
   document.body.appendChild(el);
-  setTimeout(() => {
-    el.classList.add('toast-out');
-    setTimeout(() => el.remove(), 400);
-  }, duration);
-}
-
-// ─── HUD Elements ─────────────────────────────────────
-function createHUDTimer(id, theme = 'arch') {
-  const el = document.createElement('div');
-  el.id = id;
-  el.className = `hud-timer ${theme}`;
-  el.style.display = 'none';
-  document.body.appendChild(el);
-  return el;
-}
-
-function createHUDScore(id) {
-  const el = document.createElement('div');
-  el.id = id;
-  el.className = 'hud-score';
-  el.style.display = 'none';
-  document.body.appendChild(el);
-  return el;
+  setTimeout(() => { el.classList.add('toast-out'); setTimeout(() => el.remove(), 400); }, duration);
 }
 
 // ─── Spark Particles ──────────────────────────────────
-function spawnSparks(x, y, count = 8, color = 'var(--gold)') {
+function spawnSparks(x, y, count, color) {
+  count = count || 8;
+  color = color || 'var(--gold)';
   for (let i = 0; i < count; i++) {
     const s = document.createElement('div');
     s.className = 'spark';
@@ -254,11 +216,10 @@ function spawnSparks(x, y, count = 8, color = 'var(--gold)') {
   }
 }
 
-// ─── Singleton instances ───────────────────────────────
+// ─── Singleton ──────────────────────────────────────────
 const Dialogue = new DialogueSystem();
 const Modal = new ModalSystem();
 
-// ─── Fullscreen hint (for iOS PWA) ───────────────────
 function showFullscreenHint() {
   const el = document.createElement('div');
   el.className = 'fullscreen-hint';

@@ -73,6 +73,18 @@ function initExcavation() {
 
   // Start render loop
   EX.animId = requestAnimationFrame(drawExcavation);
+
+  // Register cleanup
+  onSceneCleanup(() => {
+    EX.done = true;
+    clearInterval(EX.spawnTimer);
+    cancelAnimationFrame(EX.animId);
+    Motion.off(_updateForce);
+    window.removeEventListener('resize', resizeExcavation);
+    document.getElementById('ex-score').style.display = 'none';
+    document.getElementById('force-meter').style.display = 'none';
+    document.getElementById('ex-feedback').style.display = 'none';
+  });
 }
 
 function resizeExcavation() {

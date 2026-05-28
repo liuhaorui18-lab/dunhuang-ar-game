@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    敦煌复苏计划 — title.js
-   加载页 → 标题页 → 角色选择
+   加载页 → 标题页 → 直接进入考古学家线
    ═══════════════════════════════════════════════════════ */
 
 // ─── Loading ───────────────────────────────────────────
@@ -32,21 +32,16 @@
       setTimeout(tick, randInt(200, 500));
     } else {
       setTimeout(() => {
-        SM.go('scene-title', () => {
-          // Particle background
-          startParticles();
-        });
+        SM.go('scene-title', () => { startParticles(); });
       }, 500);
     }
   }
 
-  // Preload critical images during loading
   Preloader.preload(PreloadAssets.critical);
-
   setTimeout(tick, 400);
 })();
 
-// ─── Particles Background ─────────────────────────────
+// ─── Particles ─────────────────────────────────────────
 function startParticles() {
   const canvas = document.createElement('canvas');
   canvas.id = 'bg-particles';
@@ -57,10 +52,7 @@ function startParticles() {
   let W, H;
   const particles = [];
 
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
   resize();
   window.addEventListener('resize', resize);
 
@@ -92,46 +84,12 @@ function startParticles() {
   draw();
 }
 
-// ─── Character Select ──────────────────────────────────
-let selectedChar = null;
+// ─── Start Button ──────────────────────────────────────
 const startBtn = document.getElementById('start-btn');
-
-function selectChar(c) {
-  selectedChar = c;
-  document.getElementById('card-arch').classList.toggle('selected', c === 'arch');
-  document.getElementById('card-prog').classList.toggle('selected', c === 'prog');
-
-  startBtn.disabled = false;
-  if (c === 'arch') {
-    startBtn.className = 'btn btn-arch';
-    startBtn.textContent = '以考古学家身份开始';
-  } else {
-    startBtn.className = 'btn btn-prog';
-    startBtn.textContent = '以程序员身份开始';
-  }
-}
-
-document.getElementById('card-arch').addEventListener('click', () => selectChar('arch'));
-document.getElementById('card-prog').addEventListener('click', () => selectChar('prog'));
-
 startBtn.addEventListener('click', () => {
-  if (!selectedChar) return;
-  GameState.character = selectedChar;
+  GameState.character = 'arch';
+  GameState.phase = 'arch';
   GameState.isMobile = isMobile();
-
-  // Set theme
-  document.body.setAttribute('data-theme', selectedChar);
-
-  // Update perm scene UI based on character
-  if (selectedChar === 'prog') {
-    document.getElementById('perm-icon').textContent = '💻';
-    document.getElementById('perm-title').style.color = 'var(--prog-cyan)';
-    document.getElementById('perm-desc').innerHTML =
-      '你将远程协助一位洞窟中的考古学家。<br>游戏需要使用<strong>摄像头</strong>和<strong>运动传感器</strong>。<br>请在弹出的权限请求中点击"允许"。';
-    document.getElementById('perm-role').textContent = '身份：程序员';
-    document.getElementById('perm-role').style.color = 'var(--prog-cyan)';
-    document.getElementById('perm-btn').className = 'btn btn-prog';
-  }
-
+  document.body.setAttribute('data-theme', 'arch');
   SM.go('scene-perm');
 });

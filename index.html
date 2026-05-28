@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<!-- Camera Layer -->
+<!-- Camera Layer (pointer-events:none on overlay) -->
 <video id="camera-video" autoplay playsinline muted></video>
 <div class="cam-darken"></div>
 
@@ -25,7 +25,7 @@
   <div class="loading-subtitle">DUNHUANG DIGITAL REVIVAL PROJECT</div>
   <div class="loading-progress-wrap">
     <div class="loading-walker" id="loading-walker"></div>
-    <div class="loading-progress-bar" id="loading-bar" style="width:0%"></div>
+    <div class="loading-progress-bar" id="loading-bar"></div>
   </div>
   <div class="loading-tip" id="loading-tip">正在启动数字敦煌系统……</div>
 </div>
@@ -37,22 +37,8 @@
     <div class="game-title-img"></div>
     <div class="game-subtitle">DUNHUANG DIGITAL REVIVAL PROJECT</div>
     <div class="game-quote">"在失忆的时代，选择记住什么，是一种反抗。"</div>
-    <div class="char-cards">
-      <div class="char-card arch-card" id="card-arch" data-char="arch">
-        <div class="char-icon">🔨</div>
-        <div class="char-name arch">考古学家</div>
-        <div class="char-tag arch-tag">现场探索</div>
-        <div class="char-traits">稳重踏实·亲历洞窟<br>文物还原度↑</div>
-      </div>
-      <div class="char-card prog-card" id="card-prog" data-char="prog">
-        <div class="char-icon">💻</div>
-        <div class="char-name prog">程序员</div>
-        <div class="char-tag prog-tag">远程协作</div>
-        <div class="char-traits">聪明急躁·数据支援<br>数字修复↑</div>
-      </div>
-    </div>
     <div class="start-btn-wrap">
-      <button class="btn btn-arch" id="start-btn" disabled>选择角色开始</button>
+      <button class="btn btn-arch" id="start-btn">进入洞窟</button>
     </div>
   </div>
 </div>
@@ -60,110 +46,108 @@
 <!-- ═══════════════ SCENE: PERMISSIONS ═══════════════ -->
 <div id="scene-perm" class="scene">
   <div class="perm-screen">
-    <div class="perm-icon" id="perm-icon">🔦</div>
-    <div class="perm-title" id="perm-title">敦煌复苏计划</div>
-    <div class="perm-desc" id="perm-desc">
+    <div class="perm-icon">🔦</div>
+    <div class="perm-title">敦煌复苏计划</div>
+    <div class="perm-desc">
       游戏需要使用<strong>摄像头</strong>和<strong>运动传感器</strong>。<br>请在弹出的权限请求中点击"允许"。
     </div>
-    <div class="perm-desc" id="perm-role" style="color:var(--gold-light);font-size:12px"></div>
+    <div class="perm-desc perm-role-text">身份：考古学家</div>
     <button class="btn btn-arch" id="perm-btn">授权并开始</button>
-    <div style="font-size:10px;opacity:.3">摄像头画面仅在设备本地使用，不会上传</div>
+    <div class="perm-privacy">摄像头画面仅在设备本地使用，不会上传</div>
   </div>
 </div>
 
 <!-- ═══════════════ SCENE: WALL SCAN ═══════════════ -->
 <div id="scene-wall-scan" class="scene">
-  <div class="scan-frame">
-    <div class="scan-frame-inner" id="scan-frame-inner">
-      <div class="scan-line"></div>
-    </div>
-  </div>
+  <div class="scan-frame"></div>
   <div class="scan-label arch" id="scan-label">将摄像头对准附近的岩壁……</div>
-  <button class="btn btn-arch scan-tap-btn" id="scan-tap-btn">▶ 锚定此处，开始开凿</button>
+  <button class="btn btn-arch scan-tap-btn" id="scan-tap-btn">锚定此处，开始开凿</button>
 </div>
 
-<!-- ═══════════════ SCENE: EXCAVATION (ARCH) ═══════════════ -->
+<!-- ═══════════════ SCENE: EXCAVATION ═══════════════ -->
 <div id="scene-excavation" class="scene">
   <canvas id="excavation-canvas"></canvas>
-  <div class="hud-score" id="ex-score" style="display:none">0 / 12</div>
-  <div class="force-meter" id="force-meter" style="display:none">
-    <div class="force-fill" id="force-fill" style="height:40%"></div>
+  <div class="hud-score" id="ex-score">0 / 12</div>
+  <div class="force-meter" id="force-meter">
+    <div class="force-fill" id="force-fill"></div>
     <div class="force-ideal"></div>
   </div>
   <div class="ex-feedback" id="ex-feedback"></div>
-  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:10px;opacity:.3;z-index:20;pointer-events:none">
-    点击对应区域开凿 · 注意时机与力度
-  </div>
+  <div class="scene-hint-bottom">点击对应区域开凿 · 注意时机与力度</div>
 </div>
 
-<!-- ═══════════════ SCENE: CLUE CATCH (ARCH) ═══════════════ -->
+<!-- ═══════════════ SCENE: CLUE CATCH ═══════════════ -->
 <div id="scene-clue-catch" class="scene">
   <div class="cc-hud">
     <span class="cc-score" id="cc-score">线索 0/2</span>
     <span class="cc-timer" id="cc-timer">18s</span>
   </div>
-  <div style="position:fixed;top:40px;left:0;right:0;text-align:center;font-size:10px;opacity:.4;z-index:25;pointer-events:none">
-    点击金色线索 · 忽略红色乱码
-  </div>
+  <div class="scene-hint-top">点击金色线索 · 忽略红色乱码</div>
 </div>
 
 <!-- ═══════════════ SCENE: COUNTDOWN REVEAL ═══════════════ -->
-<div id="scene-countdown-reveal" class="scene" style="background:rgba(0,0,0,0.9)"></div>
+<div id="scene-countdown-reveal" class="scene"></div>
 
-<!-- ═══════════════ SCENE: CAVE EXPLORE (ARCH) ═══════════════ -->
+<!-- ═══════════════ SCENE: CAVE EXPLORE ═══════════════ -->
 <div id="scene-cave-explore" class="scene">
   <div class="cave-darkness"></div>
   <div class="torch-glow" id="torch-glow"></div>
-  <div class="hud-timer arch" id="cave-timer" style="display:none">0:00</div>
+  <div class="hud-timer arch" id="cave-timer">0:00</div>
   <div class="artifact-hint" id="artifact-hint"></div>
-  <div class="compass-bar" id="compass-bar" style="display:none">
+  <div class="compass-bar" id="compass-bar">
     <div class="compass-markers" id="compass-markers">
-      <span class="compass-marker" data-artifact="mural" style="left:5%">壁画</span>
-      <span class="compass-marker" data-artifact="scripture" style="left:25%">经书</span>
-      <span class="compass-marker" data-artifact="buddha" style="left:47%">大佛像</span>
-      <span class="compass-marker" data-artifact="statue" style="left:73%">小佛像</span>
+      <span class="compass-marker" data-artifact="mural">壁画</span>
+      <span class="compass-marker" data-artifact="scripture">经书</span>
+      <span class="compass-marker" data-artifact="buddha">大佛像</span>
+      <span class="compass-marker" data-artifact="statue">小佛像</span>
     </div>
-    <div class="compass-dot" id="compass-dot" style="left:0%"></div>
+    <div class="compass-dot" id="compass-dot"></div>
   </div>
-  <div style="position:fixed;bottom:2%;left:0;right:0;text-align:center;font-size:10px;opacity:.25;z-index:15;pointer-events:none">
-    转动手机或滑动屏幕 · 寻找文物
+  <div class="scene-hint-bottom">转动手机或滑动屏幕 · 寻找文物</div>
+  <div class="minigame-wrap" id="minigame-wrap"></div>
+</div>
+
+<!-- ═══════════════ SCENE: TRANSITION (ARCH → PROG) ═══════════════ -->
+<div id="scene-arch-transition" class="scene">
+  <div class="transition-bg"></div>
+  <div class="transition-content">
+    <div class="transition-icon">💻</div>
+    <div class="transition-text">正在切换至现代视界……</div>
+    <div class="transition-sub">程序员远程接入中</div>
   </div>
-  <div class="minigame-wrap" id="minigame-wrap" style="display:none"></div>
 </div>
 
 <!-- ═══════════════ SCENE: DATA SHOOT (PROG) ═══════════════ -->
 <div id="scene-data-shoot" class="scene">
-  <div style="position:fixed;top:calc(var(--safe-t) + 8px);left:12px;right:12px;z-index:30;display:flex;justify-content:space-between;align-items:center">
+  <div class="ds-hud-top">
     <div class="ds-health-bar" id="ds-health"></div>
-    <div style="font-size:11px;color:var(--prog-cyan);opacity:.6" id="ds-rounds">数据包 0/3</div>
+    <div class="ds-rounds-label" id="ds-rounds">数据包 0/3</div>
   </div>
-  <div style="position:fixed;bottom:12%;left:8%;right:8%;z-index:30">
-    <div style="font-size:10px;color:var(--prog-cyan);opacity:.5;margin-bottom:4px;text-align:center">数据发送进度</div>
+  <div class="ds-progress-area">
+    <div class="ds-progress-label">数据发送进度</div>
     <div class="ds-progress-bar-outer">
-      <div class="ds-progress-inner" id="ds-progress-bar" style="width:0%"></div>
+      <div class="ds-progress-inner" id="ds-progress-bar"></div>
     </div>
   </div>
-  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:10px;opacity:.3;z-index:25;pointer-events:none">
-    点击摧毁红色数据团 · 避开蓝色数据
-  </div>
+  <div class="scene-hint-bottom">点击摧毁红色数据团 · 避开蓝色数据</div>
 </div>
 
 <!-- ═══════════════ SCENE: MAZE (PROG) ═══════════════ -->
 <div id="scene-maze" class="scene">
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(0,30,50,.7),rgba(5,10,16,.93))"></div>
+  <div class="maze-bg"></div>
   <div class="maze-container">
     <div class="maze-title">数据迷宫</div>
-    <div class="maze-hint">倾斜手机控制小球，到达出口 🚪（桌面：方向键）</div>
+    <div class="maze-hint">倾斜手机控制小球，到达出口</div>
     <canvas id="maze-canvas" class="maze-canvas"></canvas>
     <div class="maze-hint">在复杂的数据流中寻找正确的线索路径</div>
-    <button class="btn btn-skip" style="margin-top:8px" id="maze-skip-btn">走不出来？跳过迷宫</button>
+    <button class="btn btn-skip" id="maze-skip-btn">跳过迷宫</button>
   </div>
 </div>
 
 <!-- ═══════════════ SCENE: PHOTO PUZZLE (PROG) ═══════════════ -->
 <div id="scene-photo-puzzle" class="scene">
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,50,80,.25),rgba(5,10,16,.9))"></div>
-  <div class="hud-timer prog" id="prog-timer" style="display:none">0:00</div>
+  <div class="pp-bg"></div>
+  <div class="hud-timer prog" id="prog-timer">0:00</div>
   <div class="pp-container" id="pp-container"></div>
 </div>
 

@@ -38,6 +38,16 @@ function initClueCatch() {
     setTimeout(() => spawnClue(), i * 300);
   }
 
+  // Register cleanup
+  onSceneCleanup(() => {
+    CC.done = true;
+    clearInterval(CC.spawnTimer);
+    clearInterval(CC.timer);
+    CC.clues.forEach(el => el.remove());
+    CC.clues = [];
+    document.querySelectorAll('.clue-flyer').forEach(el => el.remove());
+  });
+
   // Countdown
   CC.timer = setInterval(() => {
     CC.remaining--;

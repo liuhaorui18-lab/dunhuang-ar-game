@@ -83,23 +83,32 @@ function initCaveExplore(totalSec) {
   });
 
   // Keyboard for desktop: arrow keys
-  window.addEventListener('keydown', e => {
+  const _keyHandler = e => {
     if (SM.current !== 'scene-cave-explore') return;
     if (e.key === 'ArrowLeft') { Cave.angle = (Cave.angle + 3) % 360; updateCompass(Cave.angle); checkNearArtifact(); }
     if (e.key === 'ArrowRight') { Cave.angle = (Cave.angle - 3 + 360) % 360; updateCompass(Cave.angle); checkNearArtifact(); }
-  });
+  };
+  window.addEventListener('keydown', _keyHandler);
 
   // Countdown
   Cave.timer = new CountdownTimer(Cave.totalTime, (rem) => {
     Cave.timerDisplay.textContent = fmtTime(rem);
-    // Color urgency
     if (rem <= 30) Cave.timerDisplay.style.color = 'var(--danger-red)';
     else if (rem <= 60) Cave.timerDisplay.style.color = '#FFA726';
   }, () => {
-    // Time's up - ending
     finishCaveExploration();
   });
   Cave.timer.start();
+
+  // Register cleanup
+  onSceneCleanup(() => {
+    if (Cave.timer) Cave.timer.stop();
+    Cave.timerDisplay.style.display = 'none';
+    document.getElementById('compass-bar').style.display = 'none';
+    document.getElementById('minigame-wrap').style.display = 'none';
+    Motion.offAll();
+    window.removeEventListener('keydown', _keyHandler);
+  });
 }
 
 function updateCompass(angle) {

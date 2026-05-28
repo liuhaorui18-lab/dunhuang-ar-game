@@ -31,6 +31,14 @@ function initDataShoot() {
 
   // Start first round
   startDSRound();
+
+  onSceneCleanup(() => {
+    DS.done = true;
+    DS.roundActive = false;
+    clearInterval(DS.spawnTimer);
+    DS.dataNodes.forEach(el => el.remove());
+    DS.dataNodes = [];
+  });
 }
 
 function startDSRound() {

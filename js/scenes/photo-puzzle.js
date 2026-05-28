@@ -35,6 +35,12 @@ function initPhotoPuzzle() {
   PP.timer.start();
 
   setupPuzzleRound();
+
+  onSceneCleanup(() => {
+    PP.done = true;
+    if (PP.timer) PP.timer.stop();
+    PP.timerDisplay.style.display = 'none';
+  });
 }
 
 function setupPuzzleRound() {

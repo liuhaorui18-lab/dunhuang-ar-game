@@ -63,10 +63,17 @@ function initMaze() {
     MAZE.done = true;
     cancelAnimationFrame(MAZE.animId);
     Motion.off(mazeMotion);
-    window.removeEventListener('keydown', MAZE._keyHandler);
+    window.removeEventListener('keydown', keyHandler);
     Dialogue.play(Dialogues.prog_maze_success).then(() => {
       showProgCountdown();
     });
+  });
+
+  onSceneCleanup(() => {
+    MAZE.done = true;
+    cancelAnimationFrame(MAZE.animId);
+    Motion.off(mazeMotion);
+    window.removeEventListener('keydown', keyHandler);
   });
 }
 
