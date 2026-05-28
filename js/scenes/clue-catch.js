@@ -92,17 +92,24 @@ function finCC() {
 }
 
 function goExplore() {
-  // 显示洞口像素图渐入代表进入洞窟
+  // 洞口像素图大幅展示——代表进入洞窟的转场
   var reveal = document.getElementById('scene-countdown-reveal');
-  reveal.innerHTML = '<div id="cave-entrance" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.9)"><img src="assets/洞口像素图.png" style="width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity 1.5s" id="cave-img"></div>';
+  reveal.innerHTML = '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000">' +
+    '<img src="assets/洞口像素图.png" style="width:90%;max-height:70%;object-fit:contain;animation:caveFadeIn 1.2s ease forwards" id="cave-img">' +
+    '<div style="margin-top:20px;font-size:15px;font-weight:700;color:var(--gold-light);animation:caveTextIn 1s .5s ease forwards;opacity:0">走入洞窟……</div>' +
+    '<div style="margin-top:6px;font-size:10px;opacity:.3">洞窟深处隐藏着千年的秘密</div>' +
+    '</div>';
+  // 注入动画keyframe
+  var style = document.createElement('style');
+  style.textContent = '@keyframes caveFadeIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}@keyframes caveTextIn{from{opacity:0}to{opacity:1}}';
+  document.head.appendChild(style);
+
   SM.go('scene-countdown-reveal').then(function() {
-    setTimeout(function() {
-      document.getElementById('cave-img').style.opacity = '1';
-    }, 200);
+    // 展示3.5秒后转场
     setTimeout(function() {
       Dialogue.play(Dialogues.arch_timer).then(function() {
         SM.go('scene-cave-explore').then(function() { initCaveExplore(GameState.totalSec); });
       });
-    }, 2200);
+    }, 3500);
   });
 }
