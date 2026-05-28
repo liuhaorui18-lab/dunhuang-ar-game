@@ -10,7 +10,14 @@ function initMaze() {
   MZ.c.style.width = (MZ.cols * MZ.cs * sc) + 'px'; MZ.c.style.height = (MZ.rows * MZ.cs * sc) + 'px';
   renderMZ();
 
-  MZ._mfn = d => { if (MZ.done || d.type !== 'orient') return; const dx = clamp((d.gamma || 0) / 30, -1, 1), dy = clamp((d.beta || 0) / 30, -1, 1); if (Math.abs(dx) > .15 || Math.abs(dy) > .15) mvMZ(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'ArrowRight' : 'ArrowLeft') : (dy > 0 ? 'ArrowDown' : 'ArrowUp')); };
+  var _lastMove=0;
+  MZ._mfn = d => { if (MZ.done || d.type !== 'orient') return;
+    var now=Date.now(); if(now-_lastMove<200) return; // 200ms冷却
+    var dx=clamp((d.gamma||0)/100,-1,1), dy=clamp((d.beta||0)/100,-1,1);
+    if(Math.abs(dx)<.35&&Math.abs(dy)<.35) return; // 需要明显倾斜
+    _lastMove=now;
+    mvMZ(Math.abs(dx)>Math.abs(dy)?(dx>0?'ArrowRight':'ArrowLeft'):(dy>0?'ArrowDown':'ArrowUp'));
+  };
   Motion.on(MZ._mfn);
   MZ._kfn = e => { if (SM.current !== 'scene-maze' || MZ.done) return; mvMZ(e.key); };
   window.addEventListener('keydown', MZ._kfn);
