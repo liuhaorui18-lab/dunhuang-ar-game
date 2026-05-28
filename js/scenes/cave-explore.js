@@ -17,10 +17,11 @@ function initCaveExplore(sec) {
     a.done = GameState.artifactsCompleted.includes(a.name) || GameState.failedArtifacts.includes(a.name);
   });
 
-  // 底部四个按钮
+  // 按钮栏（含转动提示）
   var bar = document.getElementById('compass-bar');
   bar.style.display = 'block';
-  bar.innerHTML = '<div style="display:flex;justify-content:space-around;align-items:center;height:100%;padding:0 4px;gap:4px" id="artifact-btns"></div>';
+  bar.innerHTML = '<div style="text-align:center;font-size:10px;opacity:.5;margin-bottom:6px">📱 转动手机选择不同的解密关卡</div>' +
+    '<div style="display:flex;justify-content:space-around;align-items:center;gap:4px;padding:0 4px" id="artifact-btns"></div>';
   renderArtifactButtons();
 
   // 火把
@@ -50,8 +51,6 @@ function initCaveExplore(sec) {
   Cave.tm.start();
 
   updateHighlight();
-  // 转动手机引导提示
-  showRotateHint();
   onSceneCleanup(function() { if (Cave.tm) Cave.tm.stop(); Cave.td.style.display = 'none'; bar.style.display = 'none'; document.getElementById('minigame-overlay').classList.remove('active'); Motion.clear(); });
 }
 
@@ -106,27 +105,6 @@ function enterArt(name) {
     else { Cave.tm.start(); }
   };
   switch(name) { case'mural':initMural(ov,cb);break; case'scripture':initScrip(ov,cb);break; case'buddha':initBuddha(ov,cb);break; case'statue':initCandle(ov,cb);break; }
-}
-
-function showRotateHint() {
-  var hint = document.createElement('div');
-  hint.id = 'rotate-hint';
-  hint.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none">' +
-    '<div style="font-size:40px;animation:rotatePhone 2s ease-in-out infinite">📱↔️</div>' +
-    '<div style="font-size:13px;font-weight:700;color:var(--gold-light)">转动手机切换文物</div>' +
-    '<div style="font-size:10px;opacity:.5">左右旋转选择不同的解密关卡</div>' +
-    '</div>';
-  hint.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);pointer-events:none;';
-  document.body.appendChild(hint);
-
-  var sty = document.createElement('style');
-  sty.textContent = '@keyframes rotatePhone{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}';
-  document.head.appendChild(sty);
-
-  // 用户触摸后消失
-  var removeHint = function() { if (hint.parentNode) { hint.remove(); sty.remove(); } };
-  document.addEventListener('touchstart', removeHint, {once:true});
-  document.addEventListener('click', removeHint, {once:true});
 }
 
 function finCave() {
