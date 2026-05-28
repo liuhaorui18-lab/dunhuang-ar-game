@@ -103,7 +103,7 @@ const Config = {
 };
 
 const Answers = {
-  scripOrder: [1, 4, 0, 5, 3, 2],
+  scripOrder: [2, 0, 5, 3, 4, 1],
   muralAngles: [0, 2, 4, 6],
 };
 
