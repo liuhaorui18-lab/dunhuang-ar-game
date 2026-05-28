@@ -65,7 +65,7 @@ function initMural(ov, cb) {
   function winM() {
     document.getElementById('m-info').textContent = '壁画修复完成！';
     document.getElementById('m-skip').style.display = 'none';
-    document.getElementById('m-stage').innerHTML = `<div style="width:100%;height:100%;background:url(assets/壁画碎片/拼合成功页面/完整壁画.png) center/contain no-repeat;animation:fade-in .8s"></div>`;
+    document.getElementById('m-stage').innerHTML = '<img src="assets/壁画碎片/拼合成功页面/完整壁画.png" style="width:100%;height:100%;object-fit:contain;animation:fade-in .8s">';
     setTimeout(() => Dialogue.play(Dialogues.mural_win).then(() => cb(true)), 500);
   }
 

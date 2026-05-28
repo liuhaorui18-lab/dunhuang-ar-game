@@ -4,7 +4,7 @@ function initBuddha(ov, cb) {
   ov.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px;width:100%">
     <div style="font-size:15px;font-weight:700;color:var(--gold-light)">清扫碎石表面</div>
     <div id="b-wrap" style="position:relative;width:280px;height:280px;touch-action:none;border-radius:8px;overflow:hidden;">
-      <div style="position:absolute;inset:0;background:url(assets/神像碎片/神像5/清灰后.png) center/cover no-repeat;z-index:1"></div>
+      <img src="assets/神像碎片/神像5/清灰后.png" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1"></div>
       <canvas id="b-canvas" style="position:absolute;inset:0;z-index:2;width:280px;height:280px"></canvas></div>
     <div style="font-size:10px;opacity:.5;text-align:center" id="b-hint">用手指擦去灰尘</div>
     <div style="font-size:13px;color:var(--gold-light)" id="b-prog">已清理 0/${Config.buddha.patches}</div>
