@@ -26,22 +26,47 @@ function initScenes() {
 window.addEventListener('DOMContentLoaded', async () => {
   initScenes();
   dialogue = new DialogueSystem(document.getElementById('dialogue-box'), 'prog');
+  // Hide video until permissions are granted
+  const videoEl = document.getElementById('camera-video');
+  if (videoEl) videoEl.style.display = 'none';
   await SM.go('perm');
   document.getElementById('perm-btn').addEventListener('click', startPermissions);
 });
 
 async function startPermissions() {
-  document.getElementById('perm-btn').textContent = '正在请求权限...';
-  document.getElementById('perm-btn').disabled = true;
+  const btn = document.getElementById('perm-btn');
+  btn.textContent = '正在请求权限...';
+  btn.disabled = true;
 
+  // iOS: DeviceMotionEvent.requestPermission() MUST be called in the
+  // same user-gesture tick (before any await), or it will be silently denied.
+  const motPromise = Motion.requestPermission();
+
+  // Camera: race against a 12s timeout so the game never hangs
   const camOk = await Camera.init(document.getElementById('camera-video'));
-  const motOk = await Motion.requestPermission();
+
+  // Now await the motion permission (it was triggered synchronously above)
+  let motOk = false;
+  try {
+    motOk = await motPromise;
+  } catch (e) {
+    console.warn('Motion permission error:', e);
+  }
   Motion.start();
 
-  if (!camOk) toast('摄像头不可用，使用纯色背景', 'prog');
-  if (!motOk) toast('运动传感器不可用，将使用替代操作', 'prog');
+  // Restore video (hidden initially to avoid blocking touches)
+  const videoEl = document.getElementById('camera-video');
+  if (videoEl && !camOk) {
+    videoEl.style.display = 'none';
+    videoEl.style.pointerEvents = 'none';
+  } else if (videoEl) {
+    videoEl.style.display = '';
+  }
 
-  SM.go('dialogue1');
+  if (!camOk) toast('摄像头不可用，使用纯色背景', 'prog', 3000);
+  if (!motOk) toast('运动传感器不可用，将使用替代操作', 'prog', 3000);
+
+  await SM.go('dialogue1');
   startDialogue1();
 }
 
@@ -143,14 +168,14 @@ function spawnBlock() {
   el.textContent = DATA_STRINGS[randInt(0, DATA_STRINGS.length-1)];
 
   const fromLeft = Math.random() > 0.5;
-  const y = randInt(20, 70);
+  const y = randInt(10, 80);
   el.style.top = `${y}vh`;
   el.style.left = fromLeft ? '-120px' : `${window.innerWidth+20}px`;
 
   document.getElementById('scene-data-shoot').appendChild(el);
   DS.blocks.push({ el, isDanger, hit: false });
 
-  const duration = randInt(2500, 4000);
+  const duration = randInt(1800, 3000);
   el.style.transition = `left ${duration}ms linear`;
   setTimeout(() => { el.style.left = fromLeft ? `${window.innerWidth+50}px` : '-120px'; }, 50);
 
@@ -291,10 +316,17 @@ function initMaze() {
   const cvs = document.getElementById('maze-canvas');
   if (!cvs) return;
 
-  MAZE.cellSize = Math.min(Math.floor((window.innerWidth * 0.85) / MAZE.cols),
-                           Math.floor((window.innerHeight * 0.55) / MAZE.rows));
+  MAZE.cols = 13; MAZE.rows = 9;
+
+  MAZE.cellSize = Math.min(
+    Math.floor((window.innerWidth * 0.70) / MAZE.cols),
+    Math.floor((window.innerHeight * 0.72) / MAZE.rows)
+  );
+
   cvs.width  = MAZE.cols * MAZE.cellSize;
   cvs.height = MAZE.rows * MAZE.cellSize;
+
+  MAZE.exit = { x: MAZE.cols - 1, y: MAZE.rows - 1 };
 
   MAZE.done = false;
   MAZE.ball = { x: 0.5, y: 0.5, vx: 0, vy: 0 };
@@ -385,7 +417,10 @@ function generateMaze(cols, rows) {
 }
 
 function updateBall() {
-  const cs = 1; // 1 = one cell
+  // Clamp position first to ensure we're always in bounds
+  MAZE.ball.x = clamp(MAZE.ball.x, 0.1, MAZE.cols - 0.1);
+  MAZE.ball.y = clamp(MAZE.ball.y, 0.1, MAZE.rows - 0.1);
+
   let nx = MAZE.ball.x + MAZE.ball.vx;
   let ny = MAZE.ball.y + MAZE.ball.vy;
 
@@ -393,11 +428,20 @@ function updateBall() {
   MAZE.ball.vx *= 0.85;
   MAZE.ball.vy *= 0.85;
 
+  // Stop tiny movements
+  if (Math.abs(MAZE.ball.vx) < 0.001) MAZE.ball.vx = 0;
+  if (Math.abs(MAZE.ball.vy) < 0.001) MAZE.ball.vy = 0;
+
   // Collision
   const cx = Math.floor(MAZE.ball.x);
   const cy = Math.floor(MAZE.ball.y);
   const cell = MAZE.grid[cy]?.[cx];
-  if (!cell) return;
+  if (!cell) {
+    // Should not happen due to clamp, but safety fallback
+    MAZE.ball.x = clamp(nx, 0.1, MAZE.cols - 0.1);
+    MAZE.ball.y = clamp(ny, 0.1, MAZE.rows - 0.1);
+    return;
+  }
 
   // Check walls
   if (nx < MAZE.ball.x && cell.walls[3]) { nx = MAZE.ball.x; MAZE.ball.vx = 0; }
@@ -548,7 +592,7 @@ function renderPuzzleRound() {
     <div id="pp-target" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px;background:rgba(0,212,255,0.05);border:1px solid rgba(255,102,0,0.4);border-radius:8px">
       ${art.ai.map((icon, i) =>
         `<div class="pp-slot" id="pp-slot-${i}" data-idx="${i}"
-          style="width:64px;height:64px;border:2px dashed rgba(0,212,255,.25);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(255,102,0,0.06)">
+          style="width:48px;height:48px;border:2px dashed rgba(0,212,255,.25);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(255,102,0,0.06)">
           ${icon}
         </div>`
       ).join('')}
@@ -562,7 +606,7 @@ function renderPuzzleRound() {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
       ${art.pieces.map((icon, i) =>
         `<div class="pp-piece" id="pp-piece-${i}" data-idx="${i}" data-icon="${icon}"
-          style="width:64px;height:64px;border:2px solid #34C759;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:grab;background:rgba(52,199,89,0.08)">
+          style="width:48px;height:48px;border:2px solid #34C759;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:grab;background:rgba(52,199,89,0.08)">
           ${icon}
         </div>`
       ).join('')}
@@ -613,7 +657,7 @@ function makePPDraggable(el, icon, pieceIdx, art, onPlace) {
 
   function start(x, y) {
     clone = el.cloneNode(true);
-    clone.style.cssText = `position:fixed;left:${x-32}px;top:${y-32}px;width:64px;height:64px;z-index:300;pointer-events:none;opacity:.85;border:2px solid #34C759;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(52,199,89,.15)`;
+    clone.style.cssText = `position:fixed;left:${x-24}px;top:${y-24}px;width:48px;height:48px;z-index:300;pointer-events:none;opacity:.85;border:2px solid #34C759;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(52,199,89,.15)`;
     document.body.appendChild(clone);
   }
   function move(x, y) {

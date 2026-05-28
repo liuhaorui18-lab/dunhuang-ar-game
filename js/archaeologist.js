@@ -30,23 +30,48 @@ function initScenes() {
 window.addEventListener('DOMContentLoaded', async () => {
   initScenes();
   dialogue = new DialogueSystem(document.getElementById('dialogue-box'), 'arch');
+  // Hide video until permissions are granted
+  const videoEl = document.getElementById('camera-video');
+  if (videoEl) videoEl.style.display = 'none';
   await SM.go('perm');
   document.getElementById('perm-btn').addEventListener('click', startPermissions);
 });
 
 async function startPermissions() {
-  document.getElementById('perm-btn').textContent = '正在请求权限...';
-  document.getElementById('perm-btn').disabled = true;
+  const btn = document.getElementById('perm-btn');
+  btn.textContent = '正在请求权限...';
+  btn.disabled = true;
 
+  // iOS: DeviceMotionEvent.requestPermission() MUST be called in the
+  // same user-gesture tick (before any await), or it will be silently denied.
+  const motPromise = Motion.requestPermission();
+
+  // Camera: race against a 12s timeout so the game never hangs
   const camOk = await Camera.init(document.getElementById('camera-video'));
-  const motOk = await Motion.requestPermission();
+
+  // Now await the motion permission (it was triggered synchronously above)
+  let motOk = false;
+  try {
+    motOk = await motPromise;
+  } catch (e) {
+    console.warn('Motion permission error:', e);
+  }
   Motion.start();
 
-  if (!camOk) toast('摄像头不可用，将使用纯色背景', 'arch');
-  if (!motOk) toast('运动传感器不可用，将使用替代操作', 'arch');
+  // Restore video (hidden initially to avoid blocking touches)
+  const videoEl = document.getElementById('camera-video');
+  if (videoEl && !camOk) {
+    videoEl.style.display = 'none';
+    videoEl.style.pointerEvents = 'none';
+  } else if (videoEl) {
+    videoEl.style.display = '';
+  }
+
+  if (!camOk) toast('摄像头不可用，将使用纯色背景', 'arch', 3000);
+  if (!motOk) toast('运动传感器不可用，将使用替代操作', 'arch', 3000);
 
   // Start game
-  SM.go('dialogue1');
+  await SM.go('dialogue1');
   startDialogue1();
 }
 
@@ -109,7 +134,7 @@ const EX = {
   done: false,
 };
 
-const TOOL_COLORS = ['#C8860A', '#8B4513', '#D4A853'];
+const TOOL_COLORS = ['#C8860A', '#8B4513', '#D4A853', '#B8860B', '#A0522D'];
 
 function initExcavation() {
   const cvs = document.getElementById('game-canvas');
@@ -121,6 +146,9 @@ function initExcavation() {
   EX.hitZoneY = EX.H - EX.hitZoneH - 60;
   EX.notes = []; EX.spawned = 0; EX.score = 0; EX.perfect = 0; EX.total = 0;
   EX.forceValues = []; EX.done = false;
+
+  EX.lanes = 5;
+  EX.noteSpeed = 2;
 
   // Show force meter
   document.getElementById('force-wrap').style.display = 'flex';
@@ -176,8 +204,8 @@ function exLoop() {
     ctx.fillStyle = 'rgba(200,134,10,0.4)';
     ctx.font = '28px serif';
     ctx.textAlign = 'center';
-    const tools = ['🔨', '⛏️', '🪚'];
-    ctx.fillText(tools[i], x + laneW / 2, hitZoneY + hitZoneH / 2 + 10);
+    const tools = ['🔨', '⛏️', '🪚', '🪨', '🔩'];
+    ctx.fillText(tools[i % tools.length], x + laneW / 2, hitZoneY + hitZoneH / 2 + 10);
   }
 
   // Move and draw notes
@@ -324,13 +352,14 @@ function handleExMouse(e) {
 
 // ─── Dialogue 2: After Excavation ─────────────────────
 function startDialogue2() {
+  const dlg2 = new DialogueSystem(document.getElementById('dialogue-box-2'), 'arch');
   const lines = [
     { speaker: '*', text: '很好，数据显示只要再——小心！后退几步！' },
     { speaker: '-', text: '……你还好吗？' },
     { speaker: '*', text: '什么？哦哦……好，很好，非常好。幸好我们来得及。让我……' },
     { speaker: '*', text: '对了。看得到吗？我把跟这里有关的一些提示传给你了。它可能有点……多，不过没关系，我相信你。抓住它们！' },
   ];
-  dialogue.play(lines, () => {
+  dlg2.play(lines, () => {
     SM.go('clue-catch');
     initClueCatch();
   });
@@ -381,7 +410,7 @@ function spawnClue() {
   el.dataset.real = isReal ? '1' : '0';
 
   const startLeft = Math.random() > 0.5;
-  const y = randInt(15, 70);
+  const y = randInt(10, 80);
   el.style.top = `${y}vh`;
   el.style.left = startLeft ? '-100px' : `${window.innerWidth + 20}px`;
   el.style.zIndex = 60;
@@ -458,11 +487,14 @@ function showCountdownReveal() {
 // ─── Cave Explore ─────────────────────────────────────
 const CE = {
   alpha: 0,
-  artifactAngles: { '壁画': 20, '经卷': 80, '佛像': 160, '小佛像': 260 },
+  artifactAngles: { '壁画': 20, '经卷': 85, '佛像': 155, '小佛像': 265 },
   foundArtifacts: new Set(),
   activeArtifact: null,
-  tolerance: 22,
+  tolerance: 28,           // lock-on zone
+  nearTolerance: 55,       // proximity warning zone
   minigameOpen: false,
+  velocity: 0,             // inertia
+  snapTarget: null,        // snap-to-artifact
 };
 
 function initCaveExplore() {
@@ -470,6 +502,11 @@ function initCaveExplore() {
   CE.foundArtifacts = new Set();
   CE.activeArtifact = null;
   CE.minigameOpen = false;
+  CE.velocity = 0;
+  CE.snapTarget = null;
+
+  // Random starting angle so user isn't always at 0
+  CE.alpha = Math.random() * 360;
 
   // Start timer
   G.timerEl = document.getElementById('timer-badge');
@@ -491,43 +528,127 @@ function initCaveExplore() {
 
   updateCompass();
   updateArtifactHint();
+  updateProximityGlow();
 
-  // Desktop: mouse drag to simulate alpha
-  let lastX = null;
+  // ── Touch drag with inertia ──
+  let lastX = null, lastTime = null;
   const camOverlay = document.getElementById('cave-area');
+
+  const dragMultiplier = 0.9;
+
   camOverlay.addEventListener('touchmove', e => {
     e.preventDefault();
-    const dx = e.touches[0].clientX - (lastX || e.touches[0].clientX);
-    CE.alpha = (CE.alpha + dx * 0.4 + 360) % 360;
-    lastX = e.touches[0].clientX;
-    updateCompass(); updateArtifactHint();
+    const t = e.touches[0];
+    const dx = t.clientX - (lastX || t.clientX);
+    const dt = Date.now() - (lastTime || Date.now());
+    if (dt > 0 && Math.abs(dx) > 1) {
+      CE.velocity = (dx / dt) * 20 * (dragMultiplier / 1.5); // scale momentum with sensitivity
+    }
+    CE.alpha = (CE.alpha + dx * dragMultiplier + 360) % 360;
+    CE.snapTarget = null;
+    lastX = t.clientX;
+    lastTime = Date.now();
+    updateCompass(); updateArtifactHint(); updateProximityGlow();
   }, { passive: false });
-  camOverlay.addEventListener('touchend', () => { lastX = null; });
-  camOverlay.addEventListener('mousemove', e => {
-    if (!e.buttons) return;
-    CE.alpha = (CE.alpha + e.movementX * 0.5 + 360) % 360;
-    updateCompass(); updateArtifactHint();
+
+  camOverlay.addEventListener('touchend', () => {
+    lastX = null; lastTime = null;
   });
 
-  // Tap to interact
+  // ── Mouse drag for desktop ──
+  camOverlay.addEventListener('mousemove', e => {
+    if (!e.buttons) return;
+    CE.alpha = (CE.alpha + e.movementX * dragMultiplier + 360) % 360;
+    CE.snapTarget = null;
+    updateCompass(); updateArtifactHint(); updateProximityGlow();
+  });
+
+  // ── Inertia / snap loop ──
+  function physicsLoop() {
+    if (CE.minigameOpen || !G.timer || !G.timer.running) return;
+
+    // Apply inertia
+    if (Math.abs(CE.velocity) > 0.01) {
+      CE.alpha = (CE.alpha + CE.velocity + 360) % 360;
+      CE.velocity *= 0.92; // friction
+      updateCompass(); updateArtifactHint(); updateProximityGlow();
+    }
+
+    // Snap to nearest artifact when close enough and not being dragged
+    if (Math.abs(CE.velocity) < 0.05 && !lastX) {
+      let nearest = null, nearestDist = Infinity;
+      for (const [name, ang] of Object.entries(CE.artifactAngles)) {
+        if (CE.foundArtifacts.has(name)) continue;
+        const d = angleDiff(CE.alpha, ang);
+        if (d < nearestDist) { nearestDist = d; nearest = ang; }
+      }
+      // Gentle magnetic pull when within 45° and not actively dragging
+      if (nearest && nearestDist < 45 && nearestDist > 3) {
+        const pullDir = angleSign(CE.alpha, nearest);
+        CE.alpha = (CE.alpha + pullDir * 0.4 + 360) % 360;
+        updateCompass(); updateArtifactHint(); updateProximityGlow();
+      }
+    }
+
+    requestAnimationFrame(physicsLoop);
+  }
+  physicsLoop();
+
+  // ── Tap to interact ──
   camOverlay.addEventListener('touchend', e => {
+    e.preventDefault();
     if (CE.activeArtifact && !CE.minigameOpen) openArtifactMinigame(CE.activeArtifact);
   });
+  let caveTouchFired = false;
+  camOverlay.addEventListener('touchstart', () => { caveTouchFired = true; });
   camOverlay.addEventListener('click', () => {
+    if (caveTouchFired) { caveTouchFired = false; return; }
     if (CE.activeArtifact && !CE.minigameOpen) openArtifactMinigame(CE.activeArtifact);
+  });
+
+  // ── Compass markers: tap to jump ──
+  document.querySelectorAll('.art-marker').forEach(marker => {
+    const name = marker.dataset.name;
+    const ang = CE.artifactAngles[name];
+    if (ang == null) return;
+
+    const jumpTo = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (CE.foundArtifacts.has(name)) return;
+      CE.alpha = ang;
+      CE.velocity = 0;
+      updateCompass(); updateArtifactHint(); updateProximityGlow();
+      // Auto-open if already locked on
+      if (CE.activeArtifact === name && !CE.minigameOpen) {
+        setTimeout(() => openArtifactMinigame(name), 400);
+      }
+    };
+
+    marker.addEventListener('click', jumpTo);
+    marker.addEventListener('touchend', jumpTo);
   });
 }
 
 function handleCaveMotion(type, m) {
   if (type !== 'orient') return;
   CE.alpha = ((m.alpha || 0) + 360) % 360;
+  CE.velocity = 0;
+  CE.snapTarget = null;
   updateCompass();
   updateArtifactHint();
+  updateProximityGlow();
 }
 
 function angleDiff(a, b) {
   let d = Math.abs(a - b) % 360;
   return d > 180 ? 360 - d : d;
+}
+
+// Returns +1 or -1 indicating the shorter direction from a to b
+function angleSign(a, b) {
+  const diff = ((b - a) % 360 + 360) % 360;
+  return diff > 180 ? -1 : 1;
 }
 
 function updateCompass() {
@@ -545,24 +666,90 @@ function updateCompass() {
   CE.activeArtifact = found;
 
   const vf = document.getElementById('viewfinder');
-  if (found) { vf.classList.add('lit'); }
-  else { vf.classList.remove('lit'); }
+  const hint = document.getElementById('artifact-hint');
+
+  if (found) {
+    vf.classList.add('lit');
+    vf.classList.remove('near');
+  } else {
+    vf.classList.remove('lit');
+    // Check if near any artifact
+    let nearFound = false;
+    for (const [name, ang] of Object.entries(CE.artifactAngles)) {
+      if (CE.foundArtifacts.has(name)) continue;
+      if (angleDiff(CE.alpha, ang) < CE.nearTolerance) { nearFound = true; break; }
+    }
+    if (nearFound) { vf.classList.add('near'); }
+    else { vf.classList.remove('near'); }
+  }
+
+  // Update markers: show proximity
+  document.querySelectorAll('.art-marker').forEach(m => {
+    const name = m.dataset.name;
+    const ang = CE.artifactAngles[name];
+    if (ang == null) return;
+    if (CE.foundArtifacts.has(name)) {
+      m.classList.add('found');
+      m.classList.remove('nearby');
+    } else {
+      const dist = angleDiff(CE.alpha, ang);
+      if (dist < CE.nearTolerance) m.classList.add('nearby');
+      else m.classList.remove('nearby');
+    }
+  });
+}
+
+function updateProximityGlow() {
+  // Increase viewfinder glow as user gets closer to any artifact
+  let minDist = Infinity;
+  for (const [name, ang] of Object.entries(CE.artifactAngles)) {
+    if (CE.foundArtifacts.has(name)) continue;
+    const d = angleDiff(CE.alpha, ang);
+    if (d < minDist) minDist = d;
+  }
+
+  const vf = document.getElementById('viewfinder');
+  if (minDist === Infinity) return;
+
+  // Glow intensity: 0 (far) → 1 (locked on)
+  const intensity = Math.max(0, 1 - minDist / CE.nearTolerance);
+  const glowSize = 8 + intensity * 24;
+  const glowAlpha = 0.1 + intensity * 0.5;
+  vf.style.boxShadow = `0 0 ${glowSize}px rgba(200,134,10,${glowAlpha})`;
+  vf.style.borderColor = intensity > 0.8
+    ? 'var(--arch-primary)'
+    : `rgba(200,134,10,${0.3 + intensity * 0.5})`;
 }
 
 function updateArtifactHint() {
   const el = document.getElementById('artifact-hint');
+  if (!el) return;
+
   if (CE.activeArtifact && !CE.foundArtifacts.has(CE.activeArtifact)) {
     el.textContent = `发现：${CE.activeArtifact} · 点击互动`;
     el.classList.add('visible');
+    return;
+  }
+
+  // Find nearest unfound artifact and show direction
+  let nearest = null, nearestDist = Infinity;
+  for (const [name, ang] of Object.entries(CE.artifactAngles)) {
+    if (CE.foundArtifacts.has(name)) continue;
+    const d = angleDiff(CE.alpha, ang);
+    if (d < nearestDist) { nearestDist = d; nearest = name; }
+  }
+
+  if (nearest && nearestDist < CE.nearTolerance) {
+    const sign = angleSign(CE.alpha, CE.artifactAngles[nearest]);
+    el.textContent = `${sign > 0 ? '→' : '←'} 靠近中……（${nearest}）`;
+    el.classList.add('visible');
+  } else if (nearest) {
+    el.textContent = '转动手机或拖动屏幕 · 寻找文物';
+    el.classList.remove('visible');
   } else {
     el.textContent = '';
     el.classList.remove('visible');
   }
-
-  // Update markers
-  document.querySelectorAll('.art-marker').forEach(m => {
-    if (CE.foundArtifacts.has(m.dataset.name)) m.classList.add('found');
-  });
 }
 
 function openArtifactMinigame(name) {
@@ -841,7 +1028,8 @@ function openDustSweep() {
 
   const cvs = document.getElementById('dust-canvas');
   const ctx = cvs.getContext('2d');
-  const W = 280, H = 280;
+  const W = 180, H = 180;
+  cvs.width = W; cvs.height = H;
 
   // Draw artifact (buddha face) on bottom
   ctx.fillStyle = '#2a1808';
@@ -924,8 +1112,8 @@ function openWhackMole() {
 
     const light = document.createElement('div');
     light.className = 'wam-light';
-    const maxX = area.offsetWidth  || 300;
-    const maxY = area.offsetHeight || 300;
+    const maxX = area.offsetWidth  || 190;
+    const maxY = area.offsetHeight || 190;
     light.style.left = `${randInt(10, maxX - 10)}px`;
     light.style.top  = `${randInt(10, maxY - 10)}px`;
     area.appendChild(light);

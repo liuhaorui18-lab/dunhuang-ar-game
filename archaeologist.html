@@ -45,7 +45,7 @@
 <!-- ─── SCENE: Dialogue 1 ─── -->
 <div id="scene-dialogue1" class="scene" style="background:var(--arch-bg)">
   <!-- Camera shows through -->
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 80%, rgba(30,15,0,0.5), rgba(0,0,0,0.85))"></div>
+  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%, rgba(30,15,0,0.5), rgba(0,0,0,0.85))"></div>
   <div class="dialogue-wrap">
     <div class="dialogue-box arch" id="dialogue-box"></div>
   </div>
@@ -86,17 +86,17 @@
   </div>
 
   <!-- Feedback -->
-  <div id="ex-feedback" style="position:fixed;top:40%;left:0;right:0;text-align:center;font-size:22px;font-weight:700;z-index:60;opacity:0;transition:opacity .2s;text-shadow:0 0 12px rgba(200,134,10,.8)"></div>
+  <div id="ex-feedback" style="position:fixed;top:32%;left:0;right:0;text-align:center;font-size:18px;font-weight:700;z-index:60;opacity:0;transition:opacity .2s;text-shadow:0 0 12px rgba(200,134,10,.8)"></div>
 
   <!-- Lane tap hint -->
-  <div style="position:fixed;bottom:12%;left:0;right:0;text-align:center;font-size:13px;opacity:.4;z-index:50;pointer-events:none">
+  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:11px;opacity:.4;z-index:50;pointer-events:none">
     点击对应区域开凿 · 注意时机与力度
   </div>
 </div>
 
 <!-- ─── SCENE: Dialogue 2 ─── -->
 <div id="scene-dialogue2" class="scene" style="background:rgba(0,0,0,0.9)">
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 80%, rgba(30,15,0,0.6), rgba(0,0,0,0.9))"></div>
+  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%, rgba(30,15,0,0.6), rgba(0,0,0,0.9))"></div>
   <div class="dialogue-wrap">
     <div class="dialogue-box arch" id="dialogue-box-2"></div>
   </div>
@@ -110,7 +110,7 @@
     <span id="cc-score">线索 0/2</span>
     <span style="margin-left:16px;opacity:.6" id="cc-timer">18s</span>
   </div>
-  <div style="position:fixed;top:80px;left:0;right:0;text-align:center;font-size:13px;opacity:.5;z-index:70;pointer-events:none">
+  <div style="position:fixed;top:40px;left:0;right:0;text-align:center;font-size:11px;opacity:.5;z-index:70;pointer-events:none">
     点击蓝色线索 · 忽略红色乱码
   </div>
 </div>
@@ -140,7 +140,7 @@
   <div class="artifact-hint" id="artifact-hint"></div>
 
   <!-- Compass -->
-  <div class="compass-bar">
+  <div class="compass-bar" id="compass-bar">
     <div class="artifact-markers" id="art-markers">
       <div class="art-marker" data-name="壁画"   style="left:5.5%"></div>
       <div class="art-marker" data-name="经卷"   style="left:22%"></div>
@@ -149,7 +149,7 @@
     </div>
     <div class="compass-dot" id="compass-dot" style="left:0%"></div>
   </div>
-  <div style="position:fixed;bottom:14%;left:0;right:0;text-align:center;font-size:12px;opacity:.35;z-index:20;pointer-events:none">
+  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:11px;opacity:.35;z-index:20;pointer-events:none">
     转动手机或拖动屏幕 · 寻找文物
   </div>
 

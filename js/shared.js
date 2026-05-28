@@ -5,20 +5,25 @@ const Camera = {
   stream: null,
   el: null,
 
-  async init(videoEl) {
+  async init(videoEl, timeoutMs = 12000) {
     this.el = videoEl;
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false
-      });
+      this.stream = await Promise.race([
+        navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('CAMERA_TIMEOUT')), timeoutMs)
+        )
+      ]);
       videoEl.srcObject = this.stream;
       await videoEl.play();
       return true;
     } catch (e) {
-      console.warn('Camera unavailable:', e);
+      console.warn('Camera unavailable:', e.message || e);
       videoEl.style.display = 'none';
-      document.body.style.background = '#0D0804';
+      videoEl.style.pointerEvents = 'none';
       return false;
     }
   },
@@ -74,9 +79,18 @@ class DialogueSystem {
     this.onComplete = null;
     this.typing = false;
     this.skipQueue = false;
+    this._lastAdvance = 0;
 
     boxEl.addEventListener('click', () => this._advance());
-    boxEl.addEventListener('touchend', e => { e.preventDefault(); this._advance(); });
+    // Use touchend (not click) to avoid double-fire on mobile.
+    // preventDefault to avoid synthetic click.
+    boxEl.addEventListener('touchend', e => {
+      // Only if the box itself or its children were tapped
+      if (boxEl.contains(e.target)) {
+        e.preventDefault();
+        this._advance();
+      }
+    });
   }
 
   // lines: array of { speaker: '*'|'-', text: string }
@@ -150,6 +164,11 @@ class DialogueSystem {
   }
 
   _advance() {
+    // Debounce rapid taps (100ms)
+    const now = Date.now();
+    if (now - this._lastAdvance < 100) return;
+    this._lastAdvance = now;
+
     if (this.typing) {
       this.skipQueue = true;
     } else {
@@ -164,29 +183,40 @@ class SceneManager {
   constructor() {
     this.current = null;
     this.scenes = {};
+    this._transitioning = false;
   }
 
   register(id, el) { this.scenes[id] = el; }
 
   go(id, onEnter) {
+    // Clear any stuck fade overlay
     const fadeEl = document.getElementById('fade-overlay');
-    const run = () => {
-      if (this.current) {
-        const prev = this.scenes[this.current];
-        if (prev) { prev.classList.remove('active'); prev.style.display = 'none'; }
-      }
-      const next = this.scenes[id];
-      if (next) { next.style.display = ''; next.classList.add('active'); }
-      this.current = id;
-      if (fadeEl) fadeEl.classList.remove('active');
-      if (onEnter) onEnter();
-    };
-    if (fadeEl) {
-      fadeEl.classList.add('active');
-      setTimeout(run, 400);
-    } else {
-      run();
+    if (this._transitioning && fadeEl) {
+      fadeEl.classList.remove('active');
     }
+
+    return new Promise(resolve => {
+      const run = () => {
+        this._transitioning = false;
+        if (this.current) {
+          const prev = this.scenes[this.current];
+          if (prev) { prev.classList.remove('active'); prev.style.display = 'none'; }
+        }
+        const next = this.scenes[id];
+        if (next) { next.style.display = ''; next.classList.add('active'); }
+        this.current = id;
+        if (fadeEl) fadeEl.classList.remove('active');
+        if (onEnter) onEnter();
+        resolve();
+      };
+      if (fadeEl) {
+        this._transitioning = true;
+        fadeEl.classList.add('active');
+        setTimeout(run, 400);
+      } else {
+        run();
+      }
+    });
   }
 }
 

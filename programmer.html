@@ -60,7 +60,7 @@
   <!-- Boot text -->
   <div class="boot-text" id="boot-text"></div>
 
-  <div class="scan-label prog-style" id="scan-label" style="bottom:25%">
+  <div class="scan-label prog-style" id="scan-label" style="bottom:16%">
     正在初始化数字敦煌系统……
   </div>
   <button class="btn btn-prog scan-tap-btn" id="scan-tap-btn">▶ 系统就绪，开始任务</button>
@@ -71,20 +71,20 @@
   <div style="position:fixed;inset:0;background:rgba(5,10,15,0.7);pointer-events:none;z-index:5"></div>
 
   <!-- HUD top -->
-  <div style="position:fixed;top:20px;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:0 16px">
+  <div style="position:fixed;top:6px;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:0 12px">
     <div class="prog-health" id="ds-health"></div>
     <div style="font-size:13px;color:#00D4FF;opacity:.7" id="ds-rounds">数据包 0/3</div>
   </div>
 
   <!-- Progress -->
-  <div style="position:fixed;bottom:20%;left:10%;right:10%;z-index:100">
+  <div style="position:fixed;bottom:12%;left:8%;right:8%;z-index:100">
     <div style="font-size:11px;color:#00D4FF;opacity:.6;margin-bottom:6px;text-align:center">数据发送进度</div>
     <div class="prog-progress-bar-outer">
       <div class="prog-progress-bar-inner" id="ds-progress-bar" style="width:0%"></div>
     </div>
   </div>
 
-  <div style="position:fixed;bottom:13%;left:0;right:0;text-align:center;font-size:13px;opacity:.4;z-index:50;pointer-events:none">
+  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:11px;opacity:.4;z-index:50;pointer-events:none">
     点击摧毁飞来的数据团块
   </div>
 </div>
@@ -100,12 +100,12 @@
 <!-- ─── SCENE: Maze ─── -->
 <div id="scene-maze" class="scene" style="background:var(--prog-bg)">
   <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%, rgba(0,30,50,0.8), rgba(5,10,15,0.95))"></div>
-  <div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;width:100%;padding:20px">
-    <div style="font-size:16px;font-weight:700;color:#00D4FF;margin-bottom:4px">数据迷宫</div>
-    <div style="font-size:12px;opacity:.5;margin-bottom:16px;text-align:center">倾斜手机控制小球，到达出口 🚪<br>（桌面：方向键）</div>
+  <div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;width:100%;padding:8px">
+    <div style="font-size:14px;font-weight:700;color:#00D4FF;margin-bottom:2px">数据迷宫</div>
+    <div style="font-size:10px;opacity:.5;margin-bottom:8px;text-align:center">倾斜手机控制小球，到达出口 🚪<br>（桌面：方向键）</div>
     <canvas id="maze-canvas" style="border:1px solid rgba(0,212,255,0.2);border-radius:8px;max-width:90vw"></canvas>
-    <div style="margin-top:12px;font-size:12px;opacity:.4;text-align:center">在复杂的数据流中寻找正确的线索路径</div>
-    <button class="btn btn-neutral" style="margin-top:20px;font-size:13px;padding:8px 20px" onclick="
+    <div style="margin-top:6px;font-size:10px;opacity:.4;text-align:center">在复杂的数据流中寻找正确的线索路径</div>
+    <button class="btn btn-neutral" style="margin-top:10px;font-size:11px;padding:6px 16px" onclick="
       if(typeof MAZE!=='undefined'){MAZE.done=true; cancelAnimationFrame(MAZE.animId);}
       startDialogue3();
     ">走不出来？跳过迷宫</button>
@@ -130,7 +130,7 @@
   <!-- Timer -->
   <div class="timer-badge prog" id="prog-timer-badge" style="display:none">0:00</div>
 
-  <div style="position:relative;z-index:10;padding:70px 16px 40px;width:100%;max-width:480px;margin:0 auto">
+  <div id="pp-container" style="position:relative;z-index:10;padding:16px 16px 20px;width:100%;max-width:480px;margin:0 auto">
     <div id="pp-wrap" style="display:flex;flex-direction:column;align-items:center;width:100%"></div>
   </div>
 </div>
