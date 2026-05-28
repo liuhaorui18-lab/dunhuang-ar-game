@@ -3,11 +3,8 @@ function initMural(ov, cb) {
   var hasClue = GameState.hasClue('mural');
   ov.innerHTML = '';
 
-  if (!hasClue) {
-    Dialogue.play(Dialogues.mural_no).then(function() { ov.classList.remove('active'); cb(false); });
-    return;
-  }
-  Dialogue.play(Dialogues.mural_ok).then(function() { showUI(); });
+  var dialogue = hasClue ? Dialogues.mural_ok : Dialogues.mural_no;
+  Dialogue.play(dialogue).then(function() { showUI(); });
 
   var P=Config.mural.pieces, R=Config.mural.rot;
   var imgSrc=['assets/壁画碎片/壁画碎片页面/普通状态碎片.png','assets/壁画碎片/壁画碎片页面/普通状态碎片2.png','assets/壁画碎片/壁画碎片页面/普通状态碎片3.png'];

@@ -3,11 +3,8 @@ function initBuddha(ov, cb) {
   var hasClue = GameState.hasClue('buddha');
   ov.innerHTML = '';
 
-  if (!hasClue) {
-    Dialogue.play(Dialogues.buddha_no).then(function() { ov.classList.remove('active'); cb(false); });
-    return;
-  }
-  Dialogue.play(Dialogues.buddha_ok).then(function() { showUI(); });
+  var dialogue = hasClue ? Dialogues.buddha_ok : Dialogues.buddha_no;
+  Dialogue.play(dialogue).then(function() { showUI(); });
 
   var cleared=0, patches=[], done=false, drawing=false;
 

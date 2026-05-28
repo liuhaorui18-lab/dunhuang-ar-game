@@ -2,12 +2,8 @@
 function initScrip(ov, cb) {
   var hasClue = GameState.hasClue('scripture');
   ov.innerHTML = '';
-
-  if (!hasClue) {
-    Dialogue.play(Dialogues.scrip_no).then(function() { ov.classList.remove('active'); cb(false); });
-    return;
-  }
-  Dialogue.play(Dialogues.scrip_ok).then(function() { showUI(); });
+  var dialogue = hasClue ? Dialogues.scrip_ok : Dialogues.scrip_no;
+  Dialogue.play(dialogue).then(function() { showUI(); });
 
   var offSrc=['assets/经书/左1未选中.png','assets/经书/左2未选中.PNG','assets/经书/左3未选中.png','assets/经书/左4未选中.png','assets/经书/左5未选中.png','assets/经书/左6未选中.png'];
   var onSrc=['assets/经书/左1选中.png','assets/经书/左2选中.png','assets/经书/左3选中.png','assets/经书/左4选中.png','assets/经书/左5选中.png','assets/经书/左6选中.png'];

@@ -3,11 +3,8 @@ function initCandle(ov, cb) {
   var hasClue = GameState.hasClue('statue');
   ov.innerHTML = '';
 
-  if (!hasClue) {
-    Dialogue.play(Dialogues.statue_no).then(function() { ov.classList.remove('active'); cb(false); });
-    return;
-  }
-  Dialogue.play(Dialogues.statue_ok).then(function() { showUI(); });
+  var dialogue = hasClue ? Dialogues.statue_ok : Dialogues.statue_no;
+  Dialogue.play(dialogue).then(function() { showUI(); });
 
   var taps=0, cur=null, sTm=null, hTm=null, done=false;
 
