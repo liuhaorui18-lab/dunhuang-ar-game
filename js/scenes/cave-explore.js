@@ -35,13 +35,13 @@ function chkNear() {
   for (const [n, deg] of Object.entries(targets)) {
     if (GameState.artifactsCompleted.includes(n)) continue;
     let d = Math.abs(Cave.ang - deg); if (d > 180) d = 360 - d;
-    if (d < 28 && d < nearDist) { nearDist = d; nearest = n; }
+    if (d < 35 && d < nearDist) { nearDist = d; nearest = n; }
   }
   if (nearest !== Cave.near) {
     Cave.near = nearest;
     const hint = document.getElementById('artifact-hint');
-    if (nearest) { const nm = { mural: '壁画碎片', scripture: '经卷', buddha: '巨大碎石', statue: '微弱烛光' }; hint.textContent = '发现 ' + nm[nearest] + ' — 点击进入'; hint.style.opacity = '1'; hint.style.cursor = 'pointer'; hint.onclick = () => enterArt(nearest); }
-    else { hint.style.opacity = '0'; }
+    if (nearest) { const nm = { mural: '壁画碎片', scripture: '经卷', buddha: '巨大碎石', statue: '微弱烛光' }; hint.textContent = '发现 ' + nm[nearest] + ' — 点击进入'; hint.style.opacity = '1'; hint.style.pointerEvents = 'auto'; hint.style.cursor = 'pointer'; hint.onclick = () => enterArt(nearest); }
+    else { hint.style.opacity = '0'; hint.style.pointerEvents = 'none'; }
   }
 }
 
