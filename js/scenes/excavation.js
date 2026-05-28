@@ -6,21 +6,21 @@
 const EX = {
   canvas: null, ctx: null,
   W: 0, H: 0,
-  notes: [],            // falling notes
+  notes: [],
   lanes: 5,
   noteSpeed: 2.5,
   noteRadius: 22,
   hitZone: { y: 0, h: 56 },
   score: 0, perfect: 0,
-  total: 12,            // total notes to hit
+  total: 12,
+  missed: 0,
   spawned: 0,
-  forceValue: 0.5,      // current simulated force (0~1)
+  forceValue: 0.5,
   forceHistory: [],
   spawnTimer: null,
   animId: null,
   done: false,
   _lastTap: 0,
-  _feedbacks: [],
 };
 
 function initExcavation() {
@@ -29,6 +29,7 @@ function initExcavation() {
   EX.done = false;
   EX.score = 0;
   EX.perfect = 0;
+  EX.missed = 0;
   EX.spawned = 0;
   EX.notes = [];
   EX.forceHistory = [];
@@ -136,8 +137,8 @@ function handleExcavationTap(pos) {
 
       spawnSparks(n.x, EX.hitZone.y, isPerfect ? 10 : 5, isPerfect ? '#FFD700' : '#C8963C');
 
-      // Check if done
-      if (EX.score >= EX.total) {
+      // Finish when all notes (hit + missed) have been processed
+      if (EX.spawned >= EX.total && EX.score + EX.missed >= EX.total) {
         finishExcavation();
       }
       return;
@@ -241,12 +242,15 @@ function drawExcavation() {
   });
 
   // Check for missed notes (fell off screen)
-  let missed = 0;
   EX.notes.forEach(n => {
     if (!n.hit && n.y > H + 30) {
-      n.hit = true; // mark as "handled"
-      missed++;
+      n.hit = true;
+      EX.missed++;
       GameState.rhythmMistakes++;
+      // Auto-finish once all notes processed
+      if (EX.spawned >= EX.total && EX.score + EX.missed >= EX.total) {
+        finishExcavation();
+      }
     }
   });
 
