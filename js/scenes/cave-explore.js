@@ -1,122 +1,107 @@
-/* 敦煌复苏计划 — cave-explore.js · 四向转动 */
-var Cave = { tm: null, td: null, sec: 0, ang: 0, dir: null, _ts: null, _ta: 0, _ga: 0 };
+/* 敦煌复苏计划 — cave-explore.js · 四个文物按钮直接进入 */
+var Cave = { tm: null, td: null, sec: 0, ang: 0, _ts: null, _ta: 0 };
 
-var DirMap = {
-  0:   { name:'mural',     label:'壁画碎片', icon:'🖼' },
-  90:  { name:'scripture', label:'经卷',     icon:'📜' },
-  180: { name:'buddha',    label:'大佛像',   icon:'🗿' },
-  270: { name:'statue',    label:'小佛像',   icon:'🕯' }
-};
+var Artifacts = [
+  { name:'mural',     label:'壁画碎片', icon:'🖼', done:false },
+  { name:'scripture', label:'经卷',     icon:'📜', done:false },
+  { name:'buddha',    label:'大佛像',   icon:'🗿', done:false },
+  { name:'statue',    label:'小佛像',   icon:'🕯', done:false },
+];
 
 function initCaveExplore(sec) {
-  Cave.sec = sec; Cave.ang = 0; Cave.dir = null; Cave._ga = 0;
+  Cave.sec = sec;
   Cave.td = document.getElementById('cave-timer'); Cave.td.style.display = ''; Cave.td.textContent = fmtTime(sec);
-  document.getElementById('compass-bar').style.display = '';
-  document.getElementById('compass-bar').innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:center;height:100%;padding:0 6px">' +
-    '<span class="compass-marker" data-dir="270">🗿<br>大佛</span>' +
-    '<span class="compass-marker" data-dir="0">🖼<br>壁画</span>' +
-    '<span class="compass-marker" data-dir="90">📜<br>经书</span>' +
-    '<span class="compass-marker" data-dir="180">🕯<br>小佛</span>' +
-    '</div>';
 
+  // 标记已处理的
+  Artifacts.forEach(function(a) {
+    a.done = GameState.artifactsCompleted.includes(a.name) || GameState.failedArtifacts.includes(a.name);
+  });
+
+  // 底部四个按钮
+  var bar = document.getElementById('compass-bar');
+  bar.style.display = '';
+  bar.innerHTML = '<div style="display:flex;justify-content:space-around;align-items:center;height:100%;padding:0 4px;gap:4px" id="artifact-btns"></div>';
+  renderArtifactButtons();
+
+  // 火把
   var torch = document.getElementById('torch-glow');
-  var ce = document.getElementById('scene-cave-explore');
-  ce.addEventListener('mousemove', function(e){ torch.style.left=e.clientX+'px'; torch.style.top=e.clientY+'px'; });
-  ce.addEventListener('touchmove', function(e){ var p=getPos(e); torch.style.left=p.x+'px'; torch.style.top=p.y+'px'; }, {passive:true});
+  document.getElementById('scene-cave-explore').addEventListener('touchmove', function(e) {
+    var p = getPos(e); torch.style.left = p.x + 'px'; torch.style.top = p.y + 'px';
+  }, {passive:true});
+  document.getElementById('scene-cave-explore').addEventListener('mousemove', function(e) {
+    torch.style.left = e.clientX + 'px'; torch.style.top = e.clientY + 'px';
+  });
 
-  // 陀螺仪：用gamma左右倾斜改变角度
+  // 陀螺仪转动——只是视觉效果，进出靠按钮
   Motion.on(function(d) {
     if (d.type !== 'orient') return;
-    Cave._ga = ((d.gamma||0) + 90) * 2; // gamma -90~90 → 0~360
-    Cave.ang = Cave.ang * 0.4 + Cave._ga * 0.6;
-    updateDir();
+    Cave.ang = Cave.ang * 0.5 + ((d.gamma||0)+90)*2 * 0.5;
+    updateHighlight();
   });
 
-  // 触摸滑动转动
+  // 触摸滑动
+  var ce = document.getElementById('scene-cave-explore');
   ce.addEventListener('touchstart', function(e) { e.preventDefault(); Cave._ts = getPos(e); Cave._ta = Cave.ang; });
-  ce.addEventListener('touchmove', function(e) {
-    if (!Cave._ts) return; e.preventDefault();
-    var p = getPos(e), dx = p.x - Cave._ts.x;
-    Cave.ang = (Cave._ta - dx * 2 + 360) % 360;
-    updateDir();
-  });
+  ce.addEventListener('touchmove', function(e) { if (!Cave._ts) return; var p=getPos(e); Cave.ang = (Cave._ta - (p.x-Cave._ts.x)*2 + 360) % 360; updateHighlight(); });
   ce.addEventListener('touchend', function() { Cave._ts = null; });
-
-  // 键盘：左右切换方向
-  Cave._kh = function(e) { if (e.key==='ArrowLeft') { Cave.ang = (Cave.ang + 90) % 360; updateDir(); } if (e.key==='ArrowRight') { Cave.ang = (Cave.ang - 90 + 360) % 360; updateDir(); } };
-  window.addEventListener('keydown', Cave._kh);
 
   // 倒计时
   Cave.tm = new Timer(Cave.sec, function(r) { Cave.td.textContent = fmtTime(r); if (r<=30) Cave.td.style.color='var(--danger-red)'; else if (r<=60) Cave.td.style.color='#FFA726'; }, function() { finCave(); });
   Cave.tm.start();
 
-  // 立即初始化方向
-  updateDir();
+  updateHighlight();
+  onSceneCleanup(function() { if (Cave.tm) Cave.tm.stop(); Cave.td.style.display = 'none'; bar.style.display = 'none'; document.getElementById('minigame-overlay').classList.remove('active'); Motion.clear(); });
+}
 
-  onSceneCleanup(function() {
-    if (Cave.tm) Cave.tm.stop();
-    Cave.td.style.display = 'none';
-    document.getElementById('compass-bar').style.display = 'none';
-    document.getElementById('minigame-overlay').classList.remove('active');
-    Motion.offAll();
-    window.removeEventListener('keydown', Cave._kh);
+function renderArtifactButtons() {
+  var container = document.getElementById('artifact-btns'); if (!container) return;
+  container.innerHTML = '';
+  Artifacts.forEach(function(a) {
+    var btn = document.createElement('div');
+    btn.style.cssText = 'flex:1;text-align:center;padding:4px 2px;border-radius:6px;cursor:pointer;transition:all .3s;font-size:10px;line-height:1.3;' +
+      (a.done ? 'opacity:.35;color:var(--parchment-dim);border:1px solid rgba(255,255,255,.05);' : 'color:var(--gold-light);border:1px solid rgba(200,150,60,.2);background:rgba(200,150,60,.08);');
+    btn.innerHTML = a.icon + '<br>' + a.label + (a.done ? '<br><span style="font-size:8px">✓</span>' : '');
+    btn.addEventListener('click', function() {
+      if (a.done) return;
+      enterArt(a.name);
+    });
+    container.appendChild(btn);
   });
 }
 
-function updateDir() {
+function updateHighlight() {
   var a = (Cave.ang % 360 + 360) % 360;
-  var dirs = [0, 90, 180, 270];
-  var best = null, bestD = 999;
-
-  dirs.forEach(function(dg) {
-    var dist = Math.abs(a - dg); if (dist > 180) dist = 360 - dist;
-    if (dist < bestD) { bestD = dist; best = dg; }
-  });
-
-  // 更新转盘高亮
-  document.querySelectorAll('.compass-marker').forEach(function(m) {
-    var d = parseInt(m.dataset.dir);
-    var dist = Math.abs(a - d); if (dist > 180) dist = 360 - dist;
-    if (dist < 30) {
-      m.style.cssText = 'color:var(--gold-light);font-weight:700;font-size:12px;transition:all .3s;background:rgba(200,150,60,.1);border-radius:4px;padding:2px 4px;';
-    } else {
-      m.style.cssText = 'color:var(--parchment-dim);font-weight:normal;font-size:9px;transition:all .3s;background:transparent;';
+  var btns = document.querySelectorAll('#artifact-btns > div');
+  // 根据角度高亮对应按钮（0=mural, 90=scripture, 180=buddha, 270=statue）
+  var idxMap = {0:0, 90:1, 180:2, 270:3};
+  Artifacts.forEach(function(art, i) {
+    var deg = [0,90,180,270][i];
+    var dist = Math.abs(a - deg); if (dist > 180) dist = 360 - dist;
+    if (btns[i] && !art.done) {
+      if (dist < 40) {
+        btns[i].style.border = '2px solid var(--gold)';
+        btns[i].style.boxShadow = '0 0 10px var(--gold-glow)';
+      } else {
+        btns[i].style.border = '1px solid rgba(200,150,60,.2)';
+        btns[i].style.boxShadow = 'none';
+      }
     }
   });
-
-  if (bestD < 30 && best !== Cave.dir) {
-    Cave.dir = best;
-    var info = DirMap[best];
-    var done = GameState.artifactsCompleted.includes(info.name) || GameState.failedArtifacts.includes(info.name);
-    var hint = document.getElementById('artifact-hint');
-    if (!done) {
-      hint.innerHTML = info.icon + ' <b>' + info.label + '</b> — 点击进入';
-      hint.style.opacity = '1'; hint.style.pointerEvents = 'auto'; hint.style.cursor = 'pointer';
-      hint.onclick = function() { enterArt(info.name); };
-    } else {
-      hint.innerHTML = info.icon + ' ' + info.label + ' <span style="opacity:.4">✓</span>';
-      hint.style.opacity = '.5'; hint.style.pointerEvents = 'none';
-    }
-  } else if (bestD > 40 && Cave.dir !== null) {
-    Cave.dir = null;
-    document.getElementById('artifact-hint').style.opacity = '0';
-    document.getElementById('artifact-hint').style.pointerEvents = 'none';
-  }
 }
 
 function enterArt(name) {
   Cave.tm.stop();
-  document.getElementById('artifact-hint').style.opacity = '0';
-  document.getElementById('artifact-hint').style.pointerEvents = 'none';
   var ov = document.getElementById('minigame-overlay'); ov.innerHTML = ''; ov.classList.add('active');
   var cb = function(win) {
     ov.classList.remove('active');
     if (win) GameState.artifactsCompleted.push(name);
     else GameState.failedArtifacts.push(name);
+    // 更新按钮状态
+    Artifacts.forEach(function(a) { if (a.name===name) a.done=true; });
+    renderArtifactButtons();
     var done = GameState.artifactsCompleted.length + GameState.failedArtifacts.length;
     if (done >= 4) { finCave(); }
-    else { Cave.tm.start(); Cave.dir = null; updateDir(); }
+    else { Cave.tm.start(); }
   };
   switch(name) { case'mural':initMural(ov,cb);break; case'scripture':initScrip(ov,cb);break; case'buddha':initBuddha(ov,cb);break; case'statue':initCandle(ov,cb);break; }
 }
