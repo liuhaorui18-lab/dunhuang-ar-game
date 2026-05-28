@@ -557,8 +557,8 @@ function muralStep1() {
   const pieces=[0,1,2,3,4,5]; // indices into mural PNGs
   const shuffled=[...pieces].sort(()=>Math.random()-0.5);
   let placed=0;
-  wrap.innerHTML = `<div class="minigame-title">壁画 · 碎片拼合</div><div class="minigame-subtitle">将碎片拖入对应位置</div>
-    <div style="width:80px;height:40px;background:url('assets/壁画碎片/壁画碎片页面/手势UI.png') center/contain no-repeat;opacity:.5;margin:4px 0"></div>
+  wrap.innerHTML = `<div style="width:160px;height:24px;background:url('assets/壁画碎片/壁画碎片页面/文字.png') center/contain no-repeat;opacity:.7;margin-bottom:2px"></div>
+    <div style="width:80px;height:40px;background:url('assets/壁画碎片/壁画碎片页面/手势UI.png') center/contain no-repeat;opacity:.5;margin:2px 0"></div>
     <div class="jigsaw-area"><div><div class="jigsaw-pieces" id="jp-pieces"></div></div><div id="jp-slots" style="display:flex;flex-wrap:wrap;gap:3px;width:150px"></div></div>
     <div id="jp-progress" style="margin-top:8px;font-size:11px;opacity:.5">已拼合 0/6</div>
     <button class="btn btn-skip" id="jp-skip" style="margin-top:10px">跳过</button>`;
@@ -597,7 +597,7 @@ function muralStep2() {
     'assets/壁画碎片/壁画移动页面/普通状态碎片3.png',
     'assets/壁画碎片/壁画移动页面/普通状态碎片 4.png'
   ];
-  wrap.innerHTML=`<div class="minigame-title">壁画 · 移动对齐</div><div class="minigame-subtitle">点击碎片将其移动到正确位置</div>
+  wrap.innerHTML=`<div style="width:160px;height:24px;background:url('assets/壁画碎片/壁画移动页面/文字.png') center/contain no-repeat;opacity:.7;margin-bottom:2px"></div><div class="minigame-subtitle">点击碎片将其移动到正确位置</div>
     <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0" id="ms-grid"></div>
     <div id="ms-progress" style="font-size:11px;opacity:.5">已对齐 0/4</div>
     <button class="btn btn-skip" style="margin-top:10px">跳过</button>`;
@@ -616,7 +616,7 @@ function muralStep2() {
 function muralStep3() {
   const wrap=document.getElementById('minigame-wrap');
   let rotated=0;
-  wrap.innerHTML=`<div class="minigame-title">壁画 · 旋转合成</div><div class="minigame-subtitle">点击碎片旋转到正确角度</div>
+  wrap.innerHTML=`<div style="width:160px;height:24px;background:url('assets/壁画碎片/壁画转动页面/文字.png') center/contain no-repeat;opacity:.7;margin-bottom:2px"></div><div class="minigame-subtitle">点击碎片旋转到正确角度</div>
     <div class="rotate-hint">🔄 双指旋转 或 点击旋转</div>
     <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0" id="mr-grid"></div>
     <div id="mr-progress" style="font-size:11px;opacity:.5">已旋转 0/4</div>
@@ -632,7 +632,7 @@ function muralStep3() {
 
 function showMuralSuccess() {
   const wrap=document.getElementById('minigame-wrap');
-  wrap.innerHTML=`<div style="text-align:center"><div class="minigame-success">🎨 壁画修复完成！</div><div style="width:120px;height:80px;background:var(--mural-complete) center/contain no-repeat;margin:12px auto"></div><div style="font-size:11px;opacity:.5">壁画已安全记录到数据库中</div><button class="btn btn-arch" style="margin-top:16px" id="mural-done">确认</button></div>`;
+  wrap.innerHTML=`<div style="text-align:center"><div style="width:160px;height:24px;background:url('assets/壁画碎片/拼合成功页面/文字.png') center/contain no-repeat;opacity:.7;margin:0 auto 4px"></div><div style="width:120px;height:80px;background:var(--mural-complete) center/contain no-repeat;margin:12px auto"></div><div style="font-size:11px;opacity:.5">壁画已安全记录到数据库中</div><button class="btn btn-arch" style="margin-top:16px" id="mural-done">确认</button></div>`;
   wrap.style.display='flex';
   document.getElementById('mural-done').onclick=()=>finishArtifact('壁画');
 }
@@ -727,7 +727,7 @@ function openScriptureSort() {
 // ═══════════════════════════════════════════════════════
 function openBuddhaAssembly() {
   const wrap=document.getElementById('minigame-wrap');
-  wrap.innerHTML=`<div class="minigame-title">大佛像 · 拼合碎片</div><div class="minigame-subtitle">将三块神像碎片拖入正确位置</div>
+  wrap.innerHTML=`<div style="width:160px;height:24px;background:url('assets/神像碎片/界面1/文字.png') center/contain no-repeat;opacity:.7;margin-bottom:2px"></div><div class="minigame-subtitle">将三块神像碎片拖入正确位置</div>
     <div style="width:120px;height:30px;background:url('assets/神像碎片/拖动提示界面2/ui提示.png') center/contain no-repeat;opacity:.6;margin:2px 0"></div>
     <div class="buddha-area"><div id="buddha-pieces" style="display:flex;gap:12px"></div><div style="display:flex;gap:8px">
       <div class="buddha-slot" data-expects="left"></div><div class="buddha-slot" data-expects="center"></div><div class="buddha-slot" data-expects="right"></div>
@@ -765,7 +765,7 @@ function makeBuddhaDrag(el,val,cb){
 
 function buddhaShake() {
   const wrap=document.getElementById('minigame-wrap');
-  wrap.innerHTML=`<div class="minigame-title">大佛像 · 清除灰尘</div><div class="minigame-subtitle">用力摇晃手机清除表面灰尘</div>
+  wrap.innerHTML=`<div style="width:160px;height:24px;background:url('assets/神像碎片/摇晃界面4/文字.png') center/contain no-repeat;opacity:.7;margin-bottom:2px"></div><div class="minigame-subtitle">用力摇晃手机清除表面灰尘</div>
     <div style="width:80px;height:30px;background:url('assets/神像碎片/摇晃界面4/ui.png') center/contain no-repeat;opacity:.6;margin:2px 0"></div>
     <div style="width:100px;height:120px;background:var(--buddha-assembled) center/contain no-repeat;animation:pulse 0.6s ease-in-out infinite;margin:0 auto"></div>
     <div style="font-size:11px;opacity:.5;margin-top:6px" id="shake-progress">摇晃力度 0%</div>
@@ -789,7 +789,7 @@ function buddhaShake() {
 
 function buddhaClean() {
   const wrap=document.getElementById('minigame-wrap');
-  wrap.innerHTML=`<div class="minigame-success">✨ 佛像清洁完成！</div>
+  wrap.innerHTML=`<div style="width:160px;height:24px;background:url('assets/神像碎片/神像5/文字.png') center/contain no-repeat;opacity:.7;margin-bottom:4px"></div>
     <div style="width:100px;height:120px;background:var(--buddha-clean) center/contain no-repeat;margin:8px auto"></div><div style="font-size:11px;opacity:.5">佛像面貌已展露，数据已记录</div>
     <button class="btn btn-arch" style="margin-top:14px" id="buddha-done">确认</button>`;
   wrap.style.display='flex';
