@@ -1,0 +1,25 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5]: 🔦
+    - generic [ref=e6]: 敦煌 · 数字困境
+    - generic [ref=e7]:
+      - text: 你即将进入一个即将坍塌的洞窟。
+      - text: 游戏需要使用
+      - strong [ref=e8]: 摄像头
+      - text: 和
+      - strong [ref=e9]: 运动传感器
+      - text: 。
+      - text: 请在弹出的权限请求中点击"允许"。
+    - generic [ref=e10]: 身份：考古学家
+    - button "授权并开始" [ref=e11] [cursor=pointer]
+    - generic [ref=e12]: 摄像头画面仅在设备本地使用，不会上传
+  - generic:
+    - generic: 将摄像头对准附近的岩壁……
+    - button "▶ 锚定此处，开始开凿"
+  - generic:
+    - generic: 点击对应区域开凿 · 注意时机与力度
+  - generic:
+    - generic: 线索 0/2 18s
+    - generic: 点击蓝色线索 · 忽略红色乱码
+  - generic:
+    - generic: 转动手机或拖动屏幕 · 寻找文物

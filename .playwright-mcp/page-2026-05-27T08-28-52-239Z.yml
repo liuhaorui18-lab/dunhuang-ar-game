@@ -1,0 +1,3 @@
+- generic [ref=e24]:
+  - generic [ref=e25]: ✓ 检测到可开凿岩壁！
+  - button "▶ 锚定此处，开始开凿" [ref=e26] [cursor=pointer]

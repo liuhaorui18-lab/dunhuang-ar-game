@@ -131,8 +131,18 @@ body::before {
     var(--bg-main) center/cover no-repeat,
     radial-gradient(ellipse at 30% 70%,rgba(180,100,20,0.06) 0%,transparent 55%),
     radial-gradient(ellipse at 70% 20%,rgba(120,60,10,0.04) 0%,transparent 45%);
-  opacity:.55;
-  filter:brightness(.7);
+  opacity:.55; filter:brightness(.7);
+}
+/* Frame decorations for cave explore */
+.cave-deco-layer {
+  position:fixed;inset:0;z-index:6;pointer-events:none;
+  background:
+    var(--bg-cave-deco) bottom center/80% auto no-repeat,
+    var(--bg-frame4) 2% 50%/auto 40% no-repeat,
+    var(--bg-frame5) 98% 50%/auto 40% no-repeat,
+    var(--bg-frame2) 50% 15%/auto 25% no-repeat,
+    var(--bg-frame3) 50% 85%/auto 20% no-repeat;
+  opacity:.25;
 }
 /* Stone grain overlay */
 body::after {

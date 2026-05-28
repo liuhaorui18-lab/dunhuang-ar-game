@@ -252,6 +252,15 @@ function initClueCatch() {
   document.getElementById('cc-score').textContent=`线索 0/${CC.required}`;
   document.getElementById('cc-timer').textContent='18s';
 
+  // Add center selection UI as overlay
+  let selUI = document.getElementById('clue-select-ui');
+  if (!selUI) {
+    selUI = document.createElement('div');
+    selUI.id = 'clue-select-ui';
+    selUI.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:65;width:160px;height:60px;background:url(\'assets/找线索/画面中间选择ui.png\') center/contain no-repeat;pointer-events:none;opacity:.5';
+    document.getElementById('scene-clue-catch').appendChild(selUI);
+  }
+
   for (let i=0; i<5; i++) setTimeout(spawnClue, i*300);
   CC._spawnId = setInterval(() => { if(CC.active) spawnClue(); }, 1400);
   CC.timerId = setInterval(() => {
@@ -262,16 +271,27 @@ function initClueCatch() {
 
 function spawnClue() {
   if (!CC.active) return;
-  const isReal = Math.random()>0.45;
-  const clueTypes = ['壁画线索','经书线索','大佛像线索','小佛像线索'];
-  const fakeTypes = ['干扰线索1','干扰线索2','干扰线索3','干扰线索4'];
-  const clueType = isReal ? clueTypes[randInt(0,3)] : fakeTypes[randInt(0,3)];
+  const isReal = Math.random()>0.4;
+  // Each unique clue type gets its own PNG
+  const realImgs = [
+    'assets/找线索/壁画线索/文字框.png',
+    'assets/找线索/经书线索/文字框.png',
+    'assets/找线索/大佛像线索/文字框.png',
+    'assets/找线索/小佛像线索/文字框.png'
+  ];
+  const fakeImgs = [
+    'assets/找线索/干扰线索/干扰线索1/文字框.png',
+    'assets/找线索/干扰线索/干扰线索2/文字框.png',
+    'assets/找线索/干扰线索/干扰线索3/文字框.png',
+    'assets/找线索/干扰线索/干扰线索4/文字框.png'
+  ];
+  const idx = randInt(0,3);
+  const imgSrc = isReal ? realImgs[idx] : fakeImgs[idx];
   const el = document.createElement('div');
   el.className = `clue-item ${isReal?'clue-real':'clue-fake'}`;
-  // Use actual PNG as background
-  el.style.backgroundImage = `url('assets/找线索/${clueType}/文字框.png')`;
+  el.style.backgroundImage = `url('${imgSrc}')`;
   el.style.backgroundSize = '100% 100%';
-  el.style.width = '120px'; el.style.height = '48px';
+  el.style.width = '130px'; el.style.height = '50px';
   el.dataset.real = isReal?'1':'0';
   const y = randInt(10,80);
   el.style.top = y+'vh';

@@ -1,0 +1,25 @@
+- generic [ref=e3]:
+  - generic [ref=e4]: DIGITAL DUNHUANG PROJECT · 2024
+  - generic [ref=e5]: 敦煌 · 数字困境
+  - generic [ref=e6]: DUNHUANG · DIGITAL DILEMMA
+  - generic [ref=e7]: "\"在失忆的时代，选择记住什么，是一种反抗。\""
+  - generic [ref=e8]:
+    - generic [ref=e9] [cursor=pointer]:
+      - generic [ref=e11]: 🔨
+      - generic [ref=e12]: 考古学家
+      - generic [ref=e13]: 现场探索
+      - generic [ref=e14]:
+        - text: 稳重踏实
+        - text: 亲历洞窟
+        - text: 文物还原度↑
+    - generic [ref=e15] [cursor=pointer]:
+      - generic [ref=e17]: 💻
+      - generic [ref=e18]: 程序员
+      - generic [ref=e19]: 远程协作
+      - generic [ref=e20]:
+        - text: 聪明急躁
+        - text: 数据支援
+        - text: 数字修复↑
+  - generic [ref=e21]:
+    - button "选择角色开始" [disabled]
+  - generic [ref=e22]: 需要摄像头与运动传感器权限 · 建议佩戴耳机
