@@ -132,9 +132,21 @@ function exLoop() {
     ctx.fillStyle=g; ctx.fillRect(x+2,hitZoneY,laneW-4,hitZoneH);
     ctx.strokeStyle='rgba(200,150,60,0.5)'; ctx.lineWidth=2;
     ctx.beginPath(); ctx.moveTo(x+8,hitZoneY); ctx.lineTo(x+laneW-8,hitZoneY); ctx.stroke();
-    ctx.fillStyle='rgba(200,150,60,0.35)'; ctx.font='22px serif'; ctx.textAlign='center';
+    // Draw excavation button using rhythm PNG
+    const btnImg = new Image();
+    btnImg.src = 'assets/开凿过程（音游）/音游按钮.png';
+    const btnW = Math.min(laneW-12, 40), btnH = Math.min(hitZoneH-8, 36);
+    const btnX = x + (laneW-btnW)/2, btnY = hitZoneY + (hitZoneH-btnH)/2;
+    // Fallback tool icon while PNG loads
+    ctx.fillStyle='rgba(200,150,60,0.35)'; ctx.font='20px serif'; ctx.textAlign='center';
     const tools = ['🔨','⛏️','🪚','🪨','🔩'];
-    ctx.fillText(tools[i%tools.length], x+laneW/2, hitZoneY+hitZoneH/2+6);
+    ctx.fillText(tools[i%tools.length], x+laneW/2, hitZoneY+hitZoneH/2+5);
+    // Draw PNG over (will appear once loaded)
+    if (btnImg.complete) {
+      ctx.drawImage(btnImg, btnX, btnY, btnW, btnH);
+    } else {
+      btnImg.onload = () => { /* will appear on next frame */ };
+    }
   }
 
   // Notes
@@ -546,6 +558,7 @@ function muralStep1() {
   const shuffled=[...pieces].sort(()=>Math.random()-0.5);
   let placed=0;
   wrap.innerHTML = `<div class="minigame-title">壁画 · 碎片拼合</div><div class="minigame-subtitle">将碎片拖入对应位置</div>
+    <div style="width:80px;height:40px;background:url('assets/壁画碎片/壁画碎片页面/手势UI.png') center/contain no-repeat;opacity:.5;margin:4px 0"></div>
     <div class="jigsaw-area"><div><div class="jigsaw-pieces" id="jp-pieces"></div></div><div id="jp-slots" style="display:flex;flex-wrap:wrap;gap:3px;width:150px"></div></div>
     <div id="jp-progress" style="margin-top:8px;font-size:11px;opacity:.5">已拼合 0/6</div>
     <button class="btn btn-skip" id="jp-skip" style="margin-top:10px">跳过</button>`;
@@ -578,19 +591,25 @@ function muralStep1() {
 function muralStep2() {
   const wrap=document.getElementById('minigame-wrap');
   let aligned=0;
+  const movePieces=[
+    'assets/壁画碎片/壁画移动页面/普通状态碎片.png',
+    'assets/壁画碎片/壁画移动页面/普通状态碎片2.png',
+    'assets/壁画碎片/壁画移动页面/普通状态碎片3.png',
+    'assets/壁画碎片/壁画移动页面/普通状态碎片 4.png'
+  ];
   wrap.innerHTML=`<div class="minigame-title">壁画 · 移动对齐</div><div class="minigame-subtitle">点击碎片将其移动到正确位置</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0" id="ms-grid"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0" id="ms-grid"></div>
     <div id="ms-progress" style="font-size:11px;opacity:.5">已对齐 0/4</div>
     <button class="btn btn-skip" style="margin-top:10px">跳过</button>`;
   wrap.style.display='flex';
 
-  for(let i=0;i<4;i++){
+  movePieces.forEach((src,i)=>{
     const el=document.createElement('div');
-    el.style.cssText='width:48px;height:48px;border:2px solid rgba(200,150,60,0.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;background:rgba(200,150,60,0.06)';
-    el.textContent=['🌀','🔱','🌸','🦅'][i]; el.dataset.ok='0';
-    el.onclick=()=>{if(el.dataset.ok==='1')return;el.dataset.ok='1';el.style.borderColor='var(--gold)';el.style.boxShadow='0 0 10px var(--gold-glow)';aligned++;document.getElementById('ms-progress').textContent=`已对齐 ${aligned}/4`;if(aligned>=4){toast('碎片已对齐！','good',1200);setTimeout(()=>muralStep3(),1000);}};
+    el.style.cssText=`width:55px;height:55px;border:2px solid rgba(200,150,60,.3);border-radius:4px;cursor:pointer;background:url('${src}') center/contain no-repeat;background-color:rgba(200,150,60,.06);transition:border-color .2s,box-shadow .2s`;
+    el.dataset.ok='0';
+    el.onclick=()=>{if(el.dataset.ok==='1')return;el.dataset.ok='1';el.style.borderColor='var(--gold)';el.style.boxShadow='0 0 14px var(--gold-glow)';aligned++;document.getElementById('ms-progress').textContent=`已对齐 ${aligned}/4`;if(aligned>=4){toast('碎片已对齐！','good',1200);setTimeout(()=>muralStep3(),1000);}};
     document.getElementById('ms-grid').appendChild(el);
-  }
+  });
   wrap.querySelector('.btn-skip').onclick=()=>{toast('跳过对齐步骤','bad',1500);finishArtifact('壁画');};
 }
 
@@ -709,6 +728,7 @@ function openScriptureSort() {
 function openBuddhaAssembly() {
   const wrap=document.getElementById('minigame-wrap');
   wrap.innerHTML=`<div class="minigame-title">大佛像 · 拼合碎片</div><div class="minigame-subtitle">将三块神像碎片拖入正确位置</div>
+    <div style="width:120px;height:30px;background:url('assets/神像碎片/拖动提示界面2/ui提示.png') center/contain no-repeat;opacity:.6;margin:2px 0"></div>
     <div class="buddha-area"><div id="buddha-pieces" style="display:flex;gap:12px"></div><div style="display:flex;gap:8px">
       <div class="buddha-slot" data-expects="left"></div><div class="buddha-slot" data-expects="center"></div><div class="buddha-slot" data-expects="right"></div>
     </div></div>
@@ -745,7 +765,8 @@ function makeBuddhaDrag(el,val,cb){
 
 function buddhaShake() {
   const wrap=document.getElementById('minigame-wrap');
-  wrap.innerHTML=`<div class="minigame-title">大佛像 · 清除灰尘</div><div class="minigame-subtitle">👋 用力摇晃手机清除表面灰尘</div>
+  wrap.innerHTML=`<div class="minigame-title">大佛像 · 清除灰尘</div><div class="minigame-subtitle">用力摇晃手机清除表面灰尘</div>
+    <div style="width:80px;height:30px;background:url('assets/神像碎片/摇晃界面4/ui.png') center/contain no-repeat;opacity:.6;margin:2px 0"></div>
     <div style="width:100px;height:120px;background:var(--buddha-assembled) center/contain no-repeat;animation:pulse 0.6s ease-in-out infinite;margin:0 auto"></div>
     <div style="font-size:11px;opacity:.5;margin-top:6px" id="shake-progress">摇晃力度 0%</div>
     <button class="btn btn-skip" style="margin-top:12px">跳过</button>`;

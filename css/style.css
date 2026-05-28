@@ -141,8 +141,36 @@ body::before {
     var(--bg-frame4) 2% 50%/auto 40% no-repeat,
     var(--bg-frame5) 98% 50%/auto 40% no-repeat,
     var(--bg-frame2) 50% 15%/auto 25% no-repeat,
-    var(--bg-frame3) 50% 85%/auto 20% no-repeat;
-  opacity:.25;
+    var(--bg-frame3) 50% 85%/auto 20% no-repeat,
+    var(--bg-frame6) 15% 10%/auto 18% no-repeat,
+    var(--bg-frame7) 85% 80%/auto 18% no-repeat,
+    var(--bg-group32) 50% 50%/auto 30% no-repeat;
+  opacity:.22;
+}
+/* Operation hint box */
+.hint-box {
+  background:var(--ui-hint) center/contain no-repeat;
+  padding:8px 16px; font-size:11px; color:var(--parchment);
+  text-align:center; opacity:.85;
+}
+/* Subtitle continue button */
+.subtitle-btn-icon {
+  width:28px;height:28px;
+  background:var(--ui-subtitle-btn) center/contain no-repeat;
+  display:inline-block;cursor:pointer;
+}
+/* Close dialog button */
+.dlg-close-btn {
+  width:24px;height:24px;
+  background:var(--dlg-close) center/contain no-repeat;
+  cursor:pointer;opacity:.6;transition:opacity .2s;
+  position:absolute;top:8px;right:8px;z-index:5;
+}
+.dlg-close-btn:hover{opacity:1}
+/* Excavation lane button */
+.rhythm-lane-btn {
+  background:var(--rhythm-btn) center/contain no-repeat;
+  width:48px;height:48px;display:inline-block;
 }
 /* Stone grain overlay */
 body::after {

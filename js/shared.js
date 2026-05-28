@@ -146,7 +146,10 @@ class SubtitleSystem {
 
   _afterTyping(hintEl) {
     this.typing = false; this.skipQueue = false;
-    hintEl.textContent = this.idx < this.lines.length - 1 ? '点击继续 ▾' : '点击完成 ✓';
+    hintEl.innerHTML = this.idx < this.lines.length - 1
+      ? '<span class="subtitle-btn-icon"></span>'
+      : '<span class="subtitle-btn-icon" style="filter:hue-rotate(90deg)"></span>';
+    hintEl.style.display = 'inline-block';
   }
 
   _advance() {
@@ -251,9 +254,15 @@ function showModal(opts) {
   btn.textContent = opts.btnText || '确认';
   btn.onclick = () => { overlay.remove(); if (opts.onClose) opts.onClose(); };
   box.appendChild(btn);
+  // Close button using design PNG
+  const closeBtn = document.createElement('div');
+  closeBtn.className = 'dlg-close-btn';
+  closeBtn.onclick = () => { overlay.remove(); if (opts.onClose) opts.onClose(); };
+  box.appendChild(closeBtn);
+
   overlay.appendChild(box);
   document.body.appendChild(overlay);
-  return { overlay, timerEl: opts._timerEl };
+  return { overlay, timerEl: opts._timerEl, closeBtn };
 }
 
 function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
