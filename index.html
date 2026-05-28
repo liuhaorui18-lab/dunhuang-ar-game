@@ -11,9 +11,13 @@ body { overflow:hidden; background:#000; }
   background:radial-gradient(ellipse at 50% 60%,#1f0d00 0%,#0a0510 55%,#000 100%);
 }
 canvas#particles { position:fixed; inset:0; z-index:1; pointer-events:none; }
-.loading-overlay { z-index:300; }
-.loading-subtitle { font-size:11px; opacity:0.4; letter-spacing:0.2em; margin-top:8px; }
-.loading-tip { font-size:10px; opacity:0.3; margin-top:28px; }
+.loading-overlay { z-index:300; background:var(--start-bg,#000) center/cover no-repeat; }
+.loading-overlay::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 55%,rgba(26,14,5,.7),rgba(0,0,0,.8)); }
+.loading-title-img { width:260px; height:50px; background:var(--start-title,none) center/contain no-repeat; margin-bottom:8px; position:relative; z-index:1; }
+.loading-subtitle { font-size:10px; opacity:.35; letter-spacing:.2em; margin-top:6px; position:relative; z-index:1; }
+.loading-tip { font-size:9px; opacity:.25; margin-top:24px; position:relative; z-index:1; }
+.loading-walker { background-size:contain!important; width:30px!important; height:30px!important; font-size:0!important; animation:walker-march .6s steps(1) infinite; }
+@keyframes walker-march { 0%{background-image:var(--walker1)} 33%{background-image:var(--walker2)} 66%{background-image:var(--walker3)} 100%{background-image:var(--walker1)} }
 </style>
 </head>
 <body>
@@ -22,10 +26,10 @@ canvas#particles { position:fixed; inset:0; z-index:1; pointer-events:none; }
 
 <!-- Loading -->
 <div class="loading-overlay" id="loading-overlay">
-  <div class="loading-title">敦煌复苏计划</div>
+  <div class="loading-title-img"></div>
   <div class="loading-subtitle">DUNHUANG DIGITAL REVIVAL PROJECT</div>
   <div class="loading-progress-wrap">
-    <div class="loading-walker" id="loading-walker">🚶</div>
+    <div class="loading-walker" id="loading-walker"></div>
     <div class="loading-progress-bar" id="loading-bar" style="width:0%"></div>
   </div>
   <div class="loading-tip" id="loading-tip">正在启动数字敦煌系统……</div>

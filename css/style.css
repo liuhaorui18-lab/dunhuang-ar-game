@@ -23,6 +23,97 @@
   --prog-red:   #FF3B30;
   --safe-b: env(safe-area-inset-bottom,2px);
   --safe-t: env(safe-area-inset-top,2px);
+
+  /* ═══ ALL DESIGN ASSET PATHS ═══ */
+  /* Background components */
+  --bg-main:       url('assets/背景组件/背景.png');
+  --bg-frame2:     url('assets/背景组件/Frame 2.png');
+  --bg-frame3:     url('assets/背景组件/Frame 3.png');
+  --bg-frame4:     url('assets/背景组件/Frame 4.png');
+  --bg-frame5:     url('assets/背景组件/Frame 5.png');
+  --bg-frame6:     url('assets/背景组件/Frame 6.png');
+  --bg-frame7:     url('assets/背景组件/Frame 7.png');
+  --bg-group32:    url('assets/背景组件/Group 32.png');
+  --bg-cave-deco:  url('assets/背景组件/洞口界面的装饰性ui.png');
+  /* Dialog components */
+  --dlg-body:      url('assets/对话框/对话框本体.png');
+  --dlg-bg:        url('assets/对话框/对话框背景.png');
+  --dlg-deco:      url('assets/对话框/对话框装饰.png');
+  --dlg-close:     url('assets/对话框/关闭对话框.png');
+  --dlg-frame-all: url('assets/对话框/各种需要用到框框的ui（比如小弹窗）.png');
+  /* Common UI */
+  --ui-viewfinder: url('assets/常用ui/瞄准框.png');
+  --ui-hint:       url('assets/常用ui/操作提示框.png');
+  --ui-subtitle:   url('assets/常用ui/顶部字幕弹窗.png');
+  --ui-subtitle-btn:url('assets/常用ui/顶部字幕继续按钮.png');
+  /* Start page */
+  --start-title:   url('assets/游戏开始页面/敦煌复苏计划（标题字）.png');
+  --start-bg:      url('assets/游戏开始页面/背景图.png');
+  --walker1:       url('assets/游戏开始页面/进度条加载小人图（重复动画）/1.png');
+  --walker2:       url('assets/游戏开始页面/进度条加载小人图（重复动画）/2.png');
+  --walker3:       url('assets/游戏开始页面/进度条加载小人图（重复动画）/3.png');
+  /* Excavation rhythm */
+  --rhythm-btn:    url('assets/开凿过程（音游）/音游按钮.png');
+  /* Clue cards */
+  --clue-mural:    url('assets/找线索/壁画线索/文字框.png');
+  --clue-script:   url('assets/找线索/经书线索/文字框.png');
+  --clue-buddha:   url('assets/找线索/大佛像线索/文字框.png');
+  --clue-smbuddha: url('assets/找线索/小佛像线索/文字框.png');
+  --clue-fake1:    url('assets/找线索/干扰线索/干扰线索1/文字框.png');
+  --clue-fake2:    url('assets/找线索/干扰线索/干扰线索2/文字框.png');
+  --clue-fake3:    url('assets/找线索/干扰线索/干扰线索3/文字框.png');
+  --clue-fake4:    url('assets/找线索/干扰线索/干扰线索4/文字框.png');
+  /* Mural puzzle */
+  --mural-normal:  url('assets/壁画碎片/壁画碎片页面/普通状态碎片.png');
+  --mural-normal2: url('assets/壁画碎片/壁画碎片页面/普通状态碎片2.png');
+  --mural-normal3: url('assets/壁画碎片/壁画碎片页面/普通状态碎片3.png');
+  --mural-hint:    url('assets/壁画碎片/壁画碎片页面/提示状态碎片.png');
+  --mural-gesture: url('assets/壁画碎片/壁画碎片页面/手势UI.png');
+  --mural-rotate:  url('assets/壁画碎片/壁画转动页面/旋转提示ui.png');
+  --mural-complete:url('assets/壁画碎片/拼合成功页面/完整壁画.png');
+  /* Buddha statue */
+  --buddha-left:   url('assets/神像碎片/界面1/左边神像.png');
+  --buddha-center: url('assets/神像碎片/界面1/中间神像.png');
+  --buddha-right:  url('assets/神像碎片/界面1/右边神像.png');
+  --buddha-drag-ui:url('assets/神像碎片/拖动提示界面2/ui提示.png');
+  --buddha-drag-left:url('assets/神像碎片/拖动提示界面2/左边提示神像.png');
+  --buddha-drag-center:url('assets/神像碎片/拖动提示界面2/中间神像.png');
+  --buddha-drag-right:url('assets/神像碎片/拖动提示界面2/右边神像.png');
+  --buddha-assembled:url('assets/神像碎片/拼合好界面3/拼合好神像.png');
+  --buddha-shake-ui:url('assets/神像碎片/摇晃界面4/ui.png');
+  --buddha-clean:  url('assets/神像碎片/神像5/清灰后.png');
+  /* Small buddha */
+  --sm-buddha:     url('assets/小佛像/小佛像.png');
+  --sm-stone1:     url('assets/小佛像/石块1.png');
+  --sm-stone2:     url('assets/小佛像/石块2.png');
+  --sm-stone3:     url('assets/小佛像/石块3.png');
+  --sm-candle:     url('assets/小佛像/蜡烛.png');
+  --sm-cursor:     url('assets/小佛像/光标.png');
+  /* Scripture strips */
+  --sc-l1-fixed:   url('assets/经书/左1固定.png');
+  --sc-l1-unsel:   url('assets/经书/左1未选中.png');
+  --sc-l1-sel:     url('assets/经书/左1选中.png');
+  --sc-l2-fixed:   url('assets/经书/左2固定.png');
+  --sc-l2-unsel:   url('assets/经书/左2未选中.PNG');
+  --sc-l2-sel:     url('assets/经书/左2选中.png');
+  --sc-l3-fixed:   url('assets/经书/左3固定.png');
+  --sc-l3-unsel:   url('assets/经书/左3未选中.png');
+  --sc-l3-sel:     url('assets/经书/左3选中.png');
+  --sc-l4-fixed:   url('assets/经书/左4固定.png');
+  --sc-l4-unsel:   url('assets/经书/左4未选中.png');
+  --sc-l4-sel:     url('assets/经书/左4选中.png');
+  --sc-l5-fixed:   url('assets/经书/左5固定.png');
+  --sc-l5-unsel:   url('assets/经书/左5未选中.png');
+  --sc-l5-sel:     url('assets/经书/左5选中.png');
+  --sc-l6-unsel:   url('assets/经书/左6未选中.png');
+  --sc-l6-sel:     url('assets/经书/左6选中.png');
+  /* Programmer data blocks */
+  --data-blue1:    url('assets/程序碎块/蓝色1.png');
+  --data-blue2:    url('assets/程序碎块/蓝色2.png');
+  --data-blue3:    url('assets/程序碎块/蓝色3.png');
+  --data-red1:     url('assets/程序碎块/红色1.png');
+  --data-red2:     url('assets/程序碎块/红色2.png');
+  --data-red3:     url('assets/程序碎块/红色 3.png');
 }
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -37,9 +128,11 @@ html,body{
 body::before {
   content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:
+    var(--bg-main) center/cover no-repeat,
     radial-gradient(ellipse at 30% 70%,rgba(180,100,20,0.06) 0%,transparent 55%),
-    radial-gradient(ellipse at 70% 20%,rgba(120,60,10,0.04) 0%,transparent 45%),
-    radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.3) 0%,transparent 70%);
+    radial-gradient(ellipse at 70% 20%,rgba(120,60,10,0.04) 0%,transparent 45%);
+  opacity:.55;
+  filter:brightness(.7);
 }
 /* Stone grain overlay */
 body::after {
@@ -98,6 +191,10 @@ body::after {
   display:flex;align-items:flex-end;gap:8px;
   box-shadow:0 2px 30px var(--gold-pale);
   overflow:hidden;
+}
+.subtitle-bar::after {
+  content:'';position:absolute;inset:0;opacity:.08;pointer-events:none;
+  background:var(--ui-subtitle) center/100% 100% no-repeat;
 }
 /* Shimmer line */
 .subtitle-bar .shimmer{
@@ -580,10 +677,13 @@ body::after {
   box-shadow:0 0 40px rgba(0,0,0,.6);
 }
 .modal-box.arch{
-  background:linear-gradient(180deg,rgba(26,14,5,.96),rgba(19,12,5,.94));
+  background:
+    var(--dlg-bg) center/cover no-repeat,
+    linear-gradient(180deg,rgba(26,14,5,.96),rgba(19,12,5,.94));
   border:1px solid var(--gold-mid);
   color:var(--parchment);
 }
+.modal-box.arch::before{background:var(--dlg-deco) center/contain no-repeat;width:100%;height:100%;top:0;left:0;border:none;opacity:.15}
 .modal-box.prog{
   background:linear-gradient(180deg,rgba(6,13,20,.96),rgba(5,10,16,.94));
   border:1px solid rgba(0,212,255,.3);

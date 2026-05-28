@@ -627,28 +627,37 @@ function makeDraggable(el, val, onPlace) {
 // MINI-GAME 2: SCRIPTURE SORT
 // ═══════════════════════════════════════════════════════
 function openScriptureSort() {
-  const labels=['甲卷','乙卷','丙卷','丁卷','戊卷','己卷'];
-  const heights=[95,55,130,75,110,65];
-  let items=labels.map((l,i)=>({label:l,h:heights[i],order:i}));
+  const scImages = [
+    ['assets/经书/左1未选中.png','assets/经书/左1选中.png','assets/经书/左1固定.png'],
+    ['assets/经书/左2未选中.PNG','assets/经书/左2选中.png','assets/经书/左2固定.png'],
+    ['assets/经书/左3未选中.png','assets/经书/左3选中.png','assets/经书/左3固定.png'],
+    ['assets/经书/左4未选中.png','assets/经书/左4选中.png','assets/经书/左4固定.png'],
+    ['assets/经书/左5未选中.png','assets/经书/左5选中.png','assets/经书/左5固定.png'],
+    ['assets/经书/左6未选中.png','assets/经书/左6选中.png',null]
+  ];
+  let items=scImages.map((imgs,i)=>({imgs,order:i}));
   items=[...items].sort(()=>Math.random()-0.5);
   let selected=null;
-
   const wrap=document.getElementById('minigame-wrap');
-  function render() {
+  function render(){
+    const correct = items.every((item,i)=>item.order===i);
     wrap.innerHTML=`<div class="minigame-title">经书 · 理清顺序</div><div class="minigame-subtitle">点击两条经卷交换位置，按尺寸从小到大排列</div>
       <div class="sort-items" id="sr-row"></div>
-      <div style="font-size:10px;opacity:.45;margin-top:6px">正确顺序：小 → 大</div>
-      <button class="btn btn-arch" id="sr-confirm" style="margin-top:12px">确认顺序</button>
-      <button class="btn btn-skip" id="sr-skip" style="margin-top:6px">跳过</button>`;
+      <div style="font-size:10px;opacity:.45;margin-top:4px">正确顺序：小 → 大</div>
+      <button class="btn btn-arch" id="sr-confirm" style="margin-top:10px">确认顺序</button>
+      <button class="btn btn-skip" id="sr-skip" style="margin-top:4px">跳过</button>`;
     wrap.style.display='flex';
     const row=document.getElementById('sr-row');
     items.forEach((item,i)=>{
       const el=document.createElement('div');
       el.className=`sort-item${selected===i?' selected':''}`;
-      const body=document.createElement('div');body.className='sort-item-body';body.style.height=item.h+'px';
-      const lbl=document.createElement('div');lbl.className='sort-item-label';lbl.textContent=item.label;
-      el.appendChild(body);el.appendChild(lbl);
+      el.style.width='46px';
+      const img=document.createElement('img');
+      img.src=selected===i ? item.imgs[1] : item.imgs[0];
+      img.style.width='100%';img.style.height='auto';img.style.display='block';
+      el.appendChild(img);
       el.addEventListener('click',()=>{
+        if(correct)return;
         if(selected===null)selected=i;
         else if(selected===i)selected=null;
         else{[items[selected],items[i]]=[items[i],items[selected]];selected=null;}
@@ -656,8 +665,17 @@ function openScriptureSort() {
       });
       row.appendChild(el);
     });
+    if(correct){
+      // Show all as fixed
+      setTimeout(()=>{
+        document.querySelectorAll('#sr-row img').forEach((img,i)=>{
+          const item=items[i];
+          img.src=item.imgs[2]||item.imgs[1];
+        });
+      },100);
+    }
     document.getElementById('sr-confirm').onclick=()=>{
-      if(items.every((item,i)=>item.order===i)){toast('顺序正确！','good',1500);finishArtifact('经书');}
+      if(correct){toast('顺序正确！','good',1500);finishArtifact('经书');}
       else toast('顺序不对，再试试！','bad',1000);
     };
     document.getElementById('sr-skip').onclick=()=>{toast('经书顺序未能还原……','bad',1500);finishArtifact('经书');};
@@ -743,23 +761,36 @@ function buddhaClean() {
 function openCandleGame() {
   const wrap=document.getElementById('minigame-wrap');
   let hits=0;
-  wrap.innerHTML=`<div class="minigame-title">小佛像 · 烛光捕捉</div><div class="minigame-subtitle">点击三次烛光，找到隐藏的小佛像！</div>
-    <div class="wam-count" id="wam-hits">0 / 3</div><div class="wam-area" id="wam-area"></div>
-    <button class="btn btn-skip" id="wam-skip" style="margin-top:10px">跳过</button>`;
+  wrap.innerHTML=`<div class="minigame-title">小佛像 · 烛光捕捉</div><div class="minigame-subtitle">点击烛光三次，清除石块，找到隐藏的小佛像！</div>
+    <div class="wam-count" id="wam-hits">0 / 3</div>
+    <div class="wam-area" id="wam-area" style="background:var(--sm-buddha) center/contain no-repeat,radial-gradient(ellipse at 50% 50%,rgba(200,150,60,.06),rgba(0,0,0,.65))"></div>
+    <button class="btn btn-skip" id="wam-skip" style="margin-top:8px">跳过</button>`;
   wrap.style.display='flex';
-  showLight();
-  function showLight(){
-    const area=document.getElementById('wam-area');if(!area)return;
-    area.querySelectorAll('.wam-light').forEach(e=>e.remove());
-    const l=document.createElement('div');l.className='wam-light';
-    const mx=area.offsetWidth||180,my=area.offsetHeight||180;
-    l.style.left=randInt(8,mx-8)+'px';l.style.top=randInt(8,my-8)+'px';
-    area.appendChild(l);
-    const hide=setTimeout(()=>{l.remove();if(hits<3)showLight();},1400);
-    l.addEventListener('touchstart',e=>{e.preventDefault();clearTimeout(hide);l.remove();hits++;document.getElementById('wam-hits').textContent=`${hits} / 3`;toast(['✓ 找到了！','✓ 又看见了！','✓ 抓住！'][hits-1],'good',800);if(hits>=3)finishArtifact('小佛像');else showLight();},{passive:false});
-    l.addEventListener('click',()=>{clearTimeout(hide);l.remove();hits++;document.getElementById('wam-hits').textContent=`${hits} / 3`;toast(['✓ 找到了！','✓ 又看见了！','✓ 抓住！'][hits-1],'good',800);if(hits>=3)finishArtifact('小佛像');else showLight();});
-  }
-  document.getElementById('wam-skip').onclick=()=>{toast('烛光消失了……','bad',1500);finishArtifact('小佛像');};
+
+  // Add stone overlays
+  const area=document.getElementById('wam-area');
+  const stones=[
+    {img:'assets/小佛像/石块1.png',x:'15%',y:'25%',w:40,h:30},
+    {img:'assets/小佛像/石块2.png',x:'55%',y:'35%',w:44,h:28},
+    {img:'assets/小佛像/石块3.png',x:'35%',y:'55%',w:50,h:35}
+  ];
+  let stonesCleared=0;
+  stones.forEach(st=>{
+    const s=document.createElement('div');
+    s.style.cssText=`position:absolute;left:${st.x};top:${st.y};width:${st.w}px;height:${st.h}px;background:url('${st.img}') center/contain no-repeat;cursor:pointer;transition:opacity .3s`;
+    s.addEventListener('click',function handler(){
+      s.style.opacity='0';s.style.pointerEvents='none';
+      stonesCleared++;hits++;
+      document.getElementById('wam-hits').textContent=`${hits} / 3`;
+      toast(['✓ 石块碎裂！','✓ 又清除一块！','✓ 佛像露出！'][hits-1],'good',800);
+      spawnSparks(parseInt(s.style.left)+st.w/2, parseInt(s.style.top)+st.h/2, 5);
+      if(stonesCleared>=3)finishArtifact('小佛像');
+    });
+    s.addEventListener('touchstart',e=>{e.preventDefault();s.click();},{passive:false});
+    area.appendChild(s);
+  });
+
+  document.getElementById('wam-skip').onclick=()=>{toast('石块太坚固了……','bad',1500);finishArtifact('小佛像');};
 }
 
 // ═══════════════════════════════════════════════════════
