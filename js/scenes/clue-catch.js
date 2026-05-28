@@ -92,7 +92,17 @@ function finCC() {
 }
 
 function goExplore() {
-  Dialogue.play(Dialogues.arch_timer).then(function() {
-    SM.go('scene-cave-explore').then(function() { initCaveExplore(GameState.totalSec); });
+  // 显示洞口像素图渐入代表进入洞窟
+  var reveal = document.getElementById('scene-countdown-reveal');
+  reveal.innerHTML = '<div id="cave-entrance" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.9)"><img src="assets/洞口像素图.png" style="width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity 1.5s" id="cave-img"></div>';
+  SM.go('scene-countdown-reveal').then(function() {
+    setTimeout(function() {
+      document.getElementById('cave-img').style.opacity = '1';
+    }, 200);
+    setTimeout(function() {
+      Dialogue.play(Dialogues.arch_timer).then(function() {
+        SM.go('scene-cave-explore').then(function() { initCaveExplore(GameState.totalSec); });
+      });
+    }, 2200);
   });
 }
