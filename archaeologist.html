@@ -1,175 +1,92 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!DOCTYPE html><html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>考古学家 · 敦煌数字困境</title>
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    body { background: var(--arch-bg); }
-    #scene-cave-explore { background: transparent; }
-    .cave-wall-bg {
-      position: fixed; inset: 0; z-index: 6; pointer-events: none;
-      background: radial-gradient(ellipse at 50% 100%, rgba(13,8,4,0.6), rgba(0,0,0,0.8) 70%);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>考古学家 — 敦煌复苏计划</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- Camera -->
 <video id="camera-video" autoplay playsinline muted></video>
-<div class="cam-overlay" id="cam-overlay"></div>
-
-<!-- Fade overlay -->
+<div class="cam-overlay"></div>
 <div class="fade-overlay" id="fade-overlay"></div>
 
-<!-- ─── SCENE: Permissions ─── -->
-<div id="scene-perm" class="scene active" style="background:var(--arch-bg)">
+<!-- PERM -->
+<div id="scene-perm" class="scene active" style="background:var(--cave-bg)">
   <div class="perm-screen">
     <div class="perm-icon">🔦</div>
-    <div class="perm-title" style="color:#D4A853">敦煌 · 数字困境</div>
-    <div class="perm-desc" style="color:#F5E6C8">
-      你即将进入一个即将坍塌的洞窟。<br>
-      游戏需要使用 <strong>摄像头</strong> 和 <strong>运动传感器</strong>。<br>
-      请在弹出的权限请求中点击"允许"。
+    <div class="perm-title">敦煌复苏计划</div>
+    <div class="perm-desc">
+      你即将进入一个即将坍塌的洞窟。<br>游戏需要使用<strong>摄像头</strong>和<strong>运动传感器</strong>。<br>请在弹出的权限请求中点击"允许"。
     </div>
-    <div class="perm-desc" style="color:#D4A853;font-size:13px">身份：考古学家</div>
+    <div class="perm-desc" style="color:var(--gold-light);font-size:12px">身份：考古学家</div>
     <button class="btn btn-arch" id="perm-btn">授权并开始</button>
-    <div style="font-size:11px;opacity:.35;text-align:center">
-      摄像头画面仅在设备本地使用，不会上传
-    </div>
+    <div style="font-size:10px;opacity:.3;flex-basis:100%;text-align:center">摄像头画面仅在设备本地使用，不会上传</div>
   </div>
 </div>
 
-<!-- ─── SCENE: Dialogue 1 ─── -->
-<div id="scene-dialogue1" class="scene" style="background:var(--arch-bg)">
-  <!-- Camera shows through -->
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%, rgba(30,15,0,0.5), rgba(0,0,0,0.85))"></div>
-  <div class="dialogue-wrap">
-    <div class="dialogue-box arch" id="dialogue-box"></div>
-  </div>
-</div>
-
-<!-- ─── SCENE: Wall Scan ─── -->
+<!-- WALL SCAN -->
 <div id="scene-wall-scan" class="scene">
   <div class="scan-frame">
     <div class="scan-corners">
-      <div class="scan-corner-bl"></div>
-      <div class="scan-corner-br"></div>
+      <div class="scan-corner-bl"></div><div class="scan-corner-br"></div>
       <div class="scan-line"></div>
     </div>
   </div>
-  <div class="scan-label" id="scan-label">将摄像头对准附近的岩壁……</div>
+  <div class="scan-label arch" id="scan-label">将摄像头对准附近的岩壁……</div>
   <button class="btn btn-arch scan-tap-btn" id="scan-tap-btn">▶ 锚定此处，开始开凿</button>
 </div>
 
-<!-- ─── SCENE: Excavation ─── -->
+<!-- EXCAVATION -->
 <div id="scene-excavation" class="scene">
-  <!-- Canvas rendered via JS -->
   <canvas id="game-canvas" class="hidden"></canvas>
-
-  <!-- HUD -->
-  <div id="ex-hud" class="hud" style="display:none">
-    <div class="hud-label" style="color:#D4A853">开凿进度</div>
-    <div id="ex-score" style="font-weight:700;color:#C8860A;font-size:16px">0/12</div>
+  <div class="hud" id="ex-hud" style="display:none">
+    <div class="hud-label" style="color:var(--gold-light)">开凿进度</div>
+    <div id="ex-score" style="font-weight:700;color:var(--gold);font-size:15px">0/12</div>
   </div>
-
-  <!-- Force Meter -->
   <div class="force-wrap" id="force-wrap" style="display:none">
-    <div class="force-label" style="color:#F5E6C8">力度</div>
-    <div class="force-bar-outer">
-      <div class="force-bar-inner" id="force-bar" style="height:50%"></div>
-      <div class="force-ideal-line"></div>
-    </div>
-    <div class="force-label" style="color:#F5E6C8">↑重</div>
+    <div class="force-label">力度</div>
+    <div class="force-bar-outer"><div class="force-bar-inner" id="force-bar" style="height:50%"></div><div class="force-ideal-line"></div></div>
+    <div class="force-label">↑重</div>
   </div>
-
-  <!-- Feedback -->
-  <div id="ex-feedback" style="position:fixed;top:32%;left:0;right:0;text-align:center;font-size:18px;font-weight:700;z-index:60;opacity:0;transition:opacity .2s;text-shadow:0 0 12px rgba(200,134,10,.8)"></div>
-
-  <!-- Lane tap hint -->
-  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:11px;opacity:.4;z-index:50;pointer-events:none">
-    点击对应区域开凿 · 注意时机与力度
-  </div>
+  <div id="ex-feedback" style="position:fixed;top:32%;left:0;right:0;text-align:center;font-size:16px;font-weight:700;z-index:60;opacity:0;transition:opacity .2s;text-shadow:0 0 12px var(--gold-glow)"></div>
+  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:10px;opacity:.35;z-index:50;pointer-events:none">点击对应区域开凿 · 注意时机与力度</div>
 </div>
 
-<!-- ─── SCENE: Dialogue 2 ─── -->
-<div id="scene-dialogue2" class="scene" style="background:rgba(0,0,0,0.9)">
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%, rgba(30,15,0,0.6), rgba(0,0,0,0.9))"></div>
-  <div class="dialogue-wrap">
-    <div class="dialogue-box arch" id="dialogue-box-2"></div>
-  </div>
-</div>
-
-<!-- ─── SCENE: Clue Catch ─── -->
+<!-- CLUE CATCH -->
 <div id="scene-clue-catch" class="scene">
-  <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);pointer-events:none;z-index:5"></div>
-  <!-- Score + Timer HUD -->
-  <div class="clue-score" style="z-index:70">
-    <span id="cc-score">线索 0/2</span>
-    <span style="margin-left:16px;opacity:.6" id="cc-timer">18s</span>
-  </div>
-  <div style="position:fixed;top:40px;left:0;right:0;text-align:center;font-size:11px;opacity:.5;z-index:70;pointer-events:none">
-    点击蓝色线索 · 忽略红色乱码
-  </div>
+  <div style="position:fixed;inset:0;background:rgba(0,0,0,0.4);pointer-events:none;z-index:5"></div>
+  <div class="clue-score"><span id="cc-score">线索 0/2</span> <span style="margin-left:6px;opacity:.5" id="cc-timer">18s</span></div>
+  <div style="position:fixed;top:40px;left:0;right:0;text-align:center;font-size:10px;opacity:.4;z-index:70;pointer-events:none">点击金色线索 · 忽略红色乱码</div>
 </div>
 
-<!-- ─── SCENE: Countdown Reveal ─── -->
-<div id="scene-countdown-reveal" class="scene" style="background:rgba(0,0,0,0.92)"></div>
+<!-- COUNTDOWN -->
+<div id="scene-countdown-reveal" class="scene" style="background:rgba(0,0,0,0.9)"></div>
 
-<!-- ─── SCENE: Cave Explore ─── -->
+<!-- CAVE EXPLORE -->
 <div id="scene-cave-explore" class="scene">
-  <div class="cave-wall-bg"></div>
-
-  <!-- Torchlight vignette -->
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%, rgba(200,100,10,0.08) 0%, rgba(0,0,0,0.75) 65%);pointer-events:none;z-index:7"></div>
-
-  <!-- Touch area -->
+  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(200,100,10,0.06) 0%,rgba(0,0,0,0.7) 65%);pointer-events:none;z-index:7"></div>
   <div id="cave-area" style="position:fixed;inset:0;z-index:8;touch-action:none"></div>
-
-  <!-- Timer -->
   <div class="timer-badge arch" id="timer-badge" style="display:none">0:00</div>
-
-  <!-- Viewfinder -->
-  <div class="viewfinder" id="viewfinder">
-    <div class="viewfinder-cross"></div>
-  </div>
-
-  <!-- Artifact hint -->
+  <div class="viewfinder" id="viewfinder"><div class="viewfinder-cross"></div></div>
   <div class="artifact-hint" id="artifact-hint"></div>
-
-  <!-- Compass -->
   <div class="compass-bar" id="compass-bar">
     <div class="artifact-markers" id="art-markers">
-      <div class="art-marker" data-name="壁画"   style="left:5.5%"></div>
-      <div class="art-marker" data-name="经卷"   style="left:22%"></div>
-      <div class="art-marker" data-name="佛像"   style="left:44%"></div>
-      <div class="art-marker" data-name="小佛像" style="left:72%"></div>
+      <div class="art-marker" data-name="壁画" style="left:5%"></div>
+      <div class="art-marker" data-name="经书" style="left:23%"></div>
+      <div class="art-marker" data-name="大佛像" style="left:45%"></div>
+      <div class="art-marker" data-name="小佛像" style="left:73%"></div>
     </div>
     <div class="compass-dot" id="compass-dot" style="left:0%"></div>
   </div>
-  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:11px;opacity:.35;z-index:20;pointer-events:none">
-    转动手机或拖动屏幕 · 寻找文物
-  </div>
-
-  <!-- Mini-game overlay -->
+  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:10px;opacity:.3;z-index:20;pointer-events:none">转动手机或拖动屏幕 · 寻找文物</div>
   <div id="minigame-wrap" class="minigame-wrap" style="display:none"></div>
-
-  <!-- Mini-game dialogue -->
-  <div id="minigame-dialogue-wrap" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:85;padding:0 16px 32px">
-    <div class="dialogue-box arch" id="minigame-dialogue-box"></div>
-  </div>
 </div>
 
-<!-- ─── SCENE: Ending ─── -->
-<div id="scene-ending" class="scene" style="background:var(--arch-bg)"></div>
-
-<!-- ─── SCENE: Results ─── -->
-<div id="scene-results" class="scene" style="background:var(--arch-bg);overflow-y:auto"></div>
-
-<!-- ─── SCENE: Notebook ─── -->
-<div id="scene-notebook" class="scene"></div>
+<!-- ENDING -->
+<div id="scene-ending" class="scene" style="background:var(--cave-bg)"></div>
+<!-- RESULTS -->
+<div id="scene-results" class="scene" style="background:var(--cave-bg);overflow-y:auto"></div>
 
 <script src="js/shared.js"></script>
 <script src="js/archaeologist.js"></script>

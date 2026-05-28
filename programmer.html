@@ -1,144 +1,75 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!DOCTYPE html><html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>程序员 · 敦煌数字困境</title>
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    body { background: var(--prog-bg); }
-    /* Scanlines overlay */
-    body::after {
-      content:''; position:fixed; inset:0; pointer-events:none; z-index:2;
-      background: repeating-linear-gradient(
-        0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
-      );
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>程序员 — 敦煌复苏计划</title>
+<link rel="stylesheet" href="css/style.css">
+<style>body{background:var(--prog-bg)}body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:2;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.02) 2px,rgba(0,0,0,.02) 4px)}</style>
 </head>
 <body>
 
 <video id="camera-video" autoplay playsinline muted></video>
-<div class="cam-overlay" style="background:rgba(0,5,15,0.55)"></div>
+<div class="cam-overlay" style="background:rgba(0,5,15,0.5)"></div>
 <div class="fade-overlay" id="fade-overlay"></div>
 
-<!-- ─── SCENE: Permissions ─── -->
+<!-- PERM -->
 <div id="scene-perm" class="scene active" style="background:var(--prog-bg)">
-  <div class="perm-screen" style="background:rgba(5,10,15,0.97)">
+  <div class="perm-screen" style="background:rgba(5,10,15,0.96)">
     <div class="perm-icon">💻</div>
-    <div class="perm-title" style="color:#00D4FF">敦煌 · 数字困境</div>
-    <div class="perm-desc" style="color:#C8F0FF">
-      你将远程协助一位正在洞窟中的考古学家。<br>
-      游戏需要使用 <strong>摄像头</strong> 和 <strong>运动传感器</strong>。<br>
-      请在弹出的权限请求中点击"允许"。
-    </div>
-    <div class="perm-desc" style="color:#00D4FF;font-size:13px">身份：程序员</div>
+    <div class="perm-title" style="color:var(--prog-cyan)">敦煌复苏计划</div>
+    <div class="perm-desc" style="color:#C8F0FF">你将远程协助一位正在洞窟中的考古学家。<br>游戏需要使用<strong>摄像头</strong>和<strong>运动传感器</strong>。<br>请在弹出的权限请求中点击"允许"。</div>
+    <div class="perm-desc" style="color:var(--prog-cyan);font-size:12px">身份：程序员</div>
     <button class="btn btn-prog" id="perm-btn">授权并开始</button>
-    <div style="font-size:11px;opacity:.3;text-align:center">摄像头画面仅在本地使用</div>
+    <div style="font-size:10px;opacity:.25;flex-basis:100%;text-align:center">摄像头画面仅在本地使用</div>
   </div>
 </div>
 
-<!-- ─── SCENE: Dialogue 1 ─── -->
-<div id="scene-dialogue1" class="scene" style="background:var(--prog-bg)">
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%, rgba(0,50,80,0.3), rgba(0,0,0,0.9))"></div>
-  <div class="dialogue-wrap">
-    <div class="dialogue-box prog" id="dialogue-box"></div>
-  </div>
-</div>
-
-<!-- ─── SCENE: Wall Scan (Tech UI) ─── -->
+<!-- WALL SCAN -->
 <div id="scene-wall-scan" class="scene">
-  <!-- Tech overlay -->
-  <div class="tech-scan-frame tech-corners">
-    <div class="scanline"></div>
-    <div class="tech-grid"></div>
-    <div class="tech-corner-bl"></div>
-    <div class="tech-corner-br"></div>
-  </div>
-
-  <!-- Boot text -->
+  <div class="tech-scan-frame tech-corners"><div class="scanline"></div><div class="tech-grid"></div><div class="tech-corner-bl"></div><div class="tech-corner-br"></div></div>
   <div class="boot-text" id="boot-text"></div>
-
-  <div class="scan-label prog-style" id="scan-label" style="bottom:16%">
-    正在初始化数字敦煌系统……
-  </div>
+  <div class="scan-label prog" id="scan-label" style="bottom:16%">正在初始化数字敦煌系统……</div>
   <button class="btn btn-prog scan-tap-btn" id="scan-tap-btn">▶ 系统就绪，开始任务</button>
 </div>
 
-<!-- ─── SCENE: Data Shoot ─── -->
+<!-- DATA SHOOT -->
 <div id="scene-data-shoot" class="scene">
-  <div style="position:fixed;inset:0;background:rgba(5,10,15,0.7);pointer-events:none;z-index:5"></div>
-
-  <!-- HUD top -->
+  <div style="position:fixed;inset:0;background:rgba(5,10,15,0.6);pointer-events:none;z-index:5"></div>
   <div style="position:fixed;top:6px;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:0 12px">
     <div class="prog-health" id="ds-health"></div>
-    <div style="font-size:13px;color:#00D4FF;opacity:.7" id="ds-rounds">数据包 0/3</div>
+    <div style="font-size:11px;color:var(--prog-cyan);opacity:.6" id="ds-rounds">数据包 0/3</div>
   </div>
-
-  <!-- Progress -->
   <div style="position:fixed;bottom:12%;left:8%;right:8%;z-index:100">
-    <div style="font-size:11px;color:#00D4FF;opacity:.6;margin-bottom:6px;text-align:center">数据发送进度</div>
-    <div class="prog-progress-bar-outer">
-      <div class="prog-progress-bar-inner" id="ds-progress-bar" style="width:0%"></div>
-    </div>
+    <div style="font-size:10px;color:var(--prog-cyan);opacity:.5;margin-bottom:4px;text-align:center">数据发送进度</div>
+    <div class="prog-progress-bar-outer"><div class="prog-progress-bar-inner" id="ds-progress-bar" style="width:0%"></div></div>
   </div>
-
-  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:11px;opacity:.4;z-index:50;pointer-events:none">
-    点击摧毁飞来的数据团块
-  </div>
+  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:10px;opacity:.3;z-index:50;pointer-events:none">点击摧毁红色数据团块 · 收集蓝色数据</div>
 </div>
 
-<!-- ─── SCENE: Dialogue 2 ─── -->
-<div id="scene-dialogue2" class="scene" style="background:rgba(5,10,15,0.97)">
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%, rgba(0,30,50,0.5), rgba(0,0,0,0.9))"></div>
-  <div class="dialogue-wrap">
-    <div class="dialogue-box prog" id="dialogue-box-2"></div>
-  </div>
-</div>
-
-<!-- ─── SCENE: Maze ─── -->
+<!-- MAZE -->
 <div id="scene-maze" class="scene" style="background:var(--prog-bg)">
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%, rgba(0,30,50,0.8), rgba(5,10,15,0.95))"></div>
+  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(0,30,50,0.7),rgba(5,10,15,0.93))"></div>
   <div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;width:100%;padding:8px">
-    <div style="font-size:14px;font-weight:700;color:#00D4FF;margin-bottom:2px">数据迷宫</div>
-    <div style="font-size:10px;opacity:.5;margin-bottom:8px;text-align:center">倾斜手机控制小球，到达出口 🚪<br>（桌面：方向键）</div>
-    <canvas id="maze-canvas" style="border:1px solid rgba(0,212,255,0.2);border-radius:8px;max-width:90vw"></canvas>
-    <div style="margin-top:6px;font-size:10px;opacity:.4;text-align:center">在复杂的数据流中寻找正确的线索路径</div>
-    <button class="btn btn-neutral" style="margin-top:10px;font-size:11px;padding:6px 16px" onclick="
-      if(typeof MAZE!=='undefined'){MAZE.done=true; cancelAnimationFrame(MAZE.animId);}
-      startDialogue3();
-    ">走不出来？跳过迷宫</button>
+    <div style="font-size:13px;font-weight:700;color:var(--prog-cyan);margin-bottom:2px">数据迷宫</div>
+    <div style="font-size:9px;opacity:.45;margin-bottom:6px;text-align:center">倾斜手机控制小球，到达出口 🚪（桌面：方向键）</div>
+    <canvas id="maze-canvas" style="border:1px solid rgba(0,212,255,0.15);border-radius:6px;max-width:90vw;max-height:60vh"></canvas>
+    <div style="margin-top:4px;font-size:9px;opacity:.35;text-align:center">在复杂的数据流中寻找正确的线索路径</div>
+    <button class="btn btn-skip" style="margin-top:8px" onclick="if(typeof MAZE!=='undefined'){MAZE.done=true;cancelAnimationFrame(MAZE.animId)}startDialogue3()">走不出来？跳过迷宫</button>
   </div>
 </div>
 
-<!-- ─── SCENE: Dialogue 3 ─── -->
-<div id="scene-dialogue3" class="scene" style="background:rgba(5,10,15,0.97)">
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%, rgba(0,30,50,0.5), rgba(0,0,0,0.9))"></div>
-  <div class="dialogue-wrap">
-    <div class="dialogue-box prog" id="dialogue-box-3"></div>
-  </div>
-</div>
-
-<!-- ─── SCENE: Countdown Reveal ─── -->
-<div id="scene-countdown-reveal" class="scene" style="background:rgba(5,10,15,0.95)"></div>
-
-<!-- ─── SCENE: Photo Puzzle ─── -->
+<!-- PHOTO PUZZLE -->
 <div id="scene-photo-puzzle" class="scene" style="background:var(--prog-bg);overflow-y:auto">
-  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0%, rgba(0,50,80,0.3), rgba(5,10,15,0.92))"></div>
-
-  <!-- Timer -->
+  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,50,80,0.25),rgba(5,10,15,0.9))"></div>
   <div class="timer-badge prog" id="prog-timer-badge" style="display:none">0:00</div>
-
-  <div id="pp-container" style="position:relative;z-index:10;padding:16px 16px 20px;width:100%;max-width:480px;margin:0 auto">
+  <div id="pp-container" style="position:relative;z-index:10;padding:12px 16px 16px;width:100%;max-width:480px;margin:0 auto">
     <div id="pp-wrap" style="display:flex;flex-direction:column;align-items:center;width:100%"></div>
   </div>
 </div>
 
-<!-- ─── SCENE: Ending ─── -->
+<!-- ENDING -->
 <div id="scene-ending" class="scene" style="background:var(--prog-bg)"></div>
-
-<!-- ─── SCENE: Results ─── -->
+<!-- RESULTS -->
 <div id="scene-results" class="scene" style="background:var(--prog-bg);overflow-y:auto"></div>
 
 <script src="js/shared.js"></script>
