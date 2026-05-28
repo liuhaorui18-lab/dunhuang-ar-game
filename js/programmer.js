@@ -122,7 +122,9 @@ function spawnBlock() {
   const isDanger = Math.random() > 0.5;
   const el = document.createElement('div');
   el.className = `data-block ${isDanger?'data-red':'data-blue'}`;
-  el.textContent = DATA_STRINGS[randInt(0, DATA_STRINGS.length-1)];
+  // Cycle through 3 PNG variants
+  const variant = randInt(1,3);
+  el.style.backgroundImage = `url('assets/程序碎块/${isDanger?'红色':'蓝色'}${variant}.png')`;
 
   const y = randInt(10, 80);
   el.style.top = y+'vh';

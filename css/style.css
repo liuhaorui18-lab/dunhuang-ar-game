@@ -24,6 +24,65 @@
   /* ─── Layout ─── */
   --safe-b: env(safe-area-inset-bottom, 4px);
   --safe-t: env(safe-area-inset-top, 4px);
+
+  /* ─── Asset paths ─── */
+  --bg-main: url('assets/背景组件/背景.png');
+  --bg-cave-entrance: url('assets/背景组件/洞口界面的装饰性ui.png');
+  --bg-frame2: url('assets/背景组件/Frame 2.png');
+  --bg-frame3: url('assets/背景组件/Frame 3.png');
+  --bg-frame4: url('assets/背景组件/Frame 4.png');
+  --bg-frame5: url('assets/背景组件/Frame 5.png');
+  --bg-frame6: url('assets/背景组件/Frame 6.png');
+  --bg-frame7: url('assets/背景组件/Frame 7.png');
+  --bg-group32: url('assets/背景组件/Group 32.png');
+  --ui-subtitle-bar: url('assets/常用ui/顶部字幕弹窗.png');
+  --ui-subtitle-btn: url('assets/常用ui/顶部字幕继续按钮.png');
+  --ui-viewfinder: url('assets/常用ui/瞄准框.png');
+  --ui-hint-box: url('assets/常用ui/操作提示框.png');
+  --dlg-body: url('assets/对话框/对话框本体.png');
+  --dlg-bg: url('assets/对话框/对话框背景.png');
+  --dlg-deco: url('assets/对话框/对话框装饰.png');
+  --dlg-close: url('assets/对话框/关闭对话框.png');
+  --dlg-frame: url('assets/对话框/各种需要用到框框的ui（比如小弹窗）.png');
+
+  /* ─── Asset paths (game-specific) ─── */
+  --rhythm-btn: url('assets/开凿过程（音游）/音游按钮.png');
+  --start-bg: url('assets/游戏开始页面/背景图.png');
+  --start-title: url('assets/游戏开始页面/敦煌复苏计划（标题字）.png');
+  --walker1: url('assets/游戏开始页面/进度条加载小人图（重复动画）/1.png');
+  --walker2: url('assets/游戏开始页面/进度条加载小人图（重复动画）/2.png');
+  --walker3: url('assets/游戏开始页面/进度条加载小人图（重复动画）/3.png');
+
+  /* ─── Mural puzzle ─── */
+  --mural-piece-normal: url('assets/壁画碎片/壁画碎片页面/普通状态碎片.png');
+  --mural-piece-normal2: url('assets/壁画碎片/壁画碎片页面/普通状态碎片2.png');
+  --mural-piece-normal3: url('assets/壁画碎片/壁画碎片页面/普通状态碎片3.png');
+  --mural-piece-hint: url('assets/壁画碎片/壁画碎片页面/提示状态碎片.png');
+  --mural-rot-hint: url('assets/壁画碎片/壁画转动页面/旋转提示ui.png');
+  --mural-complete: url('assets/壁画碎片/拼合成功页面/完整壁画.png');
+
+  /* ─── Buddha statue ─── */
+  --buddha-left: url('assets/神像碎片/界面1/左边神像.png');
+  --buddha-center: url('assets/神像碎片/界面1/中间神像.png');
+  --buddha-right: url('assets/神像碎片/界面1/右边神像.png');
+  --buddha-assembled: url('assets/神像碎片/拼合好界面3/拼合好神像.png');
+  --buddha-clean: url('assets/神像碎片/神像5/清灰后.png');
+
+  /* ─── Small buddha ─── */
+  --sm-buddha: url('assets/小佛像/小佛像.png');
+  --sm-stone1: url('assets/小佛像/石块1.png');
+  --sm-stone2: url('assets/小佛像/石块2.png');
+  --sm-stone3: url('assets/小佛像/石块3.png');
+  --sm-candle: url('assets/小佛像/蜡烛.png');
+  --sm-cursor: url('assets/小佛像/光标.png');
+
+  /* ─── Programmer data blocks ─── */
+  --data-blue1: url('assets/程序碎块/蓝色1.png');
+  --data-blue2: url('assets/程序碎块/蓝色2.png');
+  --data-blue3: url('assets/程序碎块/蓝色3.png');
+  --data-red1: url('assets/程序碎块/红色1.png');
+  --data-red2: url('assets/程序碎块/红色2.png');
+  --data-red3: url('assets/程序碎块/红色 3.png');
 }
 
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -55,7 +114,7 @@ html, body {
    ═══════════════════════════════════════════════════════ */
 .subtitle-bar {
   position:fixed; top:calc(var(--safe-t) + 4px); left:8%; right:8%; z-index:120;
-  background:linear-gradient(180deg, rgba(26,14,5,0.95) 0%, rgba(26,14,5,0.85) 80%, rgba(26,14,5,0) 100%);
+  background: linear-gradient(180deg, rgba(26,14,5,0.95) 0%, rgba(26,14,5,0.85) 80%, rgba(26,14,5,0) 100%);
   border-bottom:1px solid rgba(200,150,60,0.3);
   border-left:1px solid rgba(200,150,60,0.15);
   border-right:1px solid rgba(200,150,60,0.15);
@@ -65,6 +124,11 @@ html, body {
   display:flex; align-items:flex-end; gap:10px;
   box-shadow:0 0 30px rgba(200,150,60,0.08);
   overflow:hidden;
+}
+/* Use actual subtitle PNG as an overlay decoration */
+.subtitle-bar::after {
+  content:''; position:absolute; inset:0; opacity:0.15; pointer-events:none;
+  background: var(--ui-subtitle-bar) center/100% 100% no-repeat;
 }
 /* Gold line shimmer across subtitle bar */
 .subtitle-bar::before {
@@ -300,15 +364,15 @@ html, body {
 .viewfinder {
   position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
   z-index:40; pointer-events:none;
-  width:80px; height:80px; border-radius:50%;
-  border:2px solid rgba(255,255,255,0.2);
-  display:flex; align-items:center; justify-content:center;
-  transition:border-color 0.25s, box-shadow 0.25s, width 0.3s, height 0.3s;
+  width:90px; height:90px; border-radius:50%;
+  background: var(--ui-viewfinder) center/contain no-repeat;
+  transition:width 0.3s, height 0.3s, filter 0.25s;
+  filter: brightness(0.6);
 }
-.viewfinder.near { border-color:rgba(200,150,60,0.4); }
+.viewfinder.near { filter: brightness(0.85); }
 .viewfinder.lit {
-  border-color:var(--gold); box-shadow:0 0 28px var(--gold-glow);
-  width:88px; height:88px;
+  filter: brightness(1.2) drop-shadow(0 0 8px var(--gold-glow));
+  width:98px; height:98px;
 }
 .viewfinder-cross::before, .viewfinder-cross::after {
   content:''; position:absolute; background:rgba(255,255,255,0.3);
@@ -462,22 +526,17 @@ html, body {
    ═══════════════════════════════════════════════════════ */
 .data-block {
   position:fixed; z-index:60; cursor:pointer;
-  padding:7px 12px; border-radius:5px;
-  font-size:10px; font-family:monospace;
+  width:80px; height:40px;
+  color:transparent; font-size:0;
   box-shadow:0 0 14px rgba(0,0,0,0.5);
   transition:transform 0.08s;
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
 }
 .data-block:active { transform:scale(0.88); }
-.data-blue {
-  background:linear-gradient(135deg, rgba(0,180,240,0.2), rgba(0,100,200,0.15));
-  border:1px solid var(--prog-cyan); color:var(--prog-cyan);
-  box-shadow:0 0 16px rgba(0,212,255,0.3);
-}
-.data-red {
-  background:linear-gradient(135deg, rgba(255,60,48,0.2), rgba(180,0,0,0.15));
-  border:1px solid var(--prog-red); color:#ff8880;
-  box-shadow:0 0 16px rgba(255,60,48,0.25);
-}
+.data-blue { filter: drop-shadow(0 0 8px rgba(0,212,255,0.4)); }
+.data-red  { filter: drop-shadow(0 0 8px rgba(255,60,48,0.4)); }
 .data-hit-effect {
   position:fixed; pointer-events:none; z-index:70;
   font-size:16px; animation:hit-rise 0.5s ease-out forwards;

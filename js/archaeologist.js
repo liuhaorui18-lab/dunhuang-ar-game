@@ -132,9 +132,9 @@ function exLoop() {
     ctx.fillStyle=g; ctx.fillRect(x+2,hitZoneY,laneW-4,hitZoneH);
     ctx.strokeStyle='rgba(200,150,60,0.5)'; ctx.lineWidth=2;
     ctx.beginPath(); ctx.moveTo(x+8,hitZoneY); ctx.lineTo(x+laneW-8,hitZoneY); ctx.stroke();
-    ctx.fillStyle='rgba(200,150,60,0.35)'; ctx.font='24px serif'; ctx.textAlign='center';
+    ctx.fillStyle='rgba(200,150,60,0.35)'; ctx.font='22px serif'; ctx.textAlign='center';
     const tools = ['🔨','⛏️','🪚','🪨','🔩'];
-    ctx.fillText(tools[i%tools.length], x+laneW/2, hitZoneY+hitZoneH/2+8);
+    ctx.fillText(tools[i%tools.length], x+laneW/2, hitZoneY+hitZoneH/2+6);
   }
 
   // Notes
@@ -263,10 +263,15 @@ function initClueCatch() {
 function spawnClue() {
   if (!CC.active) return;
   const isReal = Math.random()>0.45;
-  const text = isReal?CLUE_REAL[randInt(0,4)]:CLUE_FAKE[randInt(0,4)];
+  const clueTypes = ['壁画线索','经书线索','大佛像线索','小佛像线索'];
+  const fakeTypes = ['干扰线索1','干扰线索2','干扰线索3','干扰线索4'];
+  const clueType = isReal ? clueTypes[randInt(0,3)] : fakeTypes[randInt(0,3)];
   const el = document.createElement('div');
   el.className = `clue-item ${isReal?'clue-real':'clue-fake'}`;
-  el.textContent = (isReal?'◆ ':'◇ ')+text;
+  // Use actual PNG as background
+  el.style.backgroundImage = `url('assets/找线索/${clueType}/文字框.png')`;
+  el.style.backgroundSize = '100% 100%';
+  el.style.width = '120px'; el.style.height = '48px';
   el.dataset.real = isReal?'1':'0';
   const y = randInt(10,80);
   el.style.top = y+'vh';
@@ -517,22 +522,35 @@ function openMuralPuzzle() { muralStep=1; muralStep1(); }
 
 function muralStep1() {
   const wrap = document.getElementById('minigame-wrap');
-  const pieces=['🌸','🦅','🎆','🔱','🌀','🪷'];
+  const pieces=[0,1,2,3,4,5]; // indices into mural PNGs
   const shuffled=[...pieces].sort(()=>Math.random()-0.5);
   let placed=0;
   wrap.innerHTML = `<div class="minigame-title">壁画 · 碎片拼合</div><div class="minigame-subtitle">将碎片拖入对应位置</div>
-    <div class="jigsaw-area"><div><div class="jigsaw-pieces" id="jp-pieces"></div></div><div id="jp-slots" style="display:flex;flex-wrap:wrap;gap:3px;width:140px"></div></div>
+    <div class="jigsaw-area"><div><div class="jigsaw-pieces" id="jp-pieces"></div></div><div id="jp-slots" style="display:flex;flex-wrap:wrap;gap:3px;width:150px"></div></div>
     <div id="jp-progress" style="margin-top:8px;font-size:11px;opacity:.5">已拼合 0/6</div>
     <button class="btn btn-skip" id="jp-skip" style="margin-top:10px">跳过</button>`;
   wrap.style.display='flex';
 
-  pieces.forEach(p=>{
-    const s=document.createElement('div');s.className='puzzle-slot';s.dataset.expects=p;document.getElementById('jp-slots').appendChild(s);
+  pieces.forEach(i=>{
+    const s=document.createElement('div');s.className='puzzle-slot';
+    s.dataset.expects=i; s.dataset.idx=i;
+    // Show faint outline of where piece goes
+    const pieceNames=['普通状态碎片','普通状态碎片2','普通状态碎片3',null,null,null];
+    if (pieceNames[i]) s.style.backgroundImage=`url('assets/壁画碎片/壁画碎片页面/${pieceNames[i]}.png')`;
+    s.style.backgroundSize='contain'; s.style.backgroundRepeat='no-repeat'; s.style.backgroundPosition='center';
+    s.style.opacity='0.3';
+    document.getElementById('jp-slots').appendChild(s);
   });
-  shuffled.forEach(p=>{
-    const el=document.createElement('div');el.className='puzzle-piece';el.textContent=p;el.dataset.val=p;
+  shuffled.forEach(i=>{
+    const el=document.createElement('div');el.className='puzzle-piece';el.dataset.val=i;
+    const pieceNames=['普通状态碎片','普通状态碎片2','普通状态碎片3',null,null,null];
+    if (pieceNames[i]) {
+      el.style.backgroundImage=`url('assets/壁画碎片/壁画碎片页面/${pieceNames[i]}.png')`;
+      el.style.backgroundSize='contain'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center';
+      el.style.width='50px'; el.style.height='50px';
+    } else { el.textContent='🧩'; }
     document.getElementById('jp-pieces').appendChild(el);
-    makeDraggable(el, p, ()=>{placed++;document.getElementById('jp-progress').textContent=`已拼合 ${placed}/6`;if(placed>=6){toast('碎片拼合完成！','good',1200);setTimeout(()=>muralStep2(),1000);}});
+    makeDraggable(el, i, ()=>{placed++;document.getElementById('jp-progress').textContent=`已拼合 ${placed}/6`;if(placed>=6){toast('碎片拼合完成！','good',1200);setTimeout(()=>muralStep2(),1000);}});
   });
   document.getElementById('jp-skip').onclick=()=>{toast('壁画碎片丢失……','bad',1500);finishArtifact('壁画');};
 }
@@ -575,7 +593,7 @@ function muralStep3() {
 
 function showMuralSuccess() {
   const wrap=document.getElementById('minigame-wrap');
-  wrap.innerHTML=`<div style="text-align:center"><div class="minigame-success">🎨 壁画修复完成！</div><div style="font-size:40px;margin:16px 0">🏛️</div><div style="font-size:11px;opacity:.5">壁画已安全记录到数据库中</div><button class="btn btn-arch" style="margin-top:16px" id="mural-done">确认</button></div>`;
+  wrap.innerHTML=`<div style="text-align:center"><div class="minigame-success">🎨 壁画修复完成！</div><div style="width:120px;height:80px;background:var(--mural-complete) center/contain no-repeat;margin:12px auto"></div><div style="font-size:11px;opacity:.5">壁画已安全记录到数据库中</div><button class="btn btn-arch" style="margin-top:16px" id="mural-done">确认</button></div>`;
   wrap.style.display='flex';
   document.getElementById('mural-done').onclick=()=>finishArtifact('壁画');
 }
@@ -654,15 +672,19 @@ function openBuddhaAssembly() {
   const wrap=document.getElementById('minigame-wrap');
   wrap.innerHTML=`<div class="minigame-title">大佛像 · 拼合碎片</div><div class="minigame-subtitle">将三块神像碎片拖入正确位置</div>
     <div class="buddha-area"><div id="buddha-pieces" style="display:flex;gap:12px"></div><div style="display:flex;gap:8px">
-      <div class="buddha-slot" data-expects="left">左</div><div class="buddha-slot" data-expects="center">中</div><div class="buddha-slot" data-expects="right">右</div>
+      <div class="buddha-slot" data-expects="left"></div><div class="buddha-slot" data-expects="center"></div><div class="buddha-slot" data-expects="right"></div>
     </div></div>
     <button class="btn btn-skip" style="margin-top:10px">跳过</button>`;
   wrap.style.display='flex';
 
   const pieces_=['left','center','right'];
+  const buddhaImages={'left':'assets/神像碎片/界面1/左边神像.png','center':'assets/神像碎片/界面1/中间神像.png','right':'assets/神像碎片/界面1/右边神像.png'};
   let placed=0;
   [...pieces_].sort(()=>Math.random()-0.5).forEach(p=>{
-    const el=document.createElement('div');el.className='buddha-piece';el.textContent=p==='left'?'🧘':p==='center'?'🗿':'🙏';el.dataset.val=p;
+    const el=document.createElement('div');el.className='buddha-piece';
+    el.style.backgroundImage=`url('${buddhaImages[p]}')`;
+    el.style.backgroundSize='contain'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center';
+    el.dataset.val=p;
     document.getElementById('buddha-pieces').appendChild(el);
     makeBuddhaDrag(el,p,()=>{placed++;if(placed>=3){toast('佛像拼合！现在摇晃手机清除灰尘','good',1800);setTimeout(buddhaShake,1200);}});
   });
@@ -674,7 +696,7 @@ function makeBuddhaDrag(el,val,cb){
   function s(x,y){el.classList.add('dragging');clone=el.cloneNode(true);clone.style.cssText=`position:fixed;z-index:200;width:${el.offsetWidth}px;height:${el.offsetHeight}px;left:${x-el.offsetWidth/2}px;top:${y-el.offsetHeight/2}px;pointer-events:none;opacity:.8`;document.body.appendChild(clone);}
   function m(x,y){if(!clone)return;clone.style.left=(x-el.offsetWidth/2)+'px';clone.style.top=(y-el.offsetHeight/2)+'px';}
   function e(x,y){if(!clone)return;clone.remove();clone=null;el.classList.remove('dragging');
-    document.querySelectorAll('.buddha-slot:not(.filled)').forEach(sl=>{const r=sl.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom){if(sl.dataset.expects===val){sl.textContent=val==='left'?'🧘':val==='center'?'🗿':'🙏';sl.classList.add('filled');el.classList.add('placed');el.style.display='none';cb();}else toast('位置不对','bad',500);}});}
+    document.querySelectorAll('.buddha-slot:not(.filled)').forEach(sl=>{const r=sl.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom){if(sl.dataset.expects===val){sl.style.backgroundImage=el.style.backgroundImage;sl.style.backgroundSize='contain';sl.style.backgroundRepeat='no-repeat';sl.style.backgroundPosition='center';sl.classList.add('filled');el.classList.add('placed');el.style.display='none';cb();}else toast('位置不对','bad',500);}});}
   el.addEventListener('touchstart',ev=>{ev.preventDefault();const t=ev.touches[0];s(t.clientX,t.clientY);},{passive:false});
   el.addEventListener('touchmove',ev=>{ev.preventDefault();const t=ev.touches[0];m(t.clientX,t.clientY);},{passive:false});
   el.addEventListener('touchend',ev=>{const t=ev.changedTouches[0];e(t.clientX,t.clientY);});
@@ -686,7 +708,7 @@ function makeBuddhaDrag(el,val,cb){
 function buddhaShake() {
   const wrap=document.getElementById('minigame-wrap');
   wrap.innerHTML=`<div class="minigame-title">大佛像 · 清除灰尘</div><div class="minigame-subtitle">👋 用力摇晃手机清除表面灰尘</div>
-    <div style="font-size:50px;animation:pulse 0.6s ease-in-out infinite">🗿</div>
+    <div style="width:100px;height:120px;background:var(--buddha-assembled) center/contain no-repeat;animation:pulse 0.6s ease-in-out infinite;margin:0 auto"></div>
     <div style="font-size:11px;opacity:.5;margin-top:6px" id="shake-progress">摇晃力度 0%</div>
     <button class="btn btn-skip" style="margin-top:12px">跳过</button>`;
   wrap.style.display='flex';
@@ -709,7 +731,7 @@ function buddhaShake() {
 function buddhaClean() {
   const wrap=document.getElementById('minigame-wrap');
   wrap.innerHTML=`<div class="minigame-success">✨ 佛像清洁完成！</div>
-    <div style="font-size:50px;margin:12px 0">🗿</div><div style="font-size:11px;opacity:.5">佛像面貌已展露，数据已记录</div>
+    <div style="width:100px;height:120px;background:var(--buddha-clean) center/contain no-repeat;margin:8px auto"></div><div style="font-size:11px;opacity:.5">佛像面貌已展露，数据已记录</div>
     <button class="btn btn-arch" style="margin-top:14px" id="buddha-done">确认</button>`;
   wrap.style.display='flex';
   document.getElementById('buddha-done').onclick=()=>finishArtifact('大佛像');
