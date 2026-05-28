@@ -50,6 +50,8 @@ function initCaveExplore(sec) {
   Cave.tm.start();
 
   updateHighlight();
+  // 转动手机引导提示
+  showRotateHint();
   onSceneCleanup(function() { if (Cave.tm) Cave.tm.stop(); Cave.td.style.display = 'none'; bar.style.display = 'none'; document.getElementById('minigame-overlay').classList.remove('active'); Motion.clear(); });
 }
 
@@ -104,6 +106,28 @@ function enterArt(name) {
     else { Cave.tm.start(); }
   };
   switch(name) { case'mural':initMural(ov,cb);break; case'scripture':initScrip(ov,cb);break; case'buddha':initBuddha(ov,cb);break; case'statue':initCandle(ov,cb);break; }
+}
+
+function showRotateHint() {
+  var hint = document.createElement('div');
+  hint.id = 'rotate-hint';
+  hint.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none">' +
+    '<div style="font-size:40px;animation:rotatePhone 2s ease-in-out infinite">📱↔️</div>' +
+    '<div style="font-size:13px;font-weight:700;color:var(--gold-light)">转动手机切换文物</div>' +
+    '<div style="font-size:10px;opacity:.5">左右旋转选择不同的解密关卡</div>' +
+    '</div>';
+  hint.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);pointer-events:none;animation:fadeHint 3.5s ease forwards';
+  document.body.appendChild(hint);
+
+  var sty = document.createElement('style');
+  sty.textContent = '@keyframes rotatePhone{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}@keyframes fadeHint{0%,70%{opacity:1}100%{opacity:0}}';
+  document.head.appendChild(sty);
+
+  setTimeout(function() { hint.remove(); sty.remove(); }, 4000);
+  // 用户交互时提前消失
+  var removeEarly = function() { if (hint.parentNode) { hint.remove(); sty.remove(); } };
+  document.addEventListener('touchstart', removeEarly, {once:true});
+  document.addEventListener('click', removeEarly, {once:true});
 }
 
 function finCave() {
