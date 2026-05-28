@@ -23,16 +23,25 @@ function initMural(ov, cb) {
   function startM() {
     placed=0; selIdx=null; dragInfo=null; data=[]; els=[];
     var stg=document.getElementById('m-stage'); stg.innerHTML='';
-    document.getElementById('m-info').textContent='拖到正确位置 · 双击旋转';
+    document.getElementById('m-info').textContent='把碎片拖入虚线框 · 点击旋转到正位';
     document.getElementById('m-retry').style.display='none';
     document.getElementById('m-skip').style.display='';
 
+    // 先画目标位虚线框
+    for(var i=0;i<P;i++) {
+      var cx=(i%2)*160, cy=Math.floor(i/2)*120;
+      var zone=document.createElement('div');
+      zone.style.cssText='position:absolute;left:'+cx+'px;top:'+cy+'px;width:120px;height:100px;border:2px dashed rgba(200,150,60,.2);border-radius:3px;z-index:1;display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(200,150,60,.15)';
+      zone.textContent='碎片'+(i+1);
+      stg.appendChild(zone);
+    }
+    // 放碎片
     for(var i=0;i<P;i++) {
       var cx=(i%2)*160, cy=Math.floor(i/2)*120;
       data.push({id:i, cx:cx, cy:cy, x:randInt(15,185), y:randInt(5,145), a:randInt(0,R-1), ca:Answers.muralAngles[i]||0, ok:false});
       var el=document.createElement('img');
       el.src=imgSrc[i%3];
-      el.style.cssText='position:absolute;left:'+data[i].x+'px;top:'+data[i].y+'px;width:120px;height:100px;object-fit:cover;border:1px solid rgba(200,150,60,.25);border-radius:3px;cursor:grab;transform:rotate('+data[i].a*(360/R)+'deg);z-index:5;';
+      el.style.cssText='position:absolute;left:'+data[i].x+'px;top:'+data[i].y+'px;width:120px;height:100px;object-fit:cover;border:1px solid rgba(200,150,60,.3);border-radius:3px;cursor:grab;transform:rotate('+data[i].a*(360/R)+'deg);z-index:5;';
       (function(idx) {
         el.addEventListener('touchstart', function(e) { e.preventDefault(); e.stopPropagation(); startD(idx, e.touches[0]); });
         el.addEventListener('touchmove', function(e) { e.preventDefault(); if (selIdx===idx) moveD(e.touches[0]); });

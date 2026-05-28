@@ -39,7 +39,7 @@ function initCandle(ov, cb) {
     var x=randInt(30,240),y=randInt(30,240);
     var el=document.createElement('img');el.className='candle-light';
     el.src='assets/小佛像/蜡烛.png';
-    el.style.cssText='position:absolute;left:'+x+'px;top:'+y+'px;width:36px;height:36px;border-radius:50%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(255,180,40,.8)) drop-shadow(0 0 24px rgba(255,180,40,.4));opacity:0;transform:scale(.5);cursor:pointer;z-index:5;transition:opacity .7s,transform .7s;animation:pk 1.6s ease-in-out infinite;';
+    el.style.cssText='position:absolute;left:'+x+'px;top:'+y+'px;width:56px;height:56px;border-radius:50%;object-fit:contain;filter:drop-shadow(0 0 16px rgba(255,180,40,.9)) drop-shadow(0 0 36px rgba(255,180,40,.5));opacity:0;transform:scale(.5);cursor:pointer;z-index:5;transition:opacity .7s,transform .7s;animation:pk 1.6s ease-in-out infinite;';
     el.addEventListener('click',function(e){e.stopPropagation();if(done)return;taps++;document.getElementById('c-prog').textContent='烛光 '+taps+'/'+Config.candle.taps;sparks(e.clientX,e.clientY,8,'#FFB824');el.remove();cur=null;clearTimeout(sTm);if(taps>=Config.candle.taps){winC();}else{document.getElementById('c-hint').textContent='还有……再看看！';setTimeout(cycle,700);}});
     stg.appendChild(el);cur=el;
     requestAnimationFrame(function(){el.style.opacity='1';el.style.transform='scale(1)';});
