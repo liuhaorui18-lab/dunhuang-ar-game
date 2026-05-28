@@ -16,8 +16,9 @@ canvas#particles { position:fixed; inset:0; z-index:1; pointer-events:none; }
 .loading-title-img { width:260px; height:50px; background:var(--start-title,none) center/contain no-repeat; margin-bottom:8px; position:relative; z-index:1; }
 .loading-subtitle { font-size:10px; opacity:.35; letter-spacing:.2em; margin-top:6px; position:relative; z-index:1; }
 .loading-tip { font-size:9px; opacity:.25; margin-top:24px; position:relative; z-index:1; }
-.loading-walker { background-size:contain!important; width:30px!important; height:30px!important; font-size:0!important; animation:walker-march .6s steps(1) infinite; }
+.loading-walker { position:absolute; top:-30px; width:32px; height:34px; font-size:0; transform:translateX(-50%); z-index:2; background-size:contain!important; background-repeat:no-repeat!important; background-position:center!important; animation:walker-march .5s steps(1) infinite, walker-bob .5s ease-in-out infinite; }
 @keyframes walker-march { 0%{background-image:var(--walker1)} 33%{background-image:var(--walker2)} 66%{background-image:var(--walker3)} 100%{background-image:var(--walker1)} }
+@keyframes walker-bob { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-4px)} }
 </style>
 </head>
 <body>

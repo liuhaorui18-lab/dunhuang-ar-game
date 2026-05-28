@@ -1,5 +1,37 @@
 /* 敦煌复苏计划 — shared.js — Camera, Motion, Subtitle, Utils */
 
+// ─── Image Preloader ──────────────────────────────────
+const Preloader = {
+  loaded:0, total:0, cache:{},
+  preload(urls) {
+    this.total = urls.length; this.loaded = 0;
+    return Promise.all(urls.map(url => new Promise(resolve => {
+      const img = new Image();
+      img.onload = img.onerror = () => { this.loaded++; this.cache[url] = img; resolve(); };
+      img.src = url;
+    })));
+  },
+  progress() { return this.total ? Math.round(this.loaded/this.total*100) : 100; }
+};
+
+// Preload critical images on boot
+(function preloadCritical() {
+  const critical = [
+    'assets/背景组件/背景.png',
+    'assets/游戏开始页面/敦煌复苏计划（标题字）.png',
+    'assets/游戏开始页面/背景图.png',
+    'assets/常用ui/顶部字幕弹窗.png',
+    'assets/常用ui/瞄准框.png',
+    'assets/常用ui/顶部字幕继续按钮.png',
+    'assets/对话框/对话框背景.png',
+    'assets/对话框/对话框装饰.png',
+    'assets/对话框/关闭对话框.png',
+    'assets/开凿过程（音游）/音游按钮.png',
+    'assets/找线索/画面中间选择ui.png',
+  ];
+  Preloader.preload(critical);
+})();
+
 // ─── Camera ───────────────────────────────────────────
 const Camera = {
   stream: null, el: null,

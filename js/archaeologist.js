@@ -345,12 +345,8 @@ function endClueCatch(success) {
 }
 
 function showCountdown() {
-  showModal({
-    theme:'arch', title:'⚠ 洞窟坍塌倒计时',
-    content:`坍塌即将发生！你必须在倒计时结束前找到并抢救洞窟中的文物。<br>可用时间：`,
-    timer:fmtTime(G.countdown), btnText:'进入洞窟',
-    onClose:() => { SM.go('cave-explore'); initCaveExplore(); }
-  });
+  // Skip countdown timer, go directly to exploration
+  SM.go('cave-explore'); initCaveExplore();
 }
 
 // ─── Cave Explore ─────────────────────────────────────
@@ -365,13 +361,9 @@ function initCaveExplore() {
   G.artifactsFound=[]; G.artworkDone=0;
   CE.foundArtifacts=new Set(); CE.activeArtifact=null; CE.minigameOpen=false; CE.velocity=0;
 
+  // NO timer — free exploration
   G.timerEl=document.getElementById('timer-badge');
-  G.timerEl.textContent=fmtTime(G.countdown); G.timerEl.style.display='';
-  G.timer = new CountdownTimer(G.countdown,
-    rem => { G.timerEl.textContent=fmtTime(rem); if(rem<=30) G.timerEl.classList.add('danger'); },
-    () => endCaveExplore()
-  );
-  G.timer.start();
+  if(G.timerEl) G.timerEl.style.display='none';
 
   Motion.on(handleCaveMotion);
   updateCompass(); updateArtifactHint(); updateProxGlow();
@@ -502,7 +494,6 @@ function finishArtifact(name) {
 }
 
 function endCaveExplore() {
-  if(G.timer) G.timer.stop();
   Motion.off(handleCaveMotion);
   if(G.timerEl) G.timerEl.style.display='none';
   const allDone = G.artworkDone >= G.allArtifacts.length;
@@ -549,92 +540,72 @@ function showResults() {
 // ═══════════════════════════════════════════════════════
 // MINI-GAME 1: MURAL PUZZLE (3 steps)
 // ═══════════════════════════════════════════════════════
-let muralStep = 1;
-function openMuralPuzzle() { muralStep=1; muralStep1(); }
-
-function muralStep1() {
-  const wrap = document.getElementById('minigame-wrap');
-  const pieces=[0,1,2,3,4,5]; // indices into mural PNGs
-  const shuffled=[...pieces].sort(()=>Math.random()-0.5);
-  let placed=0;
-  wrap.innerHTML = `<div style="width:160px;height:24px;background:url('assets/壁画碎片/壁画碎片页面/文字.png') center/contain no-repeat;opacity:.7;margin-bottom:2px"></div>
-    <div style="width:80px;height:40px;background:url('assets/壁画碎片/壁画碎片页面/手势UI.png') center/contain no-repeat;opacity:.5;margin:2px 0"></div>
-    <div class="jigsaw-area"><div><div class="jigsaw-pieces" id="jp-pieces"></div></div><div id="jp-slots" style="display:flex;flex-wrap:wrap;gap:3px;width:150px"></div></div>
-    <div id="jp-progress" style="margin-top:8px;font-size:11px;opacity:.5">已拼合 0/6</div>
-    <button class="btn btn-skip" id="jp-skip" style="margin-top:10px">跳过</button>`;
-  wrap.style.display='flex';
-
-  pieces.forEach(i=>{
-    const s=document.createElement('div');s.className='puzzle-slot';
-    s.dataset.expects=i; s.dataset.idx=i;
-    // Show faint outline of where piece goes
-    const pieceNames=['普通状态碎片','普通状态碎片2','普通状态碎片3',null,null,null];
-    if (pieceNames[i]) s.style.backgroundImage=`url('assets/壁画碎片/壁画碎片页面/${pieceNames[i]}.png')`;
-    s.style.backgroundSize='contain'; s.style.backgroundRepeat='no-repeat'; s.style.backgroundPosition='center';
-    s.style.opacity='0.3';
-    document.getElementById('jp-slots').appendChild(s);
-  });
-  shuffled.forEach(i=>{
-    const el=document.createElement('div');el.className='puzzle-piece';el.dataset.val=i;
-    const pieceNames=['普通状态碎片','普通状态碎片2','普通状态碎片3',null,null,null];
-    if (pieceNames[i]) {
-      el.style.backgroundImage=`url('assets/壁画碎片/壁画碎片页面/${pieceNames[i]}.png')`;
-      el.style.backgroundSize='contain'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center';
-      el.style.width='50px'; el.style.height='50px';
-    } else { el.textContent='🧩'; }
-    document.getElementById('jp-pieces').appendChild(el);
-    makeDraggable(el, i, ()=>{placed++;document.getElementById('jp-progress').textContent=`已拼合 ${placed}/6`;if(placed>=6){toast('碎片拼合完成！','good',1200);setTimeout(()=>muralStep2(),1000);}});
-  });
-  document.getElementById('jp-skip').onclick=()=>{toast('壁画碎片丢失……','bad',1500);finishArtifact('壁画');};
-}
-
-function muralStep2() {
-  const wrap=document.getElementById('minigame-wrap');
-  let aligned=0;
-  const movePieces=[
+function openMuralPuzzle() {
+  // 4-piece drag puzzle — single step
+  const pieceImgs = [
     'assets/壁画碎片/壁画移动页面/普通状态碎片.png',
     'assets/壁画碎片/壁画移动页面/普通状态碎片2.png',
     'assets/壁画碎片/壁画移动页面/普通状态碎片3.png',
     'assets/壁画碎片/壁画移动页面/普通状态碎片 4.png'
   ];
-  wrap.innerHTML=`<div style="width:160px;height:24px;background:url('assets/壁画碎片/壁画移动页面/文字.png') center/contain no-repeat;opacity:.7;margin-bottom:2px"></div><div class="minigame-subtitle">点击碎片将其移动到正确位置</div>
-    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0" id="ms-grid"></div>
-    <div id="ms-progress" style="font-size:11px;opacity:.5">已对齐 0/4</div>
+  const wrap = document.getElementById('minigame-wrap');
+  let placed = 0;
+  wrap.innerHTML = `<div style="width:160px;height:24px;background:url('assets/壁画碎片/壁画碎片页面/文字.png') center/contain no-repeat;opacity:.7;margin-bottom:2px"></div>
+    <div class="minigame-subtitle">手指拖拽碎片到正确位置</div>
+    <div class="jigsaw-area">
+      <div class="jigsaw-pieces" id="jp-pieces"></div>
+      <div id="jp-slots" style="display:flex;flex-wrap:wrap;gap:4px;width:120px"></div>
+    </div>
+    <div id="jp-progress" style="margin-top:8px;font-size:11px;opacity:.5">已拼合 0/4</div>
     <button class="btn btn-skip" style="margin-top:10px">跳过</button>`;
-  wrap.style.display='flex';
+  wrap.style.display = 'flex';
 
-  movePieces.forEach((src,i)=>{
-    const el=document.createElement('div');
-    el.style.cssText=`width:55px;height:55px;border:2px solid rgba(200,150,60,.3);border-radius:4px;cursor:pointer;background:url('${src}') center/contain no-repeat;background-color:rgba(200,150,60,.06);transition:border-color .2s,box-shadow .2s`;
-    el.dataset.ok='0';
-    el.onclick=()=>{if(el.dataset.ok==='1')return;el.dataset.ok='1';el.style.borderColor='var(--gold)';el.style.boxShadow='0 0 14px var(--gold-glow)';aligned++;document.getElementById('ms-progress').textContent=`已对齐 ${aligned}/4`;if(aligned>=4){toast('碎片已对齐！','good',1200);setTimeout(()=>muralStep3(),1000);}};
-    document.getElementById('ms-grid').appendChild(el);
+  // 4 slots with ghost images
+  pieceImgs.forEach((src, i) => {
+    const s = document.createElement('div');
+    s.className = 'puzzle-slot';
+    s.dataset.expects = i;
+    s.style.backgroundImage = `url('${src}')`;
+    s.style.backgroundSize = 'contain';
+    s.style.backgroundRepeat = 'no-repeat';
+    s.style.backgroundPosition = 'center';
+    s.style.opacity = '0.25';
+    document.getElementById('jp-slots').appendChild(s);
   });
-  wrap.querySelector('.btn-skip').onclick=()=>{toast('跳过对齐步骤','bad',1500);finishArtifact('壁画');};
-}
 
-function muralStep3() {
-  const wrap=document.getElementById('minigame-wrap');
-  let rotated=0;
-  wrap.innerHTML=`<div style="width:160px;height:24px;background:url('assets/壁画碎片/壁画转动页面/文字.png') center/contain no-repeat;opacity:.7;margin-bottom:2px"></div><div class="minigame-subtitle">点击碎片旋转到正确角度</div>
-    <div class="rotate-hint">🔄 双指旋转 或 点击旋转</div>
-    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:10px 0" id="mr-grid"></div>
-    <div id="mr-progress" style="font-size:11px;opacity:.5">已旋转 0/4</div>
-    <button class="btn btn-skip" style="margin-top:10px">跳过</button>`;
-  wrap.style.display='flex';
+  // 4 shuffled draggable pieces
+  [0,1,2,3].sort(()=>Math.random()-0.5).forEach(i => {
+    const el = document.createElement('div');
+    el.className = 'puzzle-piece';
+    el.dataset.val = i;
+    el.style.backgroundImage = `url('${pieceImgs[i]}')`;
+    el.style.backgroundSize = 'contain';
+    el.style.backgroundRepeat = 'no-repeat';
+    el.style.backgroundPosition = 'center';
+    el.style.width = '55px'; el.style.height = '55px';
+    document.getElementById('jp-pieces').appendChild(el);
+    makeDraggable(el, i, () => {
+      placed++;
+      document.getElementById('jp-progress').textContent = `已拼合 ${placed}/4`;
+      if (placed >= 4) showMuralSuccess();
+    });
+  });
 
-  const icons=['🌀','🔱','🌸','🦅'];
-  let angles=[0,0,0,0];
-  function render(){document.getElementById('mr-grid').innerHTML='';icons.forEach((ic,i)=>{const d=document.createElement('div');d.style.cssText=`width:50px;height:50px;border:2px solid ${angles[i]%90===0?'var(--gold)':'rgba(200,150,60,0.3)'};border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;background:rgba(200,150,60,0.06);transition:transform 0.3s`;d.style.transform=`rotate(${angles[i]}deg)`;d.textContent=ic;d.onclick=()=>{angles[i]=(angles[i]+90)%360;if(angles[i]%90===0&&d.dataset.done!=='1'){d.dataset.done='1';rotated++;document.getElementById('mr-progress').textContent=`已旋转 ${rotated}/4`;if(rotated>=4){showMuralSuccess();}}render();};document.getElementById('mr-grid').appendChild(d);});}
-  render();
-  wrap.querySelector('.btn-skip').onclick=()=>{toast('跳过旋转步骤','bad',1500);finishArtifact('壁画');};
+  document.getElementById('jp-skip').onclick = () => {
+    toast('壁画碎片丢失……', 'bad', 1500);
+    finishArtifact('壁画');
+  };
 }
 
 function showMuralSuccess() {
-  const wrap=document.getElementById('minigame-wrap');
-  wrap.innerHTML=`<div style="text-align:center"><div style="width:160px;height:24px;background:url('assets/壁画碎片/拼合成功页面/文字.png') center/contain no-repeat;opacity:.7;margin:0 auto 4px"></div><div style="width:120px;height:80px;background:var(--mural-complete) center/contain no-repeat;margin:12px auto"></div><div style="font-size:11px;opacity:.5">壁画已安全记录到数据库中</div><button class="btn btn-arch" style="margin-top:16px" id="mural-done">确认</button></div>`;
-  wrap.style.display='flex';
-  document.getElementById('mural-done').onclick=()=>finishArtifact('壁画');
+  const wrap = document.getElementById('minigame-wrap');
+  wrap.innerHTML = `<div style="text-align:center">
+    <div style="width:160px;height:24px;background:url('assets/壁画碎片/拼合成功页面/文字.png') center/contain no-repeat;opacity:.7;margin:0 auto 6px"></div>
+    <div style="width:120px;height:80px;background:var(--mural-complete) center/contain no-repeat;margin:10px auto"></div>
+    <div style="font-size:11px;opacity:.5">壁画已安全记录到数据库中</div>
+    <button class="btn btn-arch" style="margin-top:14px" id="mural-done">确认</button></div>`;
+  wrap.style.display = 'flex';
+  document.getElementById('mural-done').onclick = () => finishArtifact('壁画');
 }
 
 // ─── Draggable helper ─────────────────────────────────
@@ -801,35 +772,64 @@ function buddhaClean() {
 // ═══════════════════════════════════════════════════════
 function openCandleGame() {
   const wrap=document.getElementById('minigame-wrap');
-  let hits=0;
-  wrap.innerHTML=`<div class="minigame-title">小佛像 · 烛光捕捉</div><div class="minigame-subtitle">点击烛光三次，清除石块，找到隐藏的小佛像！</div>
-    <div class="wam-count" id="wam-hits">0 / 3</div>
-    <div class="wam-area" id="wam-area" style="background:var(--sm-buddha) center/contain no-repeat,radial-gradient(ellipse at 50% 50%,rgba(200,150,60,.06),rgba(0,0,0,.65))"></div>
-    <button class="btn btn-skip" id="wam-skip" style="margin-top:8px">跳过</button>`;
+  let stonesCleared=0;
+  wrap.innerHTML=`<div class="minigame-title">小佛像 · 烛光探索</div><div class="minigame-subtitle">用手指拖动蜡烛照亮区域，点击石块清除</div>
+    <div class="wam-count" id="wam-hits">石块 0/3</div>
+    <div class="wam-area" id="wam-area" style="position:relative;overflow:hidden;background:var(--sm-buddha) center/contain no-repeat,rgba(0,0,0,.8);cursor:none">
+      <div id="candle-glow" style="position:absolute;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,rgba(255,220,100,.5) 0%,rgba(255,180,40,.15) 40%,transparent 70%);pointer-events:none;transform:translate(-50%,-50%);z-index:5;display:none;box-shadow:0 0 30px rgba(255,200,60,.4)"></div>
+      <img id="candle-img" src="assets/小佛像/蜡烛.png" style="position:absolute;width:24px;height:24px;pointer-events:none;z-index:6;transform:translate(-50%,-50%);display:none">
+    </div>
+    <button class="btn btn-skip" style="margin-top:8px">跳过</button>`;
   wrap.style.display='flex';
 
-  // Add stone overlays
   const area=document.getElementById('wam-area');
+  const glow=document.getElementById('candle-glow');
+  const candleImg=document.getElementById('candle-img');
+
+  // Add stone overlays
   const stones=[
-    {img:'assets/小佛像/石块1.png',x:'15%',y:'25%',w:40,h:30},
-    {img:'assets/小佛像/石块2.png',x:'55%',y:'35%',w:44,h:28},
-    {img:'assets/小佛像/石块3.png',x:'35%',y:'55%',w:50,h:35}
+    {img:'assets/小佛像/石块1.png',x:'10%',y:'18%',w:44,h:32},
+    {img:'assets/小佛像/石块2.png',x:'52%',y:'30%',w:48,h:30},
+    {img:'assets/小佛像/石块3.png',x:'30%',y:'52%',w:54,h:36}
   ];
-  let stonesCleared=0;
   stones.forEach(st=>{
     const s=document.createElement('div');
-    s.style.cssText=`position:absolute;left:${st.x};top:${st.y};width:${st.w}px;height:${st.h}px;background:url('${st.img}') center/contain no-repeat;cursor:pointer;transition:opacity .3s`;
+    s.style.cssText=`position:absolute;left:${st.x};top:${st.y};width:${st.w}px;height:${st.h}px;background:url('${st.img}') center/contain no-repeat;cursor:pointer;transition:opacity .3s,filter .3s;z-index:3;filter:brightness(.3)`;
     s.addEventListener('click',function handler(){
+      if(glow.style.display==='none') return; // candle not active
       s.style.opacity='0';s.style.pointerEvents='none';
-      stonesCleared++;hits++;
-      document.getElementById('wam-hits').textContent=`${hits} / 3`;
-      toast(['✓ 石块碎裂！','✓ 又清除一块！','✓ 佛像露出！'][hits-1],'good',800);
-      spawnSparks(parseInt(s.style.left)+st.w/2, parseInt(s.style.top)+st.h/2, 5);
+      stonesCleared++;
+      document.getElementById('wam-hits').textContent=`石块 ${stonesCleared}/3`;
+      toast(['✓ 石块碎裂！','✓ 又清除一块！','✓ 佛像露出！'][stonesCleared-1]||'✓','good',800);
+      spawnSparks(area.getBoundingClientRect().left+area.offsetWidth*parseFloat(st.x)/100,
+                  area.getBoundingClientRect().top+area.offsetHeight*parseFloat(st.y)/100, 6);
       if(stonesCleared>=3)finishArtifact('小佛像');
     });
     s.addEventListener('touchstart',e=>{e.preventDefault();s.click();},{passive:false});
     area.appendChild(s);
   });
+
+  // Candle follows finger
+  function moveCandle(e){
+    const r=area.getBoundingClientRect();
+    let cx,cy;
+    if(e.touches){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}
+    else{cx=e.clientX;cy=e.clientY;}
+    const x=cx-r.left,y=cy-r.top;
+    glow.style.display='block';glow.style.left=x+'px';glow.style.top=y+'px';
+    candleImg.style.display='block';candleImg.style.left=x+'px';candleImg.style.top=(y-12)+'px';
+    // Brighten nearby stones
+    stones.forEach((st,i)=>{
+      const sx=parseFloat(st.x)*r.width/100, sy=parseFloat(st.y)*r.height/100;
+      const dist=Math.hypot(x-sx,y-sy);
+      const stoneEl=area.children[i+2]; // skip glow and candle img
+      if(stoneEl) stoneEl.style.filter=dist<50?`brightness(${1-dist/50})`:'brightness(.3)';
+    });
+  }
+
+  area.addEventListener('touchmove',e=>{e.preventDefault();moveCandle(e);},{passive:false});
+  area.addEventListener('touchstart',e=>{e.preventDefault();moveCandle(e);},{passive:false});
+  area.addEventListener('mousemove',moveCandle);
 
   document.getElementById('wam-skip').onclick=()=>{toast('石块太坚固了……','bad',1500);finishArtifact('小佛像');};
 }
