@@ -73,8 +73,12 @@ class SubtitleSystem {
     if (!this.bar) {
       this.bar = document.createElement('div');
       this.bar.id = 'subtitle-bar';
-      this.bar.className = 'subtitle-bar';
+      this.bar.className = 'subtitle-bar ornate-gold';
       document.body.appendChild(this.bar);
+      // Add shimmer line
+      const shimmer = document.createElement('div');
+      shimmer.className = 'shimmer';
+      this.bar.appendChild(shimmer);
     }
     this.bar.style.display = 'none';
 
