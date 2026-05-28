@@ -1,0 +1,365 @@
+/* ═══════════════════════════════════════════════════════
+   敦煌复苏计划 — scenes.css
+   各场景专属样式
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Loading Scene ──────────────────────────────────── */
+#scene-loading {
+  z-index:100;
+  background:var(--start-bg) center/cover no-repeat;
+}
+#scene-loading::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 55%, rgba(26,14,5,.7), rgba(0,0,0,.8));
+}
+.loading-title {
+  width:260px; height:50px;
+  background:var(--start-title) center/contain no-repeat;
+  position:relative; z-index:1;
+}
+.loading-subtitle {
+  font-size:10px; opacity:.35; letter-spacing:.2em;
+  margin-top:8px; position:relative; z-index:1;
+  color:var(--parchment);
+}
+.loading-progress-wrap {
+  position:relative; width:200px; height:20px;
+  margin-top:30px; z-index:1;
+}
+.loading-progress-bar {
+  position:absolute; bottom:0; left:0; height:2px;
+  background:linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+  transition:width .3s;
+  border-radius:1px;
+}
+.loading-walker {
+  position:absolute; top:-28px; width:28px; height:30px;
+  transform:translateX(-50%);
+  background-size:contain !important;
+  background-repeat:no-repeat !important;
+  background-position:center !important;
+  animation:walker-march .5s steps(1) infinite, walker-bob .5s ease-in-out infinite;
+}
+@keyframes walker-march {
+  0%  { background-image:var(--walker1); }
+  33% { background-image:var(--walker2); }
+  66% { background-image:var(--walker3); }
+  100%{ background-image:var(--walker1); }
+}
+@keyframes walker-bob {
+  0%,100% { transform:translateX(-50%) translateY(0); }
+  50% { transform:translateX(-50%) translateY(-4px); }
+}
+.loading-tip {
+  font-size:9px; opacity:.25; margin-top:24px;
+  position:relative; z-index:1;
+}
+
+/* ── Title Scene ───────────────────────────────────── */
+#scene-title { z-index:90; }
+.title-bg {
+  position:absolute; inset:0;
+  background:var(--start-bg) center/cover no-repeat;
+  z-index:-2;
+}
+.title-bg::after {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 50% 60%, rgba(26,14,5,.6), rgba(0,0,0,.75));
+}
+.title-content {
+  position:relative; z-index:1;
+  display:flex; flex-direction:column; align-items:center;
+  padding:40px 20px calc(40px + var(--safe-b));
+  width:100%; height:100%;
+  justify-content:center; gap:14px;
+}
+.game-title-img {
+  width:260px; height:50px;
+  background:var(--start-title) center/contain no-repeat;
+  margin-bottom:8px;
+}
+.game-subtitle {
+  font-size:10px; opacity:.35; letter-spacing:.1em;
+}
+.game-quote {
+  font-size:11px; opacity:.45; font-style:italic;
+  text-align:center; line-height:1.5; max-width:280px;
+}
+
+/* Character cards */
+.char-cards {
+  display:flex; gap:16px; flex-wrap:wrap; justify-content:center;
+  margin-top:10px;
+}
+.char-card {
+  width:140px; padding:16px 12px;
+  border-radius:8px; text-align:center; cursor:pointer;
+  transition:all .3s;
+  border:1px solid transparent;
+}
+.char-card.arch-card {
+  background:rgba(200,150,60,.06);
+}
+.char-card.prog-card {
+  background:rgba(0,212,255,.04);
+}
+.char-card.selected.arch-card {
+  border-color:var(--gold); background:rgba(200,150,60,.12);
+  box-shadow:0 0 16px var(--gold-pale);
+}
+.char-card.selected.prog-card {
+  border-color:var(--prog-cyan); background:rgba(0,212,255,.08);
+  box-shadow:0 0 16px rgba(0,212,255,.12);
+}
+
+.char-icon { font-size:28px; margin-bottom:6px; }
+.char-name { font-size:15px; font-weight:700; margin-bottom:4px; }
+.char-name.arch { color:var(--gold-light); }
+.char-name.prog { color:var(--prog-cyan); }
+
+.char-tag { font-size:10px; padding:2px 8px; border-radius:2px; display:inline-block; margin-bottom:6px; }
+.arch-tag { background:rgba(200,150,60,.15); color:var(--gold-light); }
+.prog-tag { background:rgba(0,212,255,.1); color:var(--prog-cyan); }
+
+.char-traits { font-size:10px; opacity:.5; line-height:1.5; }
+
+.start-btn-wrap { margin-top:8px; }
+
+/* ── Permissions Scene ─────────────────────────────── */
+#scene-perm {
+  z-index:80;
+  background:radial-gradient(ellipse at 50% 50%, var(--cave-mid), var(--cave-deep));
+}
+.perm-screen {
+  display:flex; flex-direction:column; align-items:center; gap:16px;
+  padding:30px 24px; text-align:center; max-width:360px;
+}
+.perm-icon { font-size:40px; margin-bottom:4px; }
+.perm-title { font-size:20px; font-weight:700; color:var(--gold); letter-spacing:.04em; }
+.perm-desc { font-size:12px; opacity:.55; line-height:1.7; }
+#scene-perm .perm-desc strong { color:var(--gold-light); opacity:1; }
+
+/* ── Wall Scan Scene ────────────────────────────────── */
+#scene-wall-scan { z-index:70; }
+.scan-frame {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.scan-frame-inner {
+  width:75vw; height:75vw; max-width:320px; max-height:320px;
+  border:1px solid rgba(200,150,60,.3);
+  position:relative;
+  background:var(--ui-viewfinder) center/contain no-repeat;
+}
+.scan-frame-inner.prog {
+  border-color:rgba(0,212,255,.3);
+}
+.scan-line {
+  position:absolute; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  animation:scan-line 2s ease-in-out infinite;
+}
+@keyframes scan-line {
+  0%,100% { top:10%; }
+  50% { top:90%; }
+}
+.scan-label {
+  position:fixed; bottom:20%; left:0; right:0; text-align:center;
+  font-size:14px; font-weight:600; z-index:5;
+  pointer-events:none;
+  transition:color .5s;
+}
+.scan-label.arch { color:var(--parchment-dim); }
+.scan-label.prog { color:var(--prog-cyan-dim); }
+.scan-tap-btn {
+  position:fixed; bottom:12%; left:50%; transform:translateX(-50%); z-index:5;
+  opacity:0; transition:opacity .5s;
+}
+.scan-tap-btn.visible { opacity:1; }
+
+/* ── Excavation Scene ──────────────────────────────── */
+#scene-excavation { z-index:60; }
+#excavation-canvas {
+  position:absolute; inset:0; z-index:2;
+}
+.ex-hud {
+  position:fixed; top:calc(var(--safe-t) + 10px); z-index:10;
+  display:flex; gap:20px; align-items:center;
+}
+.ex-hud-left { left:16px; }
+.ex-hud-right { right:16px; }
+
+.force-meter {
+  position:fixed; right:16px; top:50%; transform:translateY(-50%); z-index:10;
+  width:8px; height:140px; border-radius:4px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(200,150,60,.15);
+}
+.force-fill {
+  position:absolute; bottom:0; left:0; right:0;
+  background:linear-gradient(to top, var(--vermilion), var(--gold), var(--gold-light));
+  border-radius:4px; transition:height .15s;
+}
+.force-ideal {
+  position:absolute; left:-4px; right:-4px;
+  border-top:2px dashed var(--gold-light);
+  top:40%;
+}
+
+.ex-feedback {
+  position:fixed; top:30%; left:0; right:0; text-align:center; z-index:20;
+  font-size:18px; font-weight:700; pointer-events:none;
+  transition:opacity .2s;
+  text-shadow:0 0 12px var(--gold-glow);
+}
+
+/* ── Clue Catch Scene ──────────────────────────────── */
+#scene-clue-catch { z-index:60; }
+.cc-hud {
+  position:fixed; top:calc(var(--safe-t) + 8px); left:12px; right:12px; z-index:30;
+  display:flex; justify-content:space-between;
+  font-size:13px; font-weight:600;
+}
+.cc-score { color:var(--gold-light); }
+.cc-timer { color:var(--parchment-dim); }
+
+/* ── Cave Explore Scene ─────────────────────────────── */
+#scene-cave-explore { z-index:50; }
+.cave-darkness {
+  position:fixed; inset:0; z-index:5; pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%, rgba(200,100,10,.05) 0%, rgba(0,0,0,.75) 70%);
+}
+.torch-glow {
+  position:fixed; width:300px; height:300px; border-radius:50%;
+  background:radial-gradient(circle, rgba(255,180,60,.12), transparent 70%);
+  pointer-events:none; z-index:6;
+  transform:translate(-50%,-50%);
+}
+
+.compass-bar {
+  position:fixed; bottom:calc(var(--safe-b) + 16px); left:16px; right:16px; z-index:20;
+  height:36px; overflow:hidden;
+  border:1px solid rgba(200,150,60,.12); border-radius:6px;
+  background:rgba(0,0,0,.6);
+}
+.compass-markers {
+  position:absolute; top:0; left:0; right:0; height:100%;
+}
+.compass-marker {
+  position:absolute; top:0; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; padding:2px 6px;
+  color:var(--parchment-dim); white-space:nowrap;
+  border-left:1px solid rgba(200,150,60,.1);
+}
+.compass-dot {
+  position:absolute; bottom:2px; width:6px; height:6px; border-radius:50%;
+  background:var(--gold); transform:translateX(-50%);
+  box-shadow:0 0 8px var(--gold-glow);
+}
+
+.artifact-hint {
+  position:fixed; top:20%; left:0; right:0; text-align:center; z-index:15;
+  font-size:14px; font-weight:700; color:var(--gold-light);
+  pointer-events:none; opacity:0; transition:opacity .4s;
+}
+
+/* ── Data Shoot Scene (Programmer) ─────────────────── */
+#scene-data-shoot { z-index:60; }
+.ds-health-bar {
+  display:flex; gap:4px;
+}
+.ds-health-dot {
+  width:10px; height:10px; border-radius:50%;
+  background:var(--prog-cyan);
+  transition:background .3s;
+}
+.ds-health-dot.lost { background:var(--prog-red); opacity:.4; }
+.ds-progress-bar-outer {
+  height:4px; border-radius:2px; background:rgba(255,255,255,.08);
+  overflow:hidden;
+}
+.ds-progress-inner {
+  height:100%; background:var(--prog-cyan); border-radius:2px;
+  transition:width .2s;
+  box-shadow:0 0 8px rgba(0,212,255,.3);
+}
+
+/* ── Maze Scene ────────────────────────────────────── */
+#scene-maze { z-index:50; background:var(--prog-bg); }
+.maze-container {
+  position:relative; z-index:5;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  width:100%; padding:16px;
+}
+.maze-canvas {
+  border:1px solid rgba(0,212,255,.12); border-radius:6px;
+  max-width:90vw; max-height:65vh;
+}
+.maze-title { font-size:14px; font-weight:700; color:var(--prog-cyan); }
+.maze-hint { font-size:9px; opacity:.4; text-align:center; }
+
+/* ── Photo Puzzle Scene ────────────────────────────── */
+#scene-photo-puzzle { z-index:50; background:var(--prog-bg); overflow-y:auto; }
+.pp-container {
+  position:relative; z-index:5;
+  display:flex; flex-direction:column; align-items:center;
+  padding:16px; width:100%; max-width:480px; margin:0 auto;
+  gap:12px;
+}
+.pp-drop-zone {
+  width:100%; max-width:320px; min-height:180px;
+  border:1px dashed rgba(0,212,255,.2); border-radius:8px;
+  background:rgba(0,212,255,.03);
+  display:flex; flex-wrap:wrap; gap:4px; align-items:center; justify-content:center;
+  padding:12px;
+}
+.pp-pieces {
+  display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+  padding:8px;
+}
+.pp-piece {
+  width:60px; height:60px;
+  background-size:cover; border-radius:4px; cursor:grab;
+  border:1px solid rgba(0,212,255,.15);
+  transition:transform .15s;
+}
+.pp-piece:active { transform:scale(1.1); }
+.pp-piece.placed {
+  width:56px; height:56px; cursor:default; opacity:.7;
+}
+
+/* ── Ending Scene ──────────────────────────────────── */
+#scene-ending, #scene-results {
+  z-index:40;
+  background:radial-gradient(ellipse at 50% 50%, var(--cave-mid), var(--cave-deep));
+}
+.ending-content {
+  display:flex; flex-direction:column; align-items:center; gap:16px;
+  padding:30px 24px; text-align:center; max-width:360px;
+}
+.ending-title { font-size:22px; font-weight:700; letter-spacing:.06em; }
+.ending-title.arch { color:var(--gold); }
+.ending-title.prog { color:var(--prog-cyan); }
+.ending-desc { font-size:12px; opacity:.5; line-height:1.6; }
+
+.results-list {
+  display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
+  margin:12px 0;
+}
+.result-item {
+  width:70px; height:70px; border-radius:8px;
+  border:1px solid rgba(200,150,60,.15);
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px;
+}
+.result-item.arch { background:rgba(200,150,60,.06); }
+.result-item.prog { background:rgba(0,212,255,.04); }
+.result-item.failed { opacity:.3; filter:grayscale(1); }
+
+/* ── Mini-game Wrapper ─────────────────────────────── */
+.minigame-wrap {
+  position:fixed; inset:0; z-index:55;
+  background:rgba(0,0,0,.85);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}

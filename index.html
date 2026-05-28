@@ -1,33 +1,27 @@
-<!DOCTYPE html><html lang="zh-CN">
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>敦煌复苏计划</title>
-<link rel="stylesheet" href="css/style.css">
-<style>
-body { overflow:hidden; background:#000; }
-.index-bg {
-  position:fixed; inset:0;
-  background:radial-gradient(ellipse at 50% 60%,#1f0d00 0%,#0a0510 55%,#000 100%);
-}
-canvas#particles { position:fixed; inset:0; z-index:1; pointer-events:none; }
-.loading-overlay { z-index:300; background:var(--start-bg,#000) center/cover no-repeat; }
-.loading-overlay::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 55%,rgba(26,14,5,.7),rgba(0,0,0,.8)); }
-.loading-title-img { width:260px; height:50px; background:var(--start-title,none) center/contain no-repeat; margin-bottom:8px; position:relative; z-index:1; }
-.loading-subtitle { font-size:10px; opacity:.35; letter-spacing:.2em; margin-top:6px; position:relative; z-index:1; }
-.loading-tip { font-size:9px; opacity:.25; margin-top:24px; position:relative; z-index:1; }
-.loading-walker { position:absolute; top:-30px; width:32px; height:34px; font-size:0; transform:translateX(-50%); z-index:2; background-size:contain!important; background-repeat:no-repeat!important; background-position:center!important; animation:walker-march .5s steps(1) infinite, walker-bob .5s ease-in-out infinite; }
-@keyframes walker-march { 0%{background-image:var(--walker1)} 33%{background-image:var(--walker2)} 66%{background-image:var(--walker3)} 100%{background-image:var(--walker1)} }
-@keyframes walker-bob { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-4px)} }
-</style>
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/scenes.css">
 </head>
 <body>
-<div class="index-bg"></div>
-<canvas id="particles"></canvas>
 
-<!-- Loading -->
-<div class="loading-overlay" id="loading-overlay">
-  <div class="loading-title-img"></div>
+<!-- Camera Layer -->
+<video id="camera-video" autoplay playsinline muted></video>
+<div class="cam-darken"></div>
+
+<!-- Fade Transition -->
+<div id="fade-overlay"></div>
+
+<!-- ═══════════════ SCENE: LOADING ═══════════════ -->
+<div id="scene-loading" class="scene active">
+  <div class="loading-title"></div>
   <div class="loading-subtitle">DUNHUANG DIGITAL REVIVAL PROJECT</div>
   <div class="loading-progress-wrap">
     <div class="loading-walker" id="loading-walker"></div>
@@ -36,119 +30,170 @@ canvas#particles { position:fixed; inset:0; z-index:1; pointer-events:none; }
   <div class="loading-tip" id="loading-tip">正在启动数字敦煌系统……</div>
 </div>
 
-<!-- Content (shown after loading) -->
-<div class="index-content" id="index-content" style="display:none">
-  <div class="game-title-img">
-    <div class="game-title-text">敦煌复苏计划</div>
-    <div style="font-size:10px;opacity:0.35;letter-spacing:0.12em;">DUNHUANG DIGITAL REVIVAL PROJECT</div>
-  </div>
-
-  <div style="font-size:11px;opacity:0.45;font-style:italic;text-align:center;line-height:1.5;flex-basis:100%;margin-bottom:10px">
-    "在失忆的时代，选择记住什么，是一种反抗。"
-  </div>
-
-  <div class="char-cards">
-    <div class="char-card arch-card" id="card-arch" onclick="selectChar('arch')">
-      <div class="char-icon">🔨</div>
-      <div class="char-name arch">考古学家</div>
-      <div class="char-tag arch-tag">现场探索</div>
-      <div class="char-traits">稳重踏实·亲历洞窟<br>文物还原度↑</div>
+<!-- ═══════════════ SCENE: TITLE ═══════════════ -->
+<div id="scene-title" class="scene">
+  <div class="title-bg"></div>
+  <div class="title-content">
+    <div class="game-title-img"></div>
+    <div class="game-subtitle">DUNHUANG DIGITAL REVIVAL PROJECT</div>
+    <div class="game-quote">"在失忆的时代，选择记住什么，是一种反抗。"</div>
+    <div class="char-cards">
+      <div class="char-card arch-card" id="card-arch" data-char="arch">
+        <div class="char-icon">🔨</div>
+        <div class="char-name arch">考古学家</div>
+        <div class="char-tag arch-tag">现场探索</div>
+        <div class="char-traits">稳重踏实·亲历洞窟<br>文物还原度↑</div>
+      </div>
+      <div class="char-card prog-card" id="card-prog" data-char="prog">
+        <div class="char-icon">💻</div>
+        <div class="char-name prog">程序员</div>
+        <div class="char-tag prog-tag">远程协作</div>
+        <div class="char-traits">聪明急躁·数据支援<br>数字修复↑</div>
+      </div>
     </div>
-    <div class="char-card prog-card" id="card-prog" onclick="selectChar('prog')">
-      <div class="char-icon">💻</div>
-      <div class="char-name prog">程序员</div>
-      <div class="char-tag prog-tag">远程协作</div>
-      <div class="char-traits">聪明急躁·数据支援<br>数字修复↑</div>
+    <div class="start-btn-wrap">
+      <button class="btn btn-arch" id="start-btn" disabled>选择角色开始</button>
     </div>
-  </div>
-
-  <div class="start-btn-wrap" style="flex-basis:100%;margin-top:6px">
-    <button class="start-btn" id="start-btn" disabled onclick="startGame()">选择角色开始</button>
   </div>
 </div>
 
-<script>
-// ─── Loading animation ───
-const loadingBar = document.getElementById('loading-bar');
-const loadingWalker = document.getElementById('loading-walker');
-const loadingOverlay = document.getElementById('loading-overlay');
-const loadingTip = document.getElementById('loading-tip');
-const tips = ['正在启动数字敦煌系统……','正在校准AI识别引擎……','正在连接莫高窟数据库……','正在加载文物图鉴……','系统就绪，欢迎进入。'];
-let progress = 0;
+<!-- ═══════════════ SCENE: PERMISSIONS ═══════════════ -->
+<div id="scene-perm" class="scene">
+  <div class="perm-screen">
+    <div class="perm-icon" id="perm-icon">🔦</div>
+    <div class="perm-title" id="perm-title">敦煌复苏计划</div>
+    <div class="perm-desc" id="perm-desc">
+      游戏需要使用<strong>摄像头</strong>和<strong>运动传感器</strong>。<br>请在弹出的权限请求中点击"允许"。
+    </div>
+    <div class="perm-desc" id="perm-role" style="color:var(--gold-light);font-size:12px"></div>
+    <button class="btn btn-arch" id="perm-btn">授权并开始</button>
+    <div style="font-size:10px;opacity:.3">摄像头画面仅在设备本地使用，不会上传</div>
+  </div>
+</div>
 
-function updateLoading() {
-  progress += randInt(3, 8);
-  if (progress > 100) progress = 100;
-  loadingBar.style.width = progress + '%';
-  const pw = loadingBar.parentElement.offsetWidth;
-  loadingWalker.style.left = (progress/100) * pw + 'px';
+<!-- ═══════════════ SCENE: WALL SCAN ═══════════════ -->
+<div id="scene-wall-scan" class="scene">
+  <div class="scan-frame">
+    <div class="scan-frame-inner" id="scan-frame-inner">
+      <div class="scan-line"></div>
+    </div>
+  </div>
+  <div class="scan-label arch" id="scan-label">将摄像头对准附近的岩壁……</div>
+  <button class="btn btn-arch scan-tap-btn" id="scan-tap-btn">▶ 锚定此处，开始开凿</button>
+</div>
 
-  const tipIdx = Math.min(Math.floor(progress / 22), tips.length-1);
-  loadingTip.textContent = tips[tipIdx];
+<!-- ═══════════════ SCENE: EXCAVATION (ARCH) ═══════════════ -->
+<div id="scene-excavation" class="scene">
+  <canvas id="excavation-canvas"></canvas>
+  <div class="hud-score" id="ex-score" style="display:none">0 / 12</div>
+  <div class="force-meter" id="force-meter" style="display:none">
+    <div class="force-fill" id="force-fill" style="height:40%"></div>
+    <div class="force-ideal"></div>
+  </div>
+  <div class="ex-feedback" id="ex-feedback"></div>
+  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:10px;opacity:.3;z-index:20;pointer-events:none">
+    点击对应区域开凿 · 注意时机与力度
+  </div>
+</div>
 
-  if (progress < 100) {
-    setTimeout(updateLoading, randInt(200, 500));
-  } else {
-    setTimeout(() => {
-      loadingOverlay.classList.add('hidden');
-      document.getElementById('index-content').style.display = 'flex';
-    }, 400);
-  }
-}
+<!-- ═══════════════ SCENE: CLUE CATCH (ARCH) ═══════════════ -->
+<div id="scene-clue-catch" class="scene">
+  <div class="cc-hud">
+    <span class="cc-score" id="cc-score">线索 0/2</span>
+    <span class="cc-timer" id="cc-timer">18s</span>
+  </div>
+  <div style="position:fixed;top:40px;left:0;right:0;text-align:center;font-size:10px;opacity:.4;z-index:25;pointer-events:none">
+    点击金色线索 · 忽略红色乱码
+  </div>
+</div>
 
-function randInt(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
+<!-- ═══════════════ SCENE: COUNTDOWN REVEAL ═══════════════ -->
+<div id="scene-countdown-reveal" class="scene" style="background:rgba(0,0,0,0.9)"></div>
 
-// ─── Character select ───
-let selected = null;
+<!-- ═══════════════ SCENE: CAVE EXPLORE (ARCH) ═══════════════ -->
+<div id="scene-cave-explore" class="scene">
+  <div class="cave-darkness"></div>
+  <div class="torch-glow" id="torch-glow"></div>
+  <div class="hud-timer arch" id="cave-timer" style="display:none">0:00</div>
+  <div class="artifact-hint" id="artifact-hint"></div>
+  <div class="compass-bar" id="compass-bar" style="display:none">
+    <div class="compass-markers" id="compass-markers">
+      <span class="compass-marker" data-artifact="mural" style="left:5%">壁画</span>
+      <span class="compass-marker" data-artifact="scripture" style="left:25%">经书</span>
+      <span class="compass-marker" data-artifact="buddha" style="left:47%">大佛像</span>
+      <span class="compass-marker" data-artifact="statue" style="left:73%">小佛像</span>
+    </div>
+    <div class="compass-dot" id="compass-dot" style="left:0%"></div>
+  </div>
+  <div style="position:fixed;bottom:2%;left:0;right:0;text-align:center;font-size:10px;opacity:.25;z-index:15;pointer-events:none">
+    转动手机或滑动屏幕 · 寻找文物
+  </div>
+  <div class="minigame-wrap" id="minigame-wrap" style="display:none"></div>
+</div>
 
-function selectChar(c) {
-  selected = c;
-  document.getElementById('card-arch').classList.toggle('selected', c==='arch');
-  document.getElementById('card-prog').classList.toggle('selected', c==='prog');
-  const btn = document.getElementById('start-btn');
-  btn.disabled = false;
-  btn.className = 'start-btn ' + c;
-  btn.textContent = c==='arch' ? '以考古学家身份开始' : '以程序员身份开始';
-}
+<!-- ═══════════════ SCENE: DATA SHOOT (PROG) ═══════════════ -->
+<div id="scene-data-shoot" class="scene">
+  <div style="position:fixed;top:calc(var(--safe-t) + 8px);left:12px;right:12px;z-index:30;display:flex;justify-content:space-between;align-items:center">
+    <div class="ds-health-bar" id="ds-health"></div>
+    <div style="font-size:11px;color:var(--prog-cyan);opacity:.6" id="ds-rounds">数据包 0/3</div>
+  </div>
+  <div style="position:fixed;bottom:12%;left:8%;right:8%;z-index:30">
+    <div style="font-size:10px;color:var(--prog-cyan);opacity:.5;margin-bottom:4px;text-align:center">数据发送进度</div>
+    <div class="ds-progress-bar-outer">
+      <div class="ds-progress-inner" id="ds-progress-bar" style="width:0%"></div>
+    </div>
+  </div>
+  <div style="position:fixed;bottom:4%;left:0;right:0;text-align:center;font-size:10px;opacity:.3;z-index:25;pointer-events:none">
+    点击摧毁红色数据团 · 避开蓝色数据
+  </div>
+</div>
 
-function startGame() {
-  if (!selected) return;
-  window.location.href = selected==='arch' ? 'archaeologist.html' : 'programmer.html';
-}
+<!-- ═══════════════ SCENE: MAZE (PROG) ═══════════════ -->
+<div id="scene-maze" class="scene">
+  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(0,30,50,.7),rgba(5,10,16,.93))"></div>
+  <div class="maze-container">
+    <div class="maze-title">数据迷宫</div>
+    <div class="maze-hint">倾斜手机控制小球，到达出口 🚪（桌面：方向键）</div>
+    <canvas id="maze-canvas" class="maze-canvas"></canvas>
+    <div class="maze-hint">在复杂的数据流中寻找正确的线索路径</div>
+    <button class="btn btn-skip" style="margin-top:8px" id="maze-skip-btn">走不出来？跳过迷宫</button>
+  </div>
+</div>
 
-// ─── Particles ───
-const canvas = document.getElementById('particles');
-const ctx = canvas.getContext('2d');
-let W,H, particles=[];
+<!-- ═══════════════ SCENE: PHOTO PUZZLE (PROG) ═══════════════ -->
+<div id="scene-photo-puzzle" class="scene">
+  <div style="position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,50,80,.25),rgba(5,10,16,.9))"></div>
+  <div class="hud-timer prog" id="prog-timer" style="display:none">0:00</div>
+  <div class="pp-container" id="pp-container"></div>
+</div>
 
-function resize() { W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
-resize(); window.addEventListener('resize', resize);
+<!-- ═══════════════ SCENE: ENDING ═══════════════ -->
+<div id="scene-ending" class="scene">
+  <div class="ending-content" id="ending-content"></div>
+</div>
 
-for (let i=0; i<60; i++) {
-  particles.push({
-    x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.5+0.3,
-    vx:(Math.random()-0.5)*0.3, vy:-Math.random()*0.5-0.1,
-    op:Math.random()*0.5+0.1,
-    col:Math.random()>0.6?'#C8963C':'#3a2a60'
-  });
-}
+<!-- ═══════════════ SCENE: RESULTS ═══════════════ -->
+<div id="scene-results" class="scene">
+  <div class="ending-content" id="results-content"></div>
+</div>
 
-function drawParticles() {
-  ctx.clearRect(0,0,W,H);
-  particles.forEach(p => {
-    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle=p.col; ctx.globalAlpha=p.op; ctx.fill();
-    p.x+=p.vx; p.y+=p.vy;
-    if(p.y<-5){p.y=H+5;p.x=Math.random()*W;}
-    if(p.x<-5)p.x=W+5;if(p.x>W+5)p.x=-5;
-  });
-  ctx.globalAlpha=1;
-  requestAnimationFrame(drawParticles);
-}
-drawParticles();
-
-// Start loading
-setTimeout(updateLoading, 300);
-</script>
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="js/engine.js"></script>
+<script src="js/config.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/scenes/init.js"></script>
+<script src="js/scenes/wall-scan.js"></script>
+<script src="js/scenes/title.js"></script>
+<script src="js/scenes/excavation.js"></script>
+<script src="js/scenes/clue-catch.js"></script>
+<script src="js/scenes/cave-explore.js"></script>
+<script src="js/minigames/mural-puzzle.js"></script>
+<script src="js/minigames/scripture-sort.js"></script>
+<script src="js/minigames/buddha-dust.js"></script>
+<script src="js/minigames/candle-find.js"></script>
+<script src="js/scenes/data-shoot.js"></script>
+<script src="js/scenes/maze.js"></script>
+<script src="js/scenes/photo-puzzle.js"></script>
+<script src="js/scenes/ending.js"></script>
 </body>
 </html>
