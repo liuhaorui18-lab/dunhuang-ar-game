@@ -1,4 +1,4 @@
-/* 敦煌复苏计划 — candle-find.js · 小佛像烛光 */
+/* 敦煌复苏计划 — candle-find.js · 小佛像烛光 · 直接图片路径 */
 function initCandle(ov, cb) {
   const hasClue = GameState.hasClue('statue');
   ov.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px;width:100%">
@@ -17,7 +17,7 @@ function initCandle(ov, cb) {
   function startC() {
     taps = 0; done = false; clearTimeout(sTm); clearTimeout(hTm);
     if (cur) cur.remove();
-    document.getElementById('c-stage').querySelectorAll('.candle-light').forEach(e => e.remove());
+    document.getElementById('c-stage').querySelectorAll('.candle-light,.statue-img').forEach(e => e.remove());
     document.getElementById('c-prog').textContent = `烛光 0/${Config.candle.taps}`;
     document.getElementById('c-hint').textContent = '黑暗中隐藏着小佛像……';
     document.getElementById('c-retry').style.display = 'none';
@@ -31,7 +31,7 @@ function initCandle(ov, cb) {
     const stg = document.getElementById('c-stage'); if (!stg) return;
     const x = randInt(30, 240), y = randInt(30, 240);
     const el = document.createElement('div'); el.className = 'candle-light';
-    el.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:34px;height:34px;border-radius:50%;background:var(--img-sm-candle) center/contain no-repeat;filter:drop-shadow(0 0 10px rgba(255,180,40,.8)) drop-shadow(0 0 24px rgba(255,180,40,.4));opacity:0;transform:scale(.5);cursor:pointer;z-index:5;transition:opacity .7s,transform .7s;animation:pk 1.6s ease-in-out infinite;`;
+    el.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:36px;height:36px;border-radius:50%;background:url(assets/小佛像/蜡烛.png) center/contain no-repeat;filter:drop-shadow(0 0 10px rgba(255,180,40,.8)) drop-shadow(0 0 24px rgba(255,180,40,.4));opacity:0;transform:scale(.5);cursor:pointer;z-index:5;transition:opacity .7s,transform .7s;animation:pk 1.6s ease-in-out infinite;`;
     el.addEventListener('click', e => { e.stopPropagation(); if (done) return; taps++; document.getElementById('c-prog').textContent = `烛光 ${taps}/${Config.candle.taps}`; sparks(e.clientX, e.clientY, 8, '#FFB824'); el.remove(); cur = null; clearTimeout(sTm); if (taps >= Config.candle.taps) { winC(); } else { document.getElementById('c-hint').textContent = '还有……再看看！'; setTimeout(cycle, 700); } });
     stg.appendChild(el); cur = el;
     requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'scale(1)'; });
@@ -43,8 +43,8 @@ function initCandle(ov, cb) {
     document.getElementById('c-hint').textContent = '小佛像找到了！';
     document.getElementById('c-skip').style.display = 'none';
     const stg = document.getElementById('c-stage');
-    const img = document.createElement('div');
-    img.style.cssText = 'position:absolute;inset:0;background:var(--img-sm-statue) center/contain no-repeat;z-index:3;animation:fade-in .8s;';
+    const img = document.createElement('div'); img.className = 'statue-img';
+    img.style.cssText = 'position:absolute;inset:0;background:url(assets/小佛像/小佛像.png) center/contain no-repeat;z-index:3;animation:fade-in .8s;';
     stg.appendChild(img);
     setTimeout(() => Dialogue.play(Dialogues.statue_win).then(() => cb(true)), 700);
   }

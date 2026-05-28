@@ -5,6 +5,7 @@
 
 @keyframes hint-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
 @keyframes fade-in { from{opacity:0} to{opacity:1} }
+@keyframes pk { 0%,100%{filter:drop-shadow(0 0 10px rgba(255,180,40,.8)) drop-shadow(0 0 24px rgba(255,180,40,.4))} 50%{filter:drop-shadow(0 0 18px rgba(255,180,40,1)) drop-shadow(0 0 36px rgba(255,180,40,.7))} }
 @keyframes pop-in { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
 @keyframes toast-up { from{opacity:0;transform:translateX(-50%) translateY(20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
 @keyframes spark-out { to{transform:translate(var(--sx),var(--sy)) scale(0);opacity:0} }

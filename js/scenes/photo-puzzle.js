@@ -20,7 +20,7 @@ function roundPP() {
     <button class="btn btn-skip" id="pp-skip">跳过此拼图</button>`;
 
   const pcCont = document.getElementById('pp-pieces');
-  const imgs = ['var(--img-mural-move-n1)','var(--img-mural-move-n2)','var(--img-mural-move-n3)','var(--img-mural-move-n4)'];
+  const imgs = ['url(assets/壁画碎片/壁画移动页面/普通状态碎片.png)','url(assets/壁画碎片/壁画移动页面/普通状态碎片2.png)','url(assets/壁画碎片/壁画移动页面/普通状态碎片3.png)','url(assets/壁画碎片/壁画移动页面/普通状态碎片 4.png)'];
   shuffle([...Array(PP.pcs).keys()]).forEach(id => {
     const el = document.createElement('div'); el.className = 'pp-piece'; el.draggable = true;
     el.style.backgroundImage = imgs[id % 4]; el.dataset.id = id;

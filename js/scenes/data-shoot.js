@@ -19,7 +19,7 @@ function spDS() {
   const red = Math.random() > .3;
   const x = randInt(30, innerWidth - 80), y = -50;
   const sz = red ? randInt(40, 60) : randInt(30, 44);
-  const imgs = red ? ['var(--img-data-red1)','var(--img-data-red2)','var(--img-data-red3)'] : ['var(--img-data-blue1)','var(--img-data-blue2)','var(--img-data-blue3)'];
+  const imgs = red ? ['url(assets/程序碎块/红色1.png)','url(assets/程序碎块/红色2.png)','url(assets/程序碎块/红色 3.png)'] : ['url(assets/程序碎块/蓝色1.png)','url(assets/程序碎块/蓝色2.png)','url(assets/程序碎块/蓝色3.png)'];
   el.style.cssText = `position:fixed;z-index:20;left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;border-radius:${red?'3px':'50%'};background:${imgs[randInt(0,2)]} center/contain no-repeat;cursor:pointer;filter:drop-shadow(0 0 8px ${red?'rgba(255,60,50,.5)':'rgba(0,180,255,.5)'});`;
   document.getElementById('scene-data-shoot').appendChild(el); DS.nodes.push(el);
 
