@@ -12,10 +12,10 @@ function initMural(ov, cb) {
   Dialogue.play(Dialogues.mural_ok).then(() => startM());
 
   const P = Config.mural.pieces, R = Config.mural.rot;
-  const imgs = [
-    'url(assets/壁画碎片/壁画碎片页面/普通状态碎片.png)',
-    'url(assets/壁画碎片/壁画碎片页面/普通状态碎片2.png)',
-    'url(assets/壁画碎片/壁画碎片页面/普通状态碎片3.png)',
+  const imgSrc = [
+    'assets/壁画碎片/壁画碎片页面/普通状态碎片.png',
+    'assets/壁画碎片/壁画碎片页面/普通状态碎片2.png',
+    'assets/壁画碎片/壁画碎片页面/普通状态碎片3.png',
   ];
   let data = [], sel = null, drag = null, placed = 0;
 
@@ -31,8 +31,9 @@ function initMural(ov, cb) {
     for (let i = 0; i < P; i++) {
       const cx = (i % 2) * 160, cy = Math.floor(i / 2) * 120;
       data.push({ id:i, cx, cy, x:randInt(20,180), y:randInt(10,180), a:randInt(0,R-1), ca:Answers.muralAngles[i]||0, ok:false });
-      const el = document.createElement('div'); el.className = 'mural-piece';
-      el.style.cssText = `position:absolute;left:${data[i].x}px;top:${data[i].y}px;width:120px;height:100px;background:${imgs[i%3]} center/cover no-repeat;border:1px solid rgba(200,150,60,.2);border-radius:3px;cursor:grab;transform:rotate(${data[i].a*(360/R)}deg);z-index:5;`;
+      const el = document.createElement('img'); el.className = 'mural-piece';
+      el.src = imgSrc[i%3];
+      el.style.cssText = `position:absolute;left:${data[i].x}px;top:${data[i].y}px;width:120px;height:100px;object-fit:cover;border:1px solid rgba(200,150,60,.2);border-radius:3px;cursor:grab;transform:rotate(${data[i].a*(360/R)}deg);z-index:5;`;
       el.addEventListener('mousedown', e => startDrag(i, e));
       el.addEventListener('touchstart', e => { e.preventDefault(); startDrag(i, e); });
       el.addEventListener('click', e => { if (!drag) rotP(i); });
