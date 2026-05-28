@@ -10,7 +10,7 @@ var Artifacts = [
 
 function initCaveExplore(sec) {
   Cave.sec = sec;
-  Cave.td = document.getElementById('cave-timer'); Cave.td.style.display = ''; Cave.td.textContent = fmtTime(sec);
+  Cave.td = document.getElementById('cave-timer'); Cave.td.style.display = 'block'; Cave.td.textContent = fmtTime(sec);
 
   // 标记已处理的
   Artifacts.forEach(function(a) {
@@ -19,7 +19,7 @@ function initCaveExplore(sec) {
 
   // 底部四个按钮
   var bar = document.getElementById('compass-bar');
-  bar.style.display = '';
+  bar.style.display = 'block';
   bar.innerHTML = '<div style="display:flex;justify-content:space-around;align-items:center;height:100%;padding:0 4px;gap:4px" id="artifact-btns"></div>';
   renderArtifactButtons();
 
