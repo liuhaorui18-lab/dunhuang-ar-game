@@ -19,6 +19,7 @@ class DialogueSystem {
 
   play(lines) {
     return new Promise(resolve => {
+      this._make(); // 每次重建bar确保DOM干净
       this._ls = lines; this._i = 0; this._cb = resolve; this._done = false;
       this.el.style.display = ''; this._show();
     });
